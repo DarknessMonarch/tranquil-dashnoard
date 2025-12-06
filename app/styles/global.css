@@ -1,0 +1,326 @@
+@media screen {
+  * {
+    /* Tranquil Brand Colors - Green/Dark Blue Theme */
+    --primary-color: #0D1925;
+    --primary-light-color: #e6e9ec;
+    --primary-lighter-color: #f2f4f6;
+    --primary-hover-color: #1a2e42;
+
+    --secondary-color: #6FAD42;
+    --secondary-light-color: #e8f5db;
+    --secondary-lighter-color: #f4fae8;
+    --secondary-hover-color: #5a8f35;
+
+    --tertiary-color: #FDDD81;
+    --tertiary-light-color: #fef7e0;
+    --tertiary-lighter-color: #fffcf0;
+    --tertiary-hover-color: #fcd24d;
+
+    --accent-color: #9BC73C;
+    --accent-light-color: #ecf7d4;
+
+    --success-color: #9BC73C;
+    --warning-color: #FDDD81;
+    --error-color: #FF3B30;
+    --info-color: #3b82f6;
+
+    /* Neutral Colors */
+    --dark-color: #0D1925;
+    --light-color: #f9fafb;
+    --warm-gray: #6b7280;
+    --light-gray: #f3f4f6;
+    --border-color: #e5e7eb;
+
+    /* Background Colors with Glassmorphism */
+    --background-color: rgba(255, 255, 255, 0.95);
+    --background-light-color: rgba(111, 173, 66, 0.05);
+    --background-dark-color: rgba(13, 25, 37, 0.05);
+    --section-background: rgba(244, 250, 232, 0.5);
+
+    /* Glassmorphism Styles */
+    --glass-background: rgba(255, 255, 255, 0.7);
+    --glass-border: rgba(111, 173, 66, 0.18);
+    --glass-shadow: 0 8px 32px 0 rgba(111, 173, 66, 0.1);
+
+    /* Shadows - iOS Style */
+    --shadow-box: 0 2px 8px rgba(111, 173, 66, 0.08);
+    --shadow-light: 0 4px 12px rgba(111, 173, 66, 0.06);
+    --shadow-medium: 0 8px 24px rgba(111, 173, 66, 0.12);
+    --shadow-heavy: 0 12px 40px rgba(111, 173, 66, 0.16);
+    --shadow-inset: inset 0 2px 4px rgba(111, 173, 66, 0.06);
+    --nav-shadow-box: 0 4px 16px rgba(111, 173, 66, 0.1);
+    
+    /* Border Radius - iOS Style */
+    --radius-xs: 6px;
+    --radius-sm: 10px;
+    --radius-md: 15px;
+    --radius-lg: 20px;
+    --radius-xl: 25px;
+    --radius-full: 9999px;
+    
+    /* Spacing */
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+    --spacing-xxl: 48px;
+    
+    /* Typography */
+    --font-family-primary: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    
+    --font-weight-light: 300;
+    --font-weight-regular: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+    
+    --font-size-xs: 0.75rem;
+    --font-size-sm: 0.875rem;
+    --font-size-base: 1rem;
+    --font-size-lg: 1.125rem;
+    --font-size-xl: 1.25rem;
+    --font-size-2xl: 1.5rem;
+    --font-size-3xl: 1.875rem;
+    
+    /* Layout */
+    --sidenav-width: 280px;
+    --navbar-height: 70px;
+    --navbar-desktop-height: 80px;
+    --sidenav-mobile-width: 85%;
+    
+    /* Transitions */
+    --transition-fast: 0.15s ease;
+    --transition-base: 0.2s ease;
+    --transition-slow: 0.3s ease;
+    
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: var(--font-family-primary);
+    font-weight: var(--font-weight-regular);
+    color: var(--dark-color);
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-font-smoothing: antialiased;
+    background: linear-gradient(135deg, #f4fae8 0%, #e8f5db 50%, #f2f4f6 100%);
+    background-attachment: fixed;
+  }
+
+  a {
+    text-decoration: none;
+    color: var(--primary-color);
+    transition: color var(--transition-base);
+  }
+
+  a:hover {
+    color: var(--primary-hover-color);
+  }
+
+  input {
+    outline: none;
+    border-radius: var(--radius-md);
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-base);
+    font-family: var(--font-family-primary);
+    transition: all var(--transition-base);
+    background: var(--glass-background);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  input:focus,
+  input:hover {
+    outline: none;
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 3px rgba(111, 173, 66, 0.1);
+  }
+
+  /* Prevent zoom on input focus for mobile devices */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="tel"],
+  input[type="url"],
+  input[type="search"],
+  input[type="date"],
+  textarea,
+  select {
+    font-size: 16px;
+  }
+
+  button {
+    outline: none;
+    border: none;
+    cursor: pointer;
+    font-family: var(--font-family-primary);
+    transition: all var(--transition-base);
+    border-radius: var(--radius-md);
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  button:active {
+    transform: scale(0.98);
+  }
+
+  /* Skeleton Loading - iOS Style */
+  .skeleton {
+    cursor: progress;
+    background: linear-gradient(
+      90deg,
+      rgba(111, 173, 66, 0.1) 25%,
+      rgba(111, 173, 66, 0.2) 50%,
+      rgba(111, 173, 66, 0.1) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite linear;
+    border-radius: var(--radius-md);
+  }
+
+  @keyframes shimmer {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
+
+  textarea {
+    border: 1px solid var(--border-color);
+    outline: none;
+    resize: vertical;
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-base);
+    font-family: var(--font-family-primary);
+    line-height: 1.6;
+    border-radius: var(--radius-md);
+    background: var(--glass-background);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: all var(--transition-base);
+  }
+
+  textarea::placeholder {
+    color: var(--warm-gray);
+  }
+
+  textarea:focus,
+  textarea:hover {
+    outline: none;
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 3px rgba(111, 173, 66, 0.1);
+  }
+
+  select {
+    outline: none;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background: var(--glass-background);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: var(--spacing-sm) var(--spacing-md);
+    cursor: pointer;
+    transition: all var(--transition-base);
+  }
+
+  select:focus {
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 3px rgba(111, 173, 66, 0.1);
+  }
+
+  /* Loading App Main */
+  .loadingAppMain {
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 100%;
+    display: flex;
+    overflow: hidden;
+    position: absolute;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #f4fae8 0%, #e8f5db 50%, #f2f4f6 100%);
+  }
+
+  /* Glassmorphism Card */
+  .glass-card {
+    background: var(--glass-background);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--glass-shadow);
+  }
+
+  /* iOS Style Badge */
+  .badge {
+    padding: 4px 12px;
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .badge-primary {
+    background: var(--primary-light-color);
+    color: var(--primary-color);
+  }
+
+  .badge-secondary {
+    background: var(--secondary-light-color);
+    color: var(--secondary-color);
+  }
+
+  .badge-success {
+    background: var(--accent-light-color);
+    color: var(--accent-color);
+  }
+}
+
+/* Custom Scrollbar - iOS Style */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(111, 173, 66, 0.3) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: var(--radius-sm);
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(111, 173, 66, 0.2);
+  border-radius: var(--radius-full);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  transition: background var(--transition-base);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(111, 173, 66, 0.4);
+  background-clip: padding-box;
+}
+
+/* Larger devices */
+@media only screen and (min-width: 48em) {
+  *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+}

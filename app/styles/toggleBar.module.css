@@ -1,0 +1,60 @@
+@media screen {
+  .toggleContainer {
+    border: 1px solid var(--primary-color);
+    -webkit-transition: all 0.8s ease 0s;
+    transition: all 0.8s ease 0s;
+    flex-direction: row-reverse;
+    align-items: center;
+    border-radius: 20px;
+    min-width: fit-content;
+    cursor: pointer;
+    display: flex;
+    height: 40px;
+    width: 100%;
+
+  }
+
+  .toggleContainer span {
+    width: 100%;
+    padding: 10px;
+    font-size: .9rem;
+    font-weight: 400px;
+    color: var(--primary-color);
+    
+  }
+
+  .toggleDot {
+    cursor: pointer;
+    min-width: 45px;
+    min-height: 45px;
+    border-radius: 360%;
+    background-color: var(--primary-color);
+  }
+
+  .moveDot {
+    flex-direction: row;
+    justify-content: end;
+    background-color: var(--tertiary-hover-color);
+    border: 1px solid var(--tertiary-hover-color);
+
+  }
+
+  .moveDot .toggleDot {
+    background-color: var(--tertiary-hover-color);
+  }
+
+  .moveDot span {
+    padding: 10px;
+    font-size: .9rem;
+    text-wrap: nowrap;
+    color: var(--background-color);
+
+  }
+
+  .moveDot .toggleDot {
+    background-color: var(--tertiary-hover-color);
+  }
+}
+
+@media only screen and (min-width: 48em) {
+}

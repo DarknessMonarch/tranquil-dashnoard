@@ -1,0 +1,304 @@
+.dashboardGrid {
+  display: grid;
+  gap: var(--spacing-xl);
+}
+
+.metricsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--spacing-lg);
+}
+
+.metricCard {
+  background: var(--section-background);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xl);
+  box-shadow: var(--shadow-light);
+  border: 1px solid var(--border-color);
+  transition: all var(--transition-normal);
+}
+
+.metricCard:hover {
+  box-shadow: var(--shadow-medium);
+  transform: translateY(-2px);
+}
+
+.metricHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-md);
+}
+
+.metricIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+.metricIcon.blue {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+}
+
+.metricIcon.green {
+  background: rgba(111, 173, 66, 0.1);
+  color: var(--secondary-color);
+}
+
+.metricIcon.orange {
+  background: rgba(253, 221, 129, 0.2);
+  color: #f59e0b;
+}
+
+.metricIcon.purple {
+  background: rgba(155, 199, 60, 0.1);
+  color: var(--success-color);
+}
+
+.metricTrend {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.metricTrend.up {
+  background: rgba(111, 173, 66, 0.1);
+  color: var(--secondary-color);
+}
+
+.metricTrend.down {
+  background: rgba(255, 59, 48, 0.1);
+  color: var(--error-color);
+}
+
+.metricLabel {
+  font-size: var(--font-size-sm);
+  color: var(--warm-gray);
+  margin-bottom: var(--spacing-xs);
+}
+
+.metricValue {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--dark-color);
+  font-family: var(--font-family-heading);
+}
+
+.chartsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: var(--spacing-xl);
+}
+
+.chartCard {
+  background: var(--section-background);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xl);
+  box-shadow: var(--shadow-light);
+  border: 1px solid var(--border-color);
+}
+
+.chartHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-xl);
+}
+
+.chartTitle {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--dark-color);
+}
+
+.chartFilter {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: var(--light-color);
+  color: var(--dark-color);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+}
+
+.chartContent {
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.recentActivity {
+  background: var(--section-background);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xl);
+  box-shadow: var(--shadow-light);
+  border: 1px solid var(--border-color);
+}
+
+.activityHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-lg);
+}
+
+.activityTitle {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--dark-color);
+}
+
+.viewAllLink {
+  color: var(--secondary-color);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+  transition: color var(--transition-normal);
+}
+
+.viewAllLink:hover {
+  color: var(--success-color);
+}
+
+.activityList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.activityItem {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  transition: background var(--transition-normal);
+}
+
+.activityItem:hover {
+  background: var(--light-background-color);
+}
+
+.activityIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 1.25rem;
+}
+
+.activityIcon.maintenance {
+  background: rgba(253, 221, 129, 0.2);
+  color: #f59e0b;
+}
+
+.activityIcon.payment {
+  background: rgba(111, 173, 66, 0.1);
+  color: var(--secondary-color);
+}
+
+.activityIcon.tenant {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+}
+
+.activityContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.activityTitle {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--dark-color);
+  margin-bottom: 4px;
+}
+
+.activityDescription {
+  font-size: var(--font-size-xs);
+  color: var(--warm-gray);
+}
+
+.activityTime {
+  font-size: var(--font-size-xs);
+  color: var(--warm-gray);
+  flex-shrink: 0;
+}
+
+.emptyState {
+  text-align: center;
+  padding: var(--spacing-xxl) var(--spacing-xl);
+  color: var(--warm-gray);
+}
+
+.emptyStateIcon {
+  font-size: 4rem;
+  color: var(--border-color);
+  margin-bottom: var(--spacing-lg);
+}
+
+.emptyStateTitle {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
+  color: var(--dark-color);
+  margin-bottom: var(--spacing-sm);
+}
+
+.emptyStateDescription {
+  font-size: var(--font-size-sm);
+  color: var(--warm-gray);
+  margin-bottom: var(--spacing-lg);
+}
+
+.primaryButton {
+  background: var(--secondary-color);
+  color: var(--light-color);
+  padding: var(--spacing-md) var(--spacing-xl);
+  border-radius: var(--radius-md);
+  font-weight: var(--font-weight-medium);
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+}
+
+.primaryButton:hover {
+  background: var(--success-color);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-medium);
+}
+
+/* Mobile Responsive */
+@media only screen and (max-width: 768px) {
+  .metricsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .chartsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .metricValue {
+    font-size: var(--font-size-2xl);
+  }
+
+  .chartCard {
+    padding: var(--spacing-lg);
+  }
+
+  .chartContent {
+    min-height: 250px;
+  }
+}

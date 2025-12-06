@@ -1,0 +1,376 @@
+/* Modal Body */
+.modalBody {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Modal Info Cards */
+.modalInfoCard {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: rgba(236, 72, 153, 0.05);
+  border: 1px solid rgba(236, 72, 153, 0.1);
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+.modalInfoCard:hover {
+  background: rgba(236, 72, 153, 0.08);
+  border-color: rgba(236, 72, 153, 0.2);
+}
+
+.modalInfoCard span:first-child {
+  color: #6b7280;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.modalInfoCard span:last-child {
+  color: #1f2937;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+/* Modal Status Badge */
+.modalStatusBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+/* Modal Fields */
+.modalField {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.modalField label {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 4px;
+}
+
+.modalInput,
+.modalTextarea {
+  padding: 14px 20px;
+  border: 2px solid rgba(236, 72, 153, 0.2);
+  border-radius: 12px;
+  font-size: 0.95rem;
+  background: rgba(255, 255, 255, 0.9);
+  color: #1f2937;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.modalInput:focus,
+.modalTextarea:focus {
+  outline: none;
+  border-color: #ec4899;
+  box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.1);
+}
+
+.modalInput::placeholder,
+.modalTextarea::placeholder {
+  color: #9ca3af;
+}
+
+.modalTextarea {
+  resize: vertical;
+  min-height: 100px;
+  line-height: 1.6;
+}
+
+/* Account Container */
+.accountContainer {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Account Header */
+.accountHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.accountHeader h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #ec4899 0%, #a855f7 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Account Card */
+.accountCard {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(236, 72, 153, 0.18);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 8px 32px 0 rgba(236, 72, 153, 0.1);
+  transition: all 0.3s ease;
+}
+
+.accountCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px 0 rgba(236, 72, 153, 0.15);
+}
+
+/* Account Info */
+.accountInfo {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.infoItem {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  background: rgba(236, 72, 153, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(236, 72, 153, 0.1);
+}
+
+.infoItem label {
+  font-size: 0.85rem;
+  color: #6b7280;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.infoItem span {
+  font-size: 1.1rem;
+  color: #1f2937;
+  font-weight: 600;
+}
+
+/* Account Actions */
+.accountActions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+.accountButton {
+  padding: 12px 24px;
+  border-radius: 12px;
+  border: none;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.accountButtonPrimary {
+  background: linear-gradient(135deg, #ec4899 0%, #a855f7 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(236, 72, 153, 0.3);
+}
+
+.accountButtonPrimary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(236, 72, 153, 0.4);
+}
+
+.accountButtonSecondary {
+  background: rgba(236, 72, 153, 0.1);
+  color: #ec4899;
+  border: 1px solid rgba(236, 72, 153, 0.2);
+}
+
+.accountButtonSecondary:hover {
+  background: rgba(236, 72, 153, 0.2);
+  border-color: #ec4899;
+}
+
+.accountButtonDanger {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.accountButtonDanger:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: #ef4444;
+}
+
+/* Account Stats */
+.accountStats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.statCard {
+  padding: 20px;
+  background: linear-gradient(135deg, rgba(236, 72, 153, 0.05) 0%, rgba(168, 85, 247, 0.05) 100%);
+  border: 1px solid rgba(236, 72, 153, 0.15);
+  border-radius: 16px;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.statCard:hover {
+  transform: translateY(-2px);
+  border-color: #ec4899;
+  box-shadow: 0 4px 12px rgba(236, 72, 153, 0.1);
+}
+
+.statCard h3 {
+  font-size: 0.85rem;
+  color: #6b7280;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.statCard p {
+  font-size: 2rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #ec4899 0%, #a855f7 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0;
+}
+
+/* Avatar */
+.accountAvatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 4px solid rgba(236, 72, 153, 0.2);
+  object-fit: cover;
+  box-shadow: 0 4px 12px rgba(236, 72, 153, 0.2);
+  transition: all 0.3s ease;
+}
+
+.accountAvatar:hover {
+  transform: scale(1.05);
+  border-color: #ec4899;
+  box-shadow: 0 6px 20px rgba(236, 72, 153, 0.3);
+}
+
+/* Profile Section */
+.profileSection {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.profileInfo {
+  flex: 1;
+}
+
+.profileInfo h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 8px;
+}
+
+.profileInfo p {
+  font-size: 1rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* Badge */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+.badgeAdmin {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(236, 72, 153, 0.15) 100%);
+  color: #a855f7;
+  border: 1px solid rgba(168, 85, 247, 0.3);
+}
+
+.badgeUser {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.badgeVerified {
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.badgeUnverified {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .accountContainer {
+    padding: 16px;
+  }
+
+  .accountHeader h1 {
+    font-size: 1.5rem;
+  }
+
+  .accountInfo {
+    grid-template-columns: 1fr;
+  }
+
+  .accountStats {
+    grid-template-columns: 1fr;
+  }
+
+  .accountActions {
+    flex-direction: column;
+  }
+
+  .accountButton {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .profileSection {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .modalBody {
+    padding: 16px;
+  }
+}

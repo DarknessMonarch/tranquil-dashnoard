@@ -1,0 +1,455 @@
+.container {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: var(--spacing-xl);
+}
+
+.header {
+  margin-bottom: var(--spacing-2xl);
+}
+
+.header h1 {
+  margin: 0 0 var(--spacing-sm) 0;
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--dark-color);
+}
+
+.header p {
+  margin: 0;
+  color: var(--warm-gray);
+  font-size: var(--font-size-base);
+}
+
+/* Filters */
+.filters {
+  display: flex;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
+  flex-wrap: wrap;
+}
+
+.filterButton {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  background: var(--glass-bg-medium);
+  border: var(--glass-border-light);
+  border-radius: var(--radius-md);
+  color: var(--warm-gray);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.filterButton:hover {
+  border-color: var(--primary-color);
+  color: var(--dark-color);
+}
+
+.filterActive {
+  background: var(--gradient-primary);
+  color: var(--light-color);
+  border-color: transparent;
+}
+
+/* Stories Container */
+.storiesContainer {
+  background: var(--glass-bg-light);
+  border: var(--glass-border-light);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xl);
+}
+
+.storiesList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.storyCard {
+  background: var(--glass-bg-medium);
+  backdrop-filter: var(--blur-md);
+  -webkit-backdrop-filter: var(--blur-md);
+  border: var(--glass-border-light);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  transition: all 0.3s ease;
+}
+
+.storyCard:hover {
+  border-color: var(--primary-color);
+  box-shadow: var(--glass-shadow-pink);
+}
+
+.storyHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--spacing-md);
+  gap: var(--spacing-md);
+}
+
+.storyMeta h3 {
+  margin: 0 0 var(--spacing-sm) 0;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--dark-color);
+}
+
+.badges {
+  display: flex;
+  gap: var(--spacing-xs);
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: capitalize;
+}
+
+.badgeApproved {
+  background: rgba(34, 197, 94, 0.1);
+  color: var(--success-color);
+}
+
+.badgeRejected {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--error-color);
+}
+
+.badgePending {
+  background: rgba(251, 191, 36, 0.1);
+  color: var(--gold-color);
+}
+
+.tierBadge {
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: capitalize;
+}
+
+.tierstarter {
+  background: rgba(236, 72, 153, 0.1);
+  color: var(--primary-color);
+}
+
+.tierpro {
+  background: rgba(168, 85, 247, 0.1);
+  color: var(--secondary-color);
+}
+
+.tierelite {
+  background: rgba(251, 191, 36, 0.1);
+  color: var(--gold-color);
+}
+
+.viewButton {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: transparent;
+  border: var(--glass-border-light);
+  border-radius: var(--radius-md);
+  color: var(--primary-color);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.viewButton:hover {
+  background: var(--glass-bg-medium);
+  border-color: var(--primary-color);
+}
+
+.storyPreview {
+  margin: 0 0 var(--spacing-md) 0;
+  color: var(--warm-gray);
+  font-size: var(--font-size-base);
+  line-height: 1.6;
+}
+
+.storyFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+}
+
+.storyInfo {
+  display: flex;
+  gap: var(--spacing-md);
+  font-size: var(--font-size-xs);
+  color: var(--warm-gray);
+}
+
+.quickActions {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.approveButton,
+.rejectButton,
+.deleteButton {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.approveButton {
+  background: rgba(34, 197, 94, 0.1);
+  color: var(--success-color);
+}
+
+.approveButton:hover {
+  background: var(--success-color);
+  color: white;
+}
+
+.rejectButton {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--error-color);
+}
+
+.rejectButton:hover {
+  background: var(--error-color);
+  color: white;
+}
+
+.deleteButton {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--error-color);
+}
+
+.deleteButton:hover {
+  background: var(--error-color);
+  color: white;
+}
+
+.loading,
+.empty {
+  text-align: center;
+  padding: var(--spacing-3xl);
+  color: var(--warm-gray);
+}
+
+/* Modal */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: var(--spacing-lg);
+}
+
+.modalContent {
+  background: var(--light-color);
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: var(--spacing-xl);
+  border-bottom: var(--glass-border-light);
+  position: sticky;
+  top: 0;
+  background: var(--light-color);
+  z-index: 10;
+}
+
+.modalHeader h2 {
+  margin: 0;
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--dark-color);
+  padding-right: var(--spacing-md);
+}
+
+.modalClose {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: var(--warm-gray);
+  cursor: pointer;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.modalClose:hover {
+  color: var(--dark-color);
+}
+
+.modalBody {
+  padding: var(--spacing-xl);
+}
+
+.modalMeta {
+  display: flex;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-lg);
+  border-bottom: var(--glass-border-light);
+}
+
+.modalAuthor,
+.modalDate {
+  font-size: var(--font-size-sm);
+  color: var(--warm-gray);
+}
+
+.modalStory {
+  margin-bottom: var(--spacing-xl);
+}
+
+.modalStory h3 {
+  margin: 0 0 var(--spacing-md) 0;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--dark-color);
+}
+
+.modalStory p {
+  margin: 0;
+  color: var(--warm-gray);
+  font-size: var(--font-size-base);
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+
+.rejectionInfo {
+  padding: var(--spacing-md);
+  background: rgba(239, 68, 68, 0.05);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-lg);
+}
+
+.rejectionInfo strong {
+  display: block;
+  margin-bottom: var(--spacing-xs);
+  color: var(--error-color);
+}
+
+.rejectionInfo p {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--warm-gray);
+}
+
+.rejectionForm {
+  margin-bottom: var(--spacing-lg);
+}
+
+.rejectionForm label {
+  display: block;
+  margin-bottom: var(--spacing-sm);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--dark-color);
+}
+
+.rejectionTextarea {
+  width: 100%;
+  padding: var(--spacing-md);
+  background: var(--glass-bg-light);
+  border: var(--glass-border-light);
+  border-radius: var(--radius-md);
+  color: var(--dark-color);
+  font-size: var(--font-size-base);
+  font-family: inherit;
+  resize: vertical;
+}
+
+.rejectionTextarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+.modalActions {
+  display: flex;
+  gap: var(--spacing-md);
+  padding: var(--spacing-xl);
+  border-top: var(--glass-border-light);
+  position: sticky;
+  bottom: 0;
+  background: var(--light-color);
+  flex-wrap: wrap;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .container {
+    padding: var(--spacing-md);
+  }
+
+  .storyHeader {
+    flex-direction: column;
+  }
+
+  .storyFooter {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .quickActions {
+    width: 100%;
+  }
+
+  .approveButton,
+  .rejectButton,
+  .deleteButton {
+    flex: 1;
+  }
+
+  .modalHeader h2 {
+    font-size: var(--font-size-xl);
+  }
+
+  .modalActions {
+    flex-direction: column;
+  }
+
+  .modalActions button {
+    width: 100%;
+    justify-content: center;
+  }
+}

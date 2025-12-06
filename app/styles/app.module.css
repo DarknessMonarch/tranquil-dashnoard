@@ -1,0 +1,114 @@
+@media screen {
+  .appContainer {
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 100%;
+    display: flex;
+    overflow: hidden;
+    position: absolute;
+    overflow-y: auto;
+    overflow-x: hidden;
+    align-items: center;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .appContent {
+    gap: 20px;
+    height: 100%;
+    display: flex;
+    padding: 10px;
+    margin-top: 40px;
+    padding-top: 50px;
+    align-items: center;
+    text-align: center;
+    flex-direction: column;
+  }
+
+  .appContent span {
+    display: flex;
+    font-weight: 400;
+    font-size: .9rem;
+    width: fit-content;
+    padding: 10px 30px;
+    border-radius: 60px;
+    color: var(--tertiary-color);
+    background-color: var(--tertiary-light-color);
+  }
+
+  .appContent h1 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--primary-color);
+  }
+
+  .appContent p {
+    font-size: 1rem;
+  }
+
+  .appButton {
+    gap: 10px;
+    height: 60px;
+    padding: 20px;
+    display: flex;
+    cursor: pointer;
+    font-size: .9rem;
+    width: fit-content;
+    border-radius: 30px;
+    align-items: center;
+    justify-content: center;
+    color: var(--background-color);
+    background-color: var(--primary-color);
+  }
+
+  .appButton:hover {
+    transform: scale(1.05);
+    transition: all 0.3s ease-in-out;
+    background-color: var(--tertiary-color);
+  }
+
+  .appImageContainer {
+    width: 100%;
+    height: 100%;
+    position: relative;
+  }
+}
+
+/* using it as global style for larger devices  */
+@media only screen and (min-width: 48em) {
+
+
+  .appContent span {
+    font-size: 1.2rem;
+  }
+
+  .appContent h1 {
+    width: 80%;
+    font-size: 2rem;
+  }
+
+  .appContent p {
+    font-size: 1.2rem;
+  }
+
+  .appButton {
+    padding: 30px;
+    font-size: 1rem;
+  }
+}
+
+/* ipad pro screens & laptop */
+@media only screen and (min-width: 49em) and (max-width: 64em) {
+}
+
+/* large screens : Desktop and 4k screens */
+
+@media only screen and (min-width: 64.063em) and (max-width: 90em) {
+}
+
+/* 5k screens and above */
+@media only screen and (min-width: 91em) {
+}
