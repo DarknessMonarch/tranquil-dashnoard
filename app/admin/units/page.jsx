@@ -37,7 +37,7 @@ export default function UnitsPage() {
     floor: "",
     bedrooms: "",
     bathrooms: "",
-    rent: "",
+    monthlyRent: "",
     status: "vacant",
     description: "",
   });
@@ -67,7 +67,7 @@ export default function UnitsPage() {
       floor: "",
       bedrooms: "",
       bathrooms: "",
-      rent: "",
+      monthlyRent: "",
       status: "vacant",
       description: "",
     });
@@ -81,7 +81,7 @@ export default function UnitsPage() {
       floor: unit.floor || "",
       bedrooms: unit.bedrooms || "",
       bathrooms: unit.bathrooms || "",
-      rent: unit.rent || "",
+      monthlyRent: unit.monthlyRent || "",
       status: unit.status || "vacant",
       description: unit.description || "",
     });
@@ -138,7 +138,7 @@ export default function UnitsPage() {
     }
   };
 
-  const filteredUnits = units.filter((unit) =>
+  const filteredUnits = (units || []).filter((unit) =>
     unit.unitNumber.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -236,7 +236,7 @@ export default function UnitsPage() {
                     <td>{unit.floor || "N/A"}</td>
                     <td>{unit.bedrooms || "N/A"}</td>
                     <td>{unit.bathrooms || "N/A"}</td>
-                    <td>{unit.rent ? unit.rent.toLocaleString() : "N/A"}</td>
+                    <td>{unit.monthlyRent ? unit.monthlyRent.toLocaleString() : "N/A"}</td>
                     <td>{getStatusBadge(unit.status)}</td>
                     <td>
                       <div className={styles.actionButtons}>
@@ -345,9 +345,9 @@ export default function UnitsPage() {
                   <label className={styles.formLabel}>Monthly Rent (KES)</label>
                   <input
                     type="number"
-                    name="rent"
+                    name="monthlyRent"
                     className={styles.formInput}
-                    value={formData.rent}
+                    value={formData.monthlyRent}
                     onChange={handleInputChange}
                     placeholder="e.g., 25000"
                     min="0"

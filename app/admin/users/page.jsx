@@ -53,7 +53,7 @@ export default function UsersPage() {
     return <span className={`${styles.badge} ${styles[info.style]}`}>{info.label}</span>;
   };
 
-  const filteredUsers = users.filter((user) => {
+  const filteredUsers = (users || []).filter((user) => {
     const search = searchTerm.toLowerCase();
     return (
       user.username?.toLowerCase().includes(search) ||

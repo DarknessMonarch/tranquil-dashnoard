@@ -44,7 +44,7 @@ export default function BillsPage() {
     },
     dueDate: "",
     items: [
-      { description: "Rent", amount: 0, type: "rent" },
+      { details: "Rent", amount: 0, type: "rent" },
     ],
   });
 
@@ -65,7 +65,18 @@ export default function BillsPage() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    // If unit is selected, automatically set the tenant
+    if (name === "unit" && value) {
+      const selectedUnit = units.find(u => u._id === value);
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+        tenant: selectedUnit?.tenant?._id || selectedUnit?.tenant || ""
+      }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleItemChange = (index, field, value) => {
@@ -77,7 +88,7 @@ export default function BillsPage() {
   const addItem = () => {
     setFormData((prev) => ({
       ...prev,
-      items: [...prev.items, { description: "", amount: 0, type: "other" }],
+      items: [...prev.items, { details: "", amount: 0, type: "other" }],
     }));
   };
 
@@ -99,7 +110,7 @@ export default function BillsPage() {
       },
       dueDate: "",
       items: [
-        { description: "Rent", amount: 0, type: "rent" },
+        { details: "Rent", amount: 0, type: "rent" },
       ],
     });
     setShowModal(true);
@@ -191,7 +202,7 @@ export default function BillsPage() {
     return <span className={`${styles.badge} ${styles[info.style]}`}>{info.label}</span>;
   };
 
-  const filteredBills = bills.filter((bill) => {
+  const filteredBills = (bills || []).filter((bill) => {
     const unitNumber = bill.unit?.unitNumber || "";
     const tenantName = bill.tenant?.username || bill.tenant?.email || "";
     const search = searchTerm.toLowerCase();
@@ -336,7 +347,7 @@ export default function BillsPage() {
                     required
                   >
                     <option value="">Select Unit</option>
-                    {units.map((unit) => (
+                    {(units || []).map((unit) => (
                       <option key={unit._id} value={unit._id}>
                         {unit.unitNumber} - {unit.tenant?.username || "Vacant"}
                       </option>
@@ -363,9 +374,9 @@ export default function BillsPage() {
                       <input
                         type="text"
                         className={styles.formInput}
-                        placeholder="Description"
-                        value={item.description}
-                        onChange={(e) => handleItemChange(index, "description", e.target.value)}
+                        placeholder="Details"
+                        value={item.details}
+                        onChange={(e) => handleItemChange(index, "details", e.target.value)}
                         style={{ flex: 2 }}
                       />
                       <input

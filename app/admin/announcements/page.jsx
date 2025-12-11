@@ -108,7 +108,7 @@ export default function AnnouncementsPage() {
     }
   };
 
-  const filteredAnnouncements = announcements.filter(
+  const filteredAnnouncements = (announcements || []).filter(
     (announcement) =>
       announcement.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       announcement.message?.toLowerCase().includes(searchTerm.toLowerCase())

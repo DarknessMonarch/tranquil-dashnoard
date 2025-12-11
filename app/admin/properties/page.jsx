@@ -34,7 +34,7 @@ export default function PropertiesPage() {
   const [editingProperty, setEditingProperty] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
-    address: "",
+    street: "",
     city: "",
     country: "Kenya",
     totalUnits: "",
@@ -61,7 +61,7 @@ export default function PropertiesPage() {
     setEditingProperty(null);
     setFormData({
       name: "",
-      address: "",
+      street: "",
       city: "",
       country: "Kenya",
       totalUnits: "",
@@ -74,9 +74,9 @@ export default function PropertiesPage() {
     setEditingProperty(property);
     setFormData({
       name: property.name,
-      address: property.address,
-      city: property.city,
-      country: property.country || "Kenya",
+      street: property.address?.street || "",
+      city: property.address?.city || "",
+      country: property.address?.country || "Kenya",
       totalUnits: property.totalUnits || "",
       description: property.description || "",
     });
@@ -91,17 +91,29 @@ export default function PropertiesPage() {
       return;
     }
 
-    if (!formData.address.trim()) {
-      toast.error("Address is required");
+    if (!formData.street.trim()) {
+      toast.error("Street address is required");
       return;
     }
 
     try {
+      // Transform formData to match server structure
+      const propertyData = {
+        name: formData.name,
+        address: {
+          street: formData.street,
+          city: formData.city,
+          country: formData.country,
+        },
+        totalUnits: formData.totalUnits,
+        description: formData.description,
+      };
+
       let result;
       if (editingProperty) {
-        result = await updateProperty(editingProperty._id, formData);
+        result = await updateProperty(editingProperty._id, propertyData);
       } else {
-        result = await createProperty(formData);
+        result = await createProperty(propertyData);
       }
 
       if (result.success) {
@@ -135,10 +147,10 @@ export default function PropertiesPage() {
     }
   };
 
-  const filteredProperties = properties.filter((property) =>
+  const filteredProperties = (properties || []).filter((property) =>
     property.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    property.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    property.city?.toLowerCase().includes(searchTerm.toLowerCase())
+    property.address?.street?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    property.address?.city?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -200,8 +212,8 @@ export default function PropertiesPage() {
                     <td>
                       <strong>{property.name}</strong>
                     </td>
-                    <td>{property.address}</td>
-                    <td>{property.city || "N/A"}</td>
+                    <td>{property.address?.street || "N/A"}</td>
+                    <td>{property.address?.city || "N/A"}</td>
                     <td>{property.totalUnits || 0}</td>
                     <td>
                       <span className={`${styles.badge} ${styles.success}`}>
@@ -267,14 +279,14 @@ export default function PropertiesPage() {
                 </div>
 
                 <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>Address *</label>
+                  <label className={styles.formLabel}>Street Address *</label>
                   <input
                     type="text"
-                    name="address"
+                    name="street"
                     className={styles.formInput}
-                    value={formData.address}
+                    value={formData.street}
                     onChange={handleInputChange}
-                    placeholder="e.g., 123 Main Street"
+                    placeholder="e.g., 123 Main Street, Kahawa"
                     required
                   />
                 </div>

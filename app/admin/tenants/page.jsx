@@ -150,7 +150,7 @@ export default function TenantsPage() {
     }
   };
 
-  const filteredTenants = tenants.filter((tenant) => {
+  const filteredTenants = (tenants || []).filter((tenant) => {
     const search = searchTerm.toLowerCase();
     return (
       tenant.username?.toLowerCase().includes(search) ||
@@ -347,7 +347,7 @@ export default function TenantsPage() {
                     onChange={handleInputChange}
                   >
                     <option value="">No Unit</option>
-                    {units.filter(u => u.status === "vacant" || u._id === formData.unit).map((unit) => (
+                    {(units || []).filter(u => u.status === "vacant" || u._id === formData.unit).map((unit) => (
                       <option key={unit._id} value={unit._id}>
                         {unit.unitNumber} - {unit.bedrooms}BR ${unit.monthlyRent}
                       </option>

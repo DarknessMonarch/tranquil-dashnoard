@@ -177,8 +177,9 @@ export const useLandlordStore = create(
 
           const data = await response.json();
           if (data.status === "success") {
-            set({ units: data.data.units, isLoading: false });
-            return { success: true, data: data.data.units };
+            const units = Array.isArray(data.data) ? data.data : data.data.units || [];
+            set({ units, isLoading: false });
+            return { success: true, data: units };
           }
           set({ error: data.message, isLoading: false });
           return { success: false, message: data.message };
@@ -208,11 +209,12 @@ export const useLandlordStore = create(
 
           const data = await response.json();
           if (data.status === "success") {
+            const unit = data.data.unit || data.data;
             set((state) => ({
-              units: [...state.units, data.data.unit],
+              units: [...state.units, unit],
               isLoading: false,
             }));
-            return { success: true, data: data.data.unit };
+            return { success: true, data: unit };
           }
           set({ error: data.message, isLoading: false });
           return { success: false, message: data.message };
@@ -227,9 +229,15 @@ export const useLandlordStore = create(
         try {
           set({ isLoading: true, error: null });
           const { accessToken } = useAuthStore.getState();
+          const { selectedProperty } = get();
 
-          const response = await fetch(`${SERVER_API}/landlord/units/${unitId}`, {
-            method: "PUT",
+          if (!selectedProperty) {
+            set({ error: "No property selected", isLoading: false });
+            return { success: false, message: "No property selected" };
+          }
+
+          const response = await fetch(`${SERVER_API}/landlord/properties/${selectedProperty._id}/units/${unitId}`, {
+            method: "PATCH",
             headers: {
               "Content-Type": "application/json",
               Authorization: `Bearer ${accessToken}`,
@@ -239,13 +247,14 @@ export const useLandlordStore = create(
 
           const data = await response.json();
           if (data.status === "success") {
+            const unit = data.data.unit || data.data;
             set((state) => ({
               units: state.units.map((u) =>
-                u._id === unitId ? data.data.unit : u
+                u._id === unitId ? unit : u
               ),
               isLoading: false,
             }));
-            return { success: true, data: data.data.unit };
+            return { success: true, data: unit };
           }
           set({ error: data.message, isLoading: false });
           return { success: false, message: data.message };

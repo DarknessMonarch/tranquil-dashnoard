@@ -42,7 +42,7 @@ export default function MaintenancePage() {
     }
   };
 
-  const filteredRequests = maintenanceRequests.filter(
+  const filteredRequests = (maintenanceRequests || []).filter(
     (request) =>
       request.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       request.unitNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||

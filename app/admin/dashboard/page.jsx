@@ -172,7 +172,7 @@ export default function AdminDashboard() {
             <h3 className={styles.activityTitle}>Maintenance Overview</h3>
           </div>
           <div className={styles.activityList}>
-            {maintenanceRequests.length > 0 ? (
+            {maintenanceRequests && maintenanceRequests.length > 0 ? (
               maintenanceRequests.slice(0, 5).map((request, idx) => (
                 <div key={idx} className={styles.activityItem}>
                   <div className={`${styles.activityIcon} ${styles.maintenance}`}>

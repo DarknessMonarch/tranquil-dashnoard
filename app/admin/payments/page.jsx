@@ -35,10 +35,11 @@ export default function PaymentsPage() {
   const [formData, setFormData] = useState({
     bill: "",
     tenant: "",
+    unit: "",
     amount: "",
     paymentMethod: "mpesa",
-    paymentCode: "",
-    notes: "",
+    mpesaCode: "",
+    description: "",
   });
 
   useEffect(() => {
@@ -58,17 +59,30 @@ export default function PaymentsPage() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    // If bill is selected, automatically populate tenant and unit
+    if (name === "bill" && value) {
+      const selectedBill = bills.find(b => b._id === value);
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+        tenant: selectedBill?.tenant?._id || selectedBill?.tenant || "",
+        unit: selectedBill?.unit?._id || selectedBill?.unit || "",
+      }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const openCreateModal = () => {
     setFormData({
       bill: "",
       tenant: "",
+      unit: "",
       amount: "",
       paymentMethod: "mpesa",
-      paymentCode: "",
-      notes: "",
+      mpesaCode: "",
+      description: "",
     });
     setShowModal(true);
   };
@@ -86,12 +100,21 @@ export default function PaymentsPage() {
       return;
     }
 
+    // Prepare payment data - exclude bill field and ensure all required fields are present
     const paymentData = {
-      ...formData,
-      amount: parseFloat(formData.amount),
+      tenant: formData.tenant,
+      unit: formData.unit,
       property: selectedProperty._id,
+      amount: parseFloat(formData.amount),
+      paymentMethod: formData.paymentMethod,
+      description: formData.description || `Payment for ${formData.paymentMethod}`,
       status: "completed",
     };
+
+    // Add mpesaCode only if payment method is mpesa and code is provided
+    if (formData.paymentMethod === "mpesa" && formData.mpesaCode) {
+      paymentData.mpesaCode = formData.mpesaCode;
+    }
 
     try {
       const result = await recordPayment(paymentData);
@@ -110,8 +133,8 @@ export default function PaymentsPage() {
     }
   };
 
-  const handleDelete = async (paymentId, paymentCode) => {
-    if (!confirm(`Are you sure you want to delete payment ${paymentCode}?`)) {
+  const handleDelete = async (paymentId, mpesaCode) => {
+    if (!confirm(`Are you sure you want to delete payment ${mpesaCode || 'this'}?`)) {
       return;
     }
 
@@ -145,13 +168,13 @@ export default function PaymentsPage() {
     return <span className={`${styles.badge} ${styles[info.style]}`}>{info.label}</span>;
   };
 
-  const filteredPayments = payments.filter((payment) => {
+  const filteredPayments = (payments || []).filter((payment) => {
     const tenantName = payment.tenant?.username || payment.tenant?.email || "";
-    const paymentCode = payment.paymentCode || "";
+    const mpesaCode = payment.mpesaCode || "";
     const search = searchTerm.toLowerCase();
     return (
       tenantName.toLowerCase().includes(search) ||
-      paymentCode.toLowerCase().includes(search)
+      mpesaCode.toLowerCase().includes(search)
     );
   });
 
@@ -232,13 +255,13 @@ export default function PaymentsPage() {
                     </td>
                     <td>${payment.amount?.toLocaleString() || 0}</td>
                     <td>{getMethodBadge(payment.paymentMethod)}</td>
-                    <td>{payment.paymentCode || "N/A"}</td>
+                    <td>{payment.mpesaCode || payment.paystackReference || "N/A"}</td>
                     <td>{getStatusBadge(payment.status)}</td>
                     <td>
                       <div className={styles.actionButtons}>
                         <button
                           className={`${styles.iconButton} ${styles.delete}`}
-                          onClick={() => handleDelete(payment._id, payment.paymentCode)}
+                          onClick={() => handleDelete(payment._id, payment.mpesaCode)}
                           title="Delete"
                         >
                           <MdDelete size={18} />
@@ -277,7 +300,7 @@ export default function PaymentsPage() {
                     required
                   >
                     <option value="">Select Bill</option>
-                    {bills.map((bill) => (
+                    {(bills || []).map((bill) => (
                       <option key={bill._id} value={bill._id}>
                         {bill.unit?.unitNumber} - {bill.tenant?.username} - $
                         {bill.totalAmount} ({bill.billingPeriod?.month}/
@@ -320,27 +343,28 @@ export default function PaymentsPage() {
 
                 <div className={styles.formGroup}>
                   <label className={styles.formLabel}>
-                    Payment Code/Reference
+                    M-Pesa Code (if applicable)
                   </label>
                   <input
                     type="text"
-                    name="paymentCode"
+                    name="mpesaCode"
                     className={styles.formInput}
-                    value={formData.paymentCode}
+                    value={formData.mpesaCode}
                     onChange={handleInputChange}
                     placeholder="e.g., QA123456789"
                   />
                 </div>
 
                 <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>Notes</label>
+                  <label className={styles.formLabel}>Description *</label>
                   <textarea
-                    name="notes"
+                    name="description"
                     className={styles.formTextarea}
-                    value={formData.notes}
+                    value={formData.description}
                     onChange={handleInputChange}
-                    placeholder="Optional notes about this payment..."
+                    placeholder="Description of this payment..."
                     rows={3}
+                    required
                   />
                 </div>
               </div>
