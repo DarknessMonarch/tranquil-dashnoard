@@ -10,24 +10,24 @@ export default function App() {
   const router = useRouter();
 
   useEffect(() => {
-    router.replace('/authentication/login');
+    router.replace('/admin/login');
   }, [router]);
 
   return (
     <>
       <Head>
-        <title>SportyPredict </title>
+        <title>Tranquil Property Management</title>
         <meta name="robots" content="noindex, follow" />
-        <link rel="canonical" href="https://dashboard.tranquil.com/authentication/login" />
+        <link rel="canonical" href="https://dashboard.tranquil.com/admin/login" />
       </Head>
 
       <Script id="http-redirect" strategy="beforeInteractive">
         {`
           // This helps search engines understand the redirect better
-          if (navigator.userAgent.indexOf('Googlebot') === -1 && 
-              navigator.userAgent.indexOf('bot') === -1 && 
+          if (navigator.userAgent.indexOf('Googlebot') === -1 &&
+              navigator.userAgent.indexOf('bot') === -1 &&
               navigator.userAgent.indexOf('Bingbot') === -1) {
-            window.location.replace('/authentication/login');
+            window.location.replace('/admin/login');
           }
         `}
       </Script>

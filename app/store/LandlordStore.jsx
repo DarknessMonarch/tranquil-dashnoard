@@ -39,14 +39,15 @@ export const useLandlordStore = create(
 
           const data = await response.json();
           if (data.status === "success") {
-            set({ properties: data.data.properties, isLoading: false });
+            const properties = Array.isArray(data.data) ? data.data : data.data.properties || [];
+            set({ properties, isLoading: false });
 
             // Auto-select first property if none selected
-            if (!get().selectedProperty && data.data.properties.length > 0) {
-              get().setSelectedProperty(data.data.properties[0]);
+            if (!get().selectedProperty && properties.length > 0) {
+              get().setSelectedProperty(properties[0]);
             }
 
-            return { success: true, data: data.data.properties };
+            return { success: true, data: properties };
           }
           set({ error: data.message, isLoading: false });
           return { success: false, message: data.message };
@@ -784,14 +785,15 @@ export const useLandlordStore = create(
           set({ isLoading: true, error: null });
           const { accessToken } = window.authStore?.getState() || {};
 
-          const response = await fetch(
-            `${SERVER_API}/landlord/properties/${propertyId}/analytics`,
-            {
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-              },
-            }
-          );
+          const url = propertyId
+            ? `${SERVER_API}/admin/analytics?propertyId=${propertyId}`
+            : `${SERVER_API}/admin/analytics`;
+
+          const response = await fetch(url, {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          });
 
           const data = await response.json();
           if (data.status === "success") {

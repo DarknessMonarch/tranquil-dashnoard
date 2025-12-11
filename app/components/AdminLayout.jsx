@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuthStore } from "@/app/store/AuthStore";
 import { useLandlordStore } from "@/app/store/LandlordStore";
-import styles from "@/app/style/adminLayout.module.css";
+import styles from "@/app/styles/adminLayout.module.css";
 
 import {
   MdDashboard,

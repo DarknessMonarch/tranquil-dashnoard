@@ -14,7 +14,7 @@ export default function NotFound() {
 
   const goHome = () => {
     if (isAuth) {
-      router.push(`/page/dashboard`, { scroll: false });
+      router.push(`/admin/dashboard`, { scroll: false });
     } else {
       router.back();
     }

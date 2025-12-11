@@ -69,59 +69,27 @@ export default function AdminDashboard() {
   const metrics = [
     {
       label: "Total Revenue",
-      value: formatCurrency(analytics?.totalRevenue || 750000),
-      trend: "+12.5%",
-      trendUp: true,
+      value: formatCurrency(analytics?.currentMonth?.totalRevenue || 0),
       icon: MdAttachMoney,
       color: "blue",
     },
     {
       label: "Collected",
-      value: formatCurrency(analytics?.collected || 675000),
-      trend: "+8.3%",
-      trendUp: true,
+      value: formatCurrency(analytics?.currentMonth?.collectedRevenue || 0),
       icon: MdCheckCircle,
       color: "green",
     },
     {
       label: "Arrears",
-      value: formatCurrency(analytics?.arrears || 75000),
-      trend: "-5.2%",
-      trendUp: false,
+      value: formatCurrency(analytics?.currentMonth?.arrears || 0),
       icon: MdWarning,
       color: "orange",
     },
     {
       label: "Occupancy Rate",
-      value: `${analytics?.occupancyRate || 89}%`,
-      trend: "+3.1%",
-      trendUp: true,
+      value: `${analytics?.occupancyRate || 0}%`,
       icon: MdApartment,
       color: "purple",
-    },
-  ];
-
-  const recentActivities = [
-    {
-      type: "payment",
-      title: "Payment Received",
-      description: "John Doe - Unit 101 - KES 25,000",
-      time: "2 hours ago",
-      icon: MdCheckCircle,
-    },
-    {
-      type: "maintenance",
-      title: "Maintenance Request",
-      description: "Leaking faucet - Unit 204",
-      time: "5 hours ago",
-      icon: MdBuild,
-    },
-    {
-      type: "tenant",
-      title: "New Tenant",
-      description: "Jane Smith moved into Unit 305",
-      time: "1 day ago",
-      icon: MdPeople,
     },
   ];
 
@@ -155,14 +123,6 @@ export default function AdminDashboard() {
               <div className={styles.metricHeader}>
                 <div className={`${styles.metricIcon} ${styles[metric.color]}`}>
                   <metric.icon />
-                </div>
-                <div
-                  className={`${styles.metricTrend} ${
-                    metric.trendUp ? styles.up : styles.down
-                  }`}
-                >
-                  {metric.trendUp ? <MdTrendingUp /> : <MdTrendingDown />}
-                  {metric.trend}
                 </div>
               </div>
               <div className={styles.metricLabel}>{metric.label}</div>
@@ -206,33 +166,38 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Recent Activity */}
+        {/* Maintenance Summary */}
         <div className={styles.recentActivity}>
           <div className={styles.activityHeader}>
-            <h3 className={styles.activityTitle}>Recent Activity</h3>
-            <a href="#" className={styles.viewAllLink}>
-              View All
-            </a>
+            <h3 className={styles.activityTitle}>Maintenance Overview</h3>
           </div>
           <div className={styles.activityList}>
-            {recentActivities.map((activity, idx) => (
-              <div key={idx} className={styles.activityItem}>
-                <div
-                  className={`${styles.activityIcon} ${
-                    styles[activity.type]
-                  }`}
-                >
-                  <activity.icon />
-                </div>
-                <div className={styles.activityContent}>
-                  <div className={styles.activityTitle}>{activity.title}</div>
-                  <div className={styles.activityDescription}>
-                    {activity.description}
+            {maintenanceRequests.length > 0 ? (
+              maintenanceRequests.slice(0, 5).map((request, idx) => (
+                <div key={idx} className={styles.activityItem}>
+                  <div className={`${styles.activityIcon} ${styles.maintenance}`}>
+                    <MdBuild />
+                  </div>
+                  <div className={styles.activityContent}>
+                    <div className={styles.activityTitle}>
+                      {request.category?.charAt(0).toUpperCase() + request.category?.slice(1)} Request
+                    </div>
+                    <div className={styles.activityDescription}>
+                      {request.description?.substring(0, 50)}... - Unit {request.unit?.unitNumber}
+                    </div>
+                  </div>
+                  <div className={styles.activityTime}>
+                    <span className={`${styles.statusBadge} ${styles[request.status]}`}>
+                      {request.status}
+                    </span>
                   </div>
                 </div>
-                <div className={styles.activityTime}>{activity.time}</div>
+              ))
+            ) : (
+              <div style={{ textAlign: "center", padding: "2rem", color: "var(--warm-gray)" }}>
+                No maintenance requests
               </div>
-            ))}
+            )}
           </div>
         </div>
       </div>

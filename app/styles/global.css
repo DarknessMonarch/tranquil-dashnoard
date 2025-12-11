@@ -105,8 +105,8 @@
     color: var(--dark-color);
     -moz-osx-font-smoothing: grayscale;
     -webkit-font-smoothing: antialiased;
-    background: linear-gradient(135deg, #f4fae8 0%, #e8f5db 50%, #f2f4f6 100%);
     background-attachment: fixed;
+    background-color: var(--background-color);
   }
 
   a {

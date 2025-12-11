@@ -1,5 +1,5 @@
 @media screen {
-  .authComponent {
+  .authWrapper {
     top: 0;
     left: 0;
     right: 0;
@@ -11,17 +11,8 @@
     overflow-y: auto;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 50%, #f3e8ff 100%);
   }
 
-  .authWrapper {
-    width: 100%;
-    max-width: 100%;
-    padding: 20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
 
   .formContainer {
     gap: 24px;
