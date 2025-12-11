@@ -1,4 +1,4 @@
-import styles from "@/app/styles/loadinglogo.module.css";
+import styles from "@/app/styles/loadingLogo.module.css";
 import { IoSparkles as SparklesIcon } from "react-icons/io5";
 
 export default function Loading() {
