@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
+import { useAuthStore } from "./AuthStore";
 
 const SERVER_API = process.env.NEXT_PUBLIC_SERVER_API;
 
@@ -29,7 +30,7 @@ export const useLandlordStore = create(
       fetchProperties: async () => {
         try {
           set({ isLoading: true, error: null });
-          const { accessToken } = window.authStore?.getState() || {};
+          const { accessToken } = useAuthStore.getState();
 
           const response = await fetch(`${SERVER_API}/landlord/properties`, {
             headers: {
@@ -61,7 +62,7 @@ export const useLandlordStore = create(
       createProperty: async (propertyData) => {
         try {
           set({ isLoading: true, error: null });
-          const { accessToken } = window.authStore?.getState() || {};
+          const { accessToken } = useAuthStore.getState();
 
           const response = await fetch(`${SERVER_API}/landlord/properties`, {
             method: "POST",
@@ -92,7 +93,7 @@ export const useLandlordStore = create(
       updateProperty: async (propertyId, propertyData) => {
         try {
           set({ isLoading: true, error: null });
-          const { accessToken } = window.authStore?.getState() || {};
+          const { accessToken } = useAuthStore.getState();
 
           const response = await fetch(`${SERVER_API}/landlord/properties/${propertyId}`, {
             method: "PUT",
@@ -129,7 +130,7 @@ export const useLandlordStore = create(
       deleteProperty: async (propertyId) => {
         try {
           set({ isLoading: true, error: null });
-          const { accessToken } = window.authStore?.getState() || {};
+          const { accessToken } = useAuthStore.getState();
 
           const response = await fetch(`${SERVER_API}/landlord/properties/${propertyId}`, {
             method: "DELETE",
@@ -163,7 +164,7 @@ export const useLandlordStore = create(
       fetchUnits: async (propertyId) => {
         try {
           set({ isLoading: true, error: null });
-          const { accessToken } = window.authStore?.getState() || {};
+          const { accessToken } = useAuthStore.getState();
 
           const response = await fetch(
             `${SERVER_API}/landlord/properties/${propertyId}/units`,
@@ -191,7 +192,7 @@ export const useLandlordStore = create(
       createUnit: async (propertyId, unitData) => {
         try {
           set({ isLoading: true, error: null });
-          const { accessToken } = window.authStore?.getState() || {};
+          const { accessToken } = useAuthStore.getState();
 
           const response = await fetch(
             `${SERVER_API}/landlord/properties/${propertyId}/units`,
@@ -225,7 +226,7 @@ export const useLandlordStore = create(
       updateUnit: async (unitId, unitData) => {
         try {
           set({ isLoading: true, error: null });
-          const { accessToken } = window.authStore?.getState() || {};
+          const { accessToken } = useAuthStore.getState();
 
           const response = await fetch(`${SERVER_API}/landlord/units/${unitId}`, {
             method: "PUT",
@@ -258,7 +259,7 @@ export const useLandlordStore = create(
       deleteUnit: async (unitId) => {
         try {
           set({ isLoading: true, error: null });
-          const { accessToken } = window.authStore?.getState() || {};
+          const { accessToken } = useAuthStore.getState();
 
           const response = await fetch(`${SERVER_API}/landlord/units/${unitId}`, {
             method: "DELETE",
@@ -288,7 +289,7 @@ export const useLandlordStore = create(
       fetchTenants: async (propertyId) => {
         try {
           set({ isLoading: true, error: null });
-          const { accessToken } = window.authStore?.getState() || {};
+          const { accessToken } = useAuthStore.getState();
 
           const response = await fetch(
             `${SERVER_API}/landlord/properties/${propertyId}/tenants`,
@@ -316,7 +317,7 @@ export const useLandlordStore = create(
       createTenant: async (tenantData) => {
         try {
           set({ isLoading: true, error: null });
-          const { accessToken } = window.authStore?.getState() || {};
+          const { accessToken } = useAuthStore.getState();
 
           const response = await fetch(`${SERVER_API}/landlord/tenants`, {
             method: "POST",
@@ -347,7 +348,7 @@ export const useLandlordStore = create(
       updateTenant: async (tenantId, tenantData) => {
         try {
           set({ isLoading: true, error: null });
-          const { accessToken } = window.authStore?.getState() || {};
+          const { accessToken } = useAuthStore.getState();
 
           const response = await fetch(`${SERVER_API}/landlord/tenants/${tenantId}`, {
             method: "PUT",
@@ -380,7 +381,7 @@ export const useLandlordStore = create(
       deleteTenant: async (tenantId) => {
         try {
           set({ isLoading: true, error: null });
-          const { accessToken } = window.authStore?.getState() || {};
+          const { accessToken } = useAuthStore.getState();
 
           const response = await fetch(`${SERVER_API}/landlord/tenants/${tenantId}`, {
             method: "DELETE",
@@ -410,7 +411,7 @@ export const useLandlordStore = create(
       fetchMaintenanceRequests: async (propertyId) => {
         try {
           set({ isLoading: true, error: null });
-          const { accessToken } = window.authStore?.getState() || {};
+          const { accessToken } = useAuthStore.getState();
 
           const response = await fetch(
             `${SERVER_API}/landlord/properties/${propertyId}/maintenance`,
@@ -438,7 +439,7 @@ export const useLandlordStore = create(
       updateMaintenanceStatus: async (requestId, status) => {
         try {
           set({ isLoading: true, error: null });
-          const { accessToken } = window.authStore?.getState() || {};
+          const { accessToken } = useAuthStore.getState();
 
           const response = await fetch(
             `${SERVER_API}/landlord/maintenance/${requestId}/status`,
@@ -475,7 +476,7 @@ export const useLandlordStore = create(
       fetchAnnouncements: async (propertyId) => {
         try {
           set({ isLoading: true, error: null });
-          const { accessToken } = window.authStore?.getState() || {};
+          const { accessToken } = useAuthStore.getState();
 
           const response = await fetch(
             `${SERVER_API}/landlord/properties/${propertyId}/announcements`,
@@ -503,7 +504,7 @@ export const useLandlordStore = create(
       createAnnouncement: async (propertyId, announcementData) => {
         try {
           set({ isLoading: true, error: null });
-          const { accessToken } = window.authStore?.getState() || {};
+          const { accessToken } = useAuthStore.getState();
 
           const response = await fetch(
             `${SERVER_API}/landlord/properties/${propertyId}/announcements`,
@@ -537,7 +538,7 @@ export const useLandlordStore = create(
       deleteAnnouncement: async (announcementId) => {
         try {
           set({ isLoading: true, error: null });
-          const { accessToken } = window.authStore?.getState() || {};
+          const { accessToken } = useAuthStore.getState();
 
           const response = await fetch(
             `${SERVER_API}/landlord/announcements/${announcementId}`,
@@ -572,7 +573,7 @@ export const useLandlordStore = create(
       fetchBills: async (propertyId) => {
         try {
           set({ isLoading: true, error: null });
-          const { accessToken } = window.authStore?.getState() || {};
+          const { accessToken } = useAuthStore.getState();
 
           const response = await fetch(
             `${SERVER_API}/landlord/properties/${propertyId}/bills`,
@@ -600,7 +601,7 @@ export const useLandlordStore = create(
       createBill: async (billData) => {
         try {
           set({ isLoading: true, error: null });
-          const { accessToken } = window.authStore?.getState() || {};
+          const { accessToken } = useAuthStore.getState();
 
           const response = await fetch(`${SERVER_API}/landlord/bills`, {
             method: "POST",
@@ -631,7 +632,7 @@ export const useLandlordStore = create(
       updateBill: async (billId, billData) => {
         try {
           set({ isLoading: true, error: null });
-          const { accessToken } = window.authStore?.getState() || {};
+          const { accessToken } = useAuthStore.getState();
 
           const response = await fetch(`${SERVER_API}/landlord/bills/${billId}`, {
             method: "PUT",
@@ -664,7 +665,7 @@ export const useLandlordStore = create(
       deleteBill: async (billId) => {
         try {
           set({ isLoading: true, error: null });
-          const { accessToken } = window.authStore?.getState() || {};
+          const { accessToken } = useAuthStore.getState();
 
           const response = await fetch(`${SERVER_API}/landlord/bills/${billId}`, {
             method: "DELETE",
@@ -694,7 +695,7 @@ export const useLandlordStore = create(
       fetchPayments: async (propertyId) => {
         try {
           set({ isLoading: true, error: null });
-          const { accessToken } = window.authStore?.getState() || {};
+          const { accessToken } = useAuthStore.getState();
 
           const response = await fetch(
             `${SERVER_API}/landlord/properties/${propertyId}/payments`,
@@ -722,7 +723,7 @@ export const useLandlordStore = create(
       recordPayment: async (paymentData) => {
         try {
           set({ isLoading: true, error: null });
-          const { accessToken } = window.authStore?.getState() || {};
+          const { accessToken } = useAuthStore.getState();
 
           const response = await fetch(`${SERVER_API}/landlord/payments`, {
             method: "POST",
@@ -753,7 +754,7 @@ export const useLandlordStore = create(
       deletePayment: async (paymentId) => {
         try {
           set({ isLoading: true, error: null });
-          const { accessToken } = window.authStore?.getState() || {};
+          const { accessToken } = useAuthStore.getState();
 
           const response = await fetch(`${SERVER_API}/landlord/payments/${paymentId}`, {
             method: "DELETE",
@@ -783,7 +784,7 @@ export const useLandlordStore = create(
       fetchAnalytics: async (propertyId) => {
         try {
           set({ isLoading: true, error: null });
-          const { accessToken } = window.authStore?.getState() || {};
+          const { accessToken } = useAuthStore.getState();
 
           const url = propertyId
             ? `${SERVER_API}/admin/analytics?propertyId=${propertyId}`
