@@ -229,7 +229,11 @@ export default function TenantsPage() {
               </thead>
               <tbody>
                 {filteredTenants.map((tenant) => (
-                  <tr key={tenant._id}>
+                  <tr
+                    key={tenant._id}
+                    className={styles.clickableRow}
+                    onClick={() => router.push(`/admin/tenants/${tenant._id}`)}
+                  >
                     <td>
                       <strong>{tenant.username || "N/A"}</strong>
                     </td>
@@ -245,16 +249,20 @@ export default function TenantsPage() {
                       <div className={styles.actionButtons}>
                         <button
                           className={`${styles.iconButton} ${styles.edit}`}
-                          onClick={() => openEditModal(tenant)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openEditModal(tenant);
+                          }}
                           title="Edit"
                         >
                           <MdEdit size={18} />
                         </button>
                         <button
                           className={`${styles.iconButton} ${styles.delete}`}
-                          onClick={() =>
-                            handleDelete(tenant._id, tenant.username)
-                          }
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(tenant._id, tenant.username);
+                          }}
                           title="Delete"
                         >
                           <MdDelete size={18} />
