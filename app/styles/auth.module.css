@@ -29,18 +29,18 @@
     box-shadow: var(--shadow-heavy);
   }
 
+  .formContainer p {
+    text-align: center;
+    font-size: 0.85rem;
+  }
+
   .formLogo {
     width: 100%;
+    height: 150px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 8px;
-  }
-
-  .logo {
-    width: 100px;
-    height: auto;
-    filter: drop-shadow(0 4px 8px rgba(236, 72, 153, 0.2));
+    position: relative;
   }
 
   .formHeader {
@@ -96,6 +96,7 @@
     border: none;
     outline: none;
     padding: 0;
+    height: 100%;
     background: transparent;
     color: var(--dark-color);
     font-size: 0.95rem;
@@ -106,11 +107,19 @@
     font-size: 0.9rem;
   }
 
+  .authInput:hover input {
+    border: none;
+    outline: none;
+  }
+
+
   .authInput input:-webkit-autofill,
   .authInput input:-webkit-autofill:hover,
   .authInput input:-webkit-autofill:focus,
   .authInput input:-webkit-autofill:active {
     transition: background-color 5000s ease-in-out 0s;
+    border: none;
+    outline: none;
     -webkit-text-fill-color: var(--dark-color) !important;
   }
 
@@ -158,8 +167,8 @@
     cursor: pointer;
     font-size: 1rem;
     font-weight: 700;
+    color: var(--light-color);
     border-radius: var(--radius-md);
-    color: white;
     background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
     box-shadow: 0 4px 12px rgba(236, 72, 153, 0.3);
     transition: all var(--transition-base);

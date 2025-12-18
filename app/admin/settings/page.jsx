@@ -5,6 +5,11 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useAuthStore } from "@/app/store/AuthStore";
 import AdminLayout from "@/app/components/AdminLayout";
+import PageHeader from "@/app/components/PageHeader";
+import Button from "@/app/components/Button";
+import FormGroup from "@/app/components/Form/FormGroup";
+import FormInput from "@/app/components/Form/FormInput";
+import { validateRequired, validateEmail } from "@/app/lib/validators";
 import styles from "@/app/styles/adminTable.module.css";
 
 import { MdSave } from "react-icons/md";
@@ -19,6 +24,7 @@ export default function SettingsPage() {
     email: "",
     phone: "",
   });
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     if (!isAuth || (!isLandlord && !isAdmin)) {
@@ -36,18 +42,35 @@ export default function SettingsPage() {
   const handleProfileChange = (e) => {
     const { name, value } = e.target;
     setProfileData((prev) => ({ ...prev, [name]: value }));
+    // Clear error for this field
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    const usernameValidation = validateRequired(profileData.username, "Username");
+    if (!usernameValidation.valid) {
+      newErrors.username = usernameValidation.message;
+    }
+
+    const emailValidation = validateRequired(profileData.email, "Email");
+    if (!emailValidation.valid) {
+      newErrors.email = emailValidation.message;
+    } else if (!validateEmail(profileData.email)) {
+      newErrors.email = "Invalid email format";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleProfileSubmit = async (e) => {
     e.preventDefault();
 
-    if (!profileData.username.trim()) {
-      toast.error("Username is required");
-      return;
-    }
-
-    if (!profileData.email.trim()) {
-      toast.error("Email is required");
+    if (!validateForm()) {
       return;
     }
 
@@ -71,16 +94,7 @@ export default function SettingsPage() {
 
   return (
     <AdminLayout>
-      <div>
-        <h2
-          style={{
-            marginBottom: "var(--spacing-xl)",
-            color: "var(--dark-color)",
-          }}
-        >
-          Settings
-        </h2>
-      </div>
+      <PageHeader subtitle="Manage your account settings" />
 
       <div className={styles.tableCard} style={{ maxWidth: "800px" }}>
         <form onSubmit={handleProfileSubmit}>
@@ -96,52 +110,46 @@ export default function SettingsPage() {
               Profile Information
             </h3>
 
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Username *</label>
-              <input
+            <FormGroup label="Username" required error={errors.username}>
+              <FormInput
                 type="text"
                 name="username"
-                className={styles.formInput}
                 value={profileData.username}
                 onChange={handleProfileChange}
                 placeholder="Your username"
-                required
+                error={!!errors.username}
               />
-            </div>
+            </FormGroup>
 
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Email Address *</label>
-              <input
+            <FormGroup label="Email Address" required error={errors.email}>
+              <FormInput
                 type="email"
                 name="email"
-                className={styles.formInput}
                 value={profileData.email}
                 onChange={handleProfileChange}
                 placeholder="Your email"
-                required
+                error={!!errors.email}
               />
-            </div>
+            </FormGroup>
 
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Phone Number</label>
-              <input
+            <FormGroup label="Phone Number" hint="Optional - for account recovery">
+              <FormInput
                 type="tel"
                 name="phone"
-                className={styles.formInput}
                 value={profileData.phone}
                 onChange={handleProfileChange}
                 placeholder="Your phone number"
               />
-            </div>
+            </FormGroup>
 
-            <button
+            <Button
               type="submit"
-              className={styles.primaryButton}
+              variant="primary"
+              icon={<MdSave size={20} />}
               style={{ marginTop: "var(--spacing-lg)" }}
             >
-              <MdSave size={20} />
               Save Profile
-            </button>
+            </Button>
           </div>
         </form>
       </div>

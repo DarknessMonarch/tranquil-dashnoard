@@ -6,15 +6,23 @@ import { toast } from "sonner";
 import { useLandlordStore } from "@/app/store/LandlordStore";
 import { useAuthStore } from "@/app/store/AuthStore";
 import AdminLayout from "@/app/components/AdminLayout";
+import PageHeader from "@/app/components/PageHeader";
+import SearchBar from "@/app/components/SearchBar";
+import Button from "@/app/components/Button";
+import Badge from "@/app/components/Badge";
+import Modal from "@/app/components/Modal";
+import ConfirmDialog from "@/app/components/ConfirmDialog";
+import FormGroup from "@/app/components/Form/FormGroup";
+import FormInput from "@/app/components/Form/FormInput";
+import FormTextarea from "@/app/components/Form/FormTextarea";
+import { validateRequired } from "@/app/lib/validators";
 import styles from "@/app/styles/adminTable.module.css";
 
 import {
   MdAdd,
-  MdSearch,
   MdEdit,
   MdDelete,
   MdApartment,
-  MdClose,
 } from "react-icons/md";
 
 export default function PropertiesPage() {
@@ -32,6 +40,8 @@ export default function PropertiesPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [editingProperty, setEditingProperty] = useState(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [propertyToDelete, setPropertyToDelete] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
     street: "",
@@ -40,6 +50,7 @@ export default function PropertiesPage() {
     totalUnits: "",
     description: "",
   });
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     if (!isAuth || (!isLandlord && !isAdmin)) {
@@ -55,6 +66,10 @@ export default function PropertiesPage() {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    // Clear error for this field
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
   };
 
   const openCreateModal = () => {
@@ -67,6 +82,7 @@ export default function PropertiesPage() {
       totalUnits: "",
       description: "",
     });
+    setErrors({});
     setShowModal(true);
   };
 
@@ -80,24 +96,35 @@ export default function PropertiesPage() {
       totalUnits: property.totalUnits || "",
       description: property.description || "",
     });
+    setErrors({});
     setShowModal(true);
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    const nameValidation = validateRequired(formData.name, "Property name");
+    if (!nameValidation.valid) {
+      newErrors.name = nameValidation.message;
+    }
+
+    const streetValidation = validateRequired(formData.street, "Street address");
+    if (!streetValidation.valid) {
+      newErrors.street = streetValidation.message;
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.name.trim()) {
-      toast.error("Property name is required");
-      return;
-    }
-
-    if (!formData.street.trim()) {
-      toast.error("Street address is required");
+    if (!validateForm()) {
       return;
     }
 
     try {
-      // Transform formData to match server structure
       const propertyData = {
         name: formData.name,
         address: {
@@ -133,48 +160,52 @@ export default function PropertiesPage() {
     }
   };
 
-  const handleDelete = async (propertyId, propertyName) => {
-    if (!confirm(`Are you sure you want to delete "${propertyName}"?`)) {
-      return;
-    }
+  const handleDeleteClick = (propertyId, propertyName) => {
+    setPropertyToDelete({ id: propertyId, name: propertyName });
+    setDeleteDialogOpen(true);
+  };
 
-    const result = await deleteProperty(propertyId);
+  const handleDeleteConfirm = async () => {
+    if (!propertyToDelete) return;
+
+    const result = await deleteProperty(propertyToDelete.id);
     if (result.success) {
       toast.success("Property deleted successfully");
       fetchProperties();
     } else {
       toast.error(result.message || "Failed to delete property");
     }
+    setPropertyToDelete(null);
   };
 
-  const filteredProperties = (properties || []).filter((property) =>
-    property.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    property.address?.street?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    property.address?.city?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredProperties = (properties || []).filter(
+    (property) =>
+      property.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      property.address?.street?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      property.address?.city?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
     <AdminLayout>
-      <div className={styles.pageHeader}>
-        <div>
-          <h2 className={styles.pageTitle}>Properties</h2>
-        </div>
-        <div className={styles.pageActions}>
-          <div className={styles.searchBar}>
-            <MdSearch size={20} color="var(--warm-gray)" />
-            <input
-              type="text"
+      <PageHeader
+        actions={
+          <>
+            <SearchBar
               placeholder="Search properties..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              onClear={() => setSearchTerm("")}
             />
-          </div>
-          <button className={styles.primaryButton} onClick={openCreateModal}>
-            <MdAdd size={20} />
-            Add Property
-          </button>
-        </div>
-      </div>
+            <Button
+              variant="primary"
+              icon={<MdAdd size={20} />}
+              onClick={openCreateModal}
+            >
+              Add Property
+            </Button>
+          </>
+        }
+      />
 
       <div className={styles.tableCard}>
         {filteredProperties.length === 0 ? (
@@ -187,10 +218,13 @@ export default function PropertiesPage() {
                 : "Get started by creating your first property"}
             </p>
             {!searchTerm && (
-              <button className={styles.primaryButton} onClick={openCreateModal}>
-                <MdAdd size={20} />
+              <Button
+                variant="primary"
+                icon={<MdAdd size={20} />}
+                onClick={openCreateModal}
+              >
                 Add Property
-              </button>
+              </Button>
             )}
           </div>
         ) : (
@@ -220,32 +254,30 @@ export default function PropertiesPage() {
                     <td>{property.address?.city || "N/A"}</td>
                     <td>{property.totalUnits || 0}</td>
                     <td>
-                      <span className={`${styles.badge} ${styles.success}`}>
-                        Active
-                      </span>
+                      <Badge variant="success">Active</Badge>
                     </td>
                     <td>
                       <div className={styles.actionButtons}>
-                        <button
-                          className={`${styles.iconButton} ${styles.edit}`}
+                        <Button
+                          variant="icon"
+                          icon={<MdEdit size={18} />}
                           onClick={(e) => {
                             e.stopPropagation();
                             openEditModal(property);
                           }}
                           title="Edit"
-                        >
-                          <MdEdit size={18} />
-                        </button>
-                        <button
-                          className={`${styles.iconButton} ${styles.delete}`}
+                          className={styles.edit}
+                        />
+                        <Button
+                          variant="icon"
+                          icon={<MdDelete size={18} />}
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleDelete(property._id, property.name);
+                            handleDeleteClick(property._id, property.name);
                           }}
                           title="Delete"
-                        >
-                          <MdDelete size={18} />
-                        </button>
+                          className={styles.delete}
+                        />
                       </div>
                     </td>
                   </tr>
@@ -256,114 +288,102 @@ export default function PropertiesPage() {
         )}
       </div>
 
-      {/* Modal */}
-      {showModal && (
-        <div className={styles.modalOverlay} onClick={() => setShowModal(false)}>
-          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-            <div className={styles.modalHeader}>
-              <h3 className={styles.modalTitle}>
-                {editingProperty ? "Edit Property" : "Add New Property"}
-              </h3>
-              <button
-                className={styles.modalClose}
-                onClick={() => setShowModal(false)}
-              >
-                <MdClose />
-              </button>
-            </div>
-            <form onSubmit={handleSubmit}>
-              <div className={styles.modalBody}>
-                <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>Property Name *</label>
-                  <input
-                    type="text"
-                    name="name"
-                    className={styles.formInput}
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    placeholder="e.g., Greenview Apartments"
-                    required
-                  />
-                </div>
+      {/* Property Modal */}
+      <Modal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        title={editingProperty ? "Edit Property" : "Add New Property"}
+        size="medium"
+        actions={
+          <>
+            <Button variant="secondary" onClick={() => setShowModal(false)}>
+              Cancel
+            </Button>
+            <Button variant="primary" onClick={handleSubmit}>
+              {editingProperty ? "Update Property" : "Create Property"}
+            </Button>
+          </>
+        }
+      >
+        <form onSubmit={handleSubmit}>
+          <FormGroup label="Property Name" required error={errors.name}>
+            <FormInput
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleInputChange}
+              placeholder="e.g., Greenview Apartments"
+              error={!!errors.name}
+            />
+          </FormGroup>
 
-                <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>Street Address *</label>
-                  <input
-                    type="text"
-                    name="street"
-                    className={styles.formInput}
-                    value={formData.street}
-                    onChange={handleInputChange}
-                    placeholder="e.g., 123 Main Street, Kahawa"
-                    required
-                  />
-                </div>
+          <FormGroup label="Street Address" required error={errors.street}>
+            <FormInput
+              type="text"
+              name="street"
+              value={formData.street}
+              onChange={handleInputChange}
+              placeholder="e.g., 123 Main Street, Kahawa"
+              error={!!errors.street}
+            />
+          </FormGroup>
 
-                <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>City</label>
-                  <input
-                    type="text"
-                    name="city"
-                    className={styles.formInput}
-                    value={formData.city}
-                    onChange={handleInputChange}
-                    placeholder="e.g., Nairobi"
-                  />
-                </div>
+          <FormGroup label="City">
+            <FormInput
+              type="text"
+              name="city"
+              value={formData.city}
+              onChange={handleInputChange}
+              placeholder="e.g., Nairobi"
+            />
+          </FormGroup>
 
-                <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>Country</label>
-                  <input
-                    type="text"
-                    name="country"
-                    className={styles.formInput}
-                    value={formData.country}
-                    onChange={handleInputChange}
-                    placeholder="e.g., Kenya"
-                  />
-                </div>
+          <FormGroup label="Country">
+            <FormInput
+              type="text"
+              name="country"
+              value={formData.country}
+              onChange={handleInputChange}
+              placeholder="e.g., Kenya"
+            />
+          </FormGroup>
 
-                <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>Total Units</label>
-                  <input
-                    type="number"
-                    name="totalUnits"
-                    className={styles.formInput}
-                    value={formData.totalUnits}
-                    onChange={handleInputChange}
-                    placeholder="e.g., 50"
-                    min="1"
-                  />
-                </div>
+          <FormGroup label="Total Units">
+            <FormInput
+              type="number"
+              name="totalUnits"
+              value={formData.totalUnits}
+              onChange={handleInputChange}
+              placeholder="e.g., 50"
+              min="1"
+            />
+          </FormGroup>
 
-                <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>Description</label>
-                  <textarea
-                    name="description"
-                    className={styles.formTextarea}
-                    value={formData.description}
-                    onChange={handleInputChange}
-                    placeholder="Brief description of the property..."
-                  />
-                </div>
-              </div>
+          <FormGroup label="Description">
+            <FormTextarea
+              name="description"
+              value={formData.description}
+              onChange={handleInputChange}
+              placeholder="Brief description of the property..."
+              rows={4}
+            />
+          </FormGroup>
+        </form>
+      </Modal>
 
-              <div className={styles.modalFooter}>
-                <button
-                  type="button"
-                  className={styles.secondaryButton}
-                  onClick={() => setShowModal(false)}
-                >
-                  Cancel
-                </button>
-                <button type="submit" className={styles.primaryButton}>
-                  {editingProperty ? "Update Property" : "Create Property"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={deleteDialogOpen}
+        onClose={() => {
+          setDeleteDialogOpen(false);
+          setPropertyToDelete(null);
+        }}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Property"
+        message={`Are you sure you want to delete "${propertyToDelete?.name}"? This action cannot be undone.`}
+        confirmText="Delete"
+        variant="danger"
+      />
     </AdminLayout>
   );
 }

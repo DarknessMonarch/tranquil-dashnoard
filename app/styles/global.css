@@ -1,6 +1,5 @@
 @media screen {
   * {
-    /* Tranquil Brand Colors - Green/Dark Blue Theme */
     --primary-color: #0D1925;
     --primary-light-color: #e6e9ec;
     --primary-lighter-color: #f2f4f6;
@@ -121,8 +120,6 @@
 
   input {
     outline: none;
-    border-radius: var(--radius-md);
-    padding: var(--spacing-sm) var(--spacing-md);
     font-size: var(--font-size-base);
     font-family: var(--font-family-primary);
     transition: all var(--transition-base);
@@ -134,8 +131,7 @@
   input:focus,
   input:hover {
     outline: none;
-    border-color: var(--secondary-color);
-    box-shadow: 0 0 0 3px rgba(111, 173, 66, 0.1);
+    border: none;
   }
 
   /* Prevent zoom on input focus for mobile devices */

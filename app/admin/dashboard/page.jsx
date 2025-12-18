@@ -5,15 +5,15 @@ import { useRouter } from "next/navigation";
 import { useLandlordStore } from "@/app/store/LandlordStore";
 import { useAuthStore } from "@/app/store/AuthStore";
 import AdminLayout from "@/app/components/AdminLayout";
+import PageHeader from "@/app/components/PageHeader";
+import MetricCard from "@/app/components/MetricCard";
+import Button from "@/app/components/Button";
+import { formatCurrency } from "@/app/lib/formatters";
 import styles from "@/app/styles/adminDashboard.module.css";
 
 import {
   MdAttachMoney,
-  MdTrendingUp,
-  MdTrendingDown,
   MdApartment,
-  MdPeople,
-  MdBuild,
   MdCheckCircle,
   MdWarning,
 } from "react-icons/md";
@@ -43,8 +43,8 @@ export default function AdminDashboard() {
     setIsLoading(true);
     try {
       await Promise.all([
-        fetchAnalytics(), // Fetch analytics for all properties
-        fetchProperties(), // Fetch all properties
+        fetchAnalytics(),
+        fetchProperties(),
       ]);
     } catch (error) {
       console.error("Error loading dashboard data:", error);
@@ -53,56 +53,53 @@ export default function AdminDashboard() {
     }
   };
 
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat("en-KE", {
-      style: "currency",
-      currency: "KES",
-      minimumFractionDigits: 0,
-    }).format(amount || 0);
-  };
-
   const metrics = [
     {
       label: "Total Properties",
       value: properties?.length || 0,
       icon: MdApartment,
-      color: "blue",
+      color: "primary",
     },
     {
       label: "Total Revenue",
       value: formatCurrency(analytics?.currentMonth?.totalRevenue || 0),
       icon: MdAttachMoney,
-      color: "green",
+      color: "success",
     },
     {
       label: "Collected",
       value: formatCurrency(analytics?.currentMonth?.collectedRevenue || 0),
       icon: MdCheckCircle,
-      color: "purple",
+      color: "secondary",
     },
     {
       label: "Arrears",
       value: formatCurrency(analytics?.currentMonth?.arrears || 0),
       icon: MdWarning,
-      color: "orange",
+      color: "warning",
     },
   ];
 
   return (
     <AdminLayout>
+      <PageHeader subtitle="Welcome back! Here's an overview of your properties" />
+
       <div className={styles.dashboardGrid}>
         {/* Metrics */}
         <div className={styles.metricsGrid}>
           {metrics.map((metric, idx) => (
-            <div key={idx} className={styles.metricCard}>
-              <div className={styles.metricHeader}>
-                <div className={`${styles.metricIcon} ${styles[metric.color]}`}>
-                  <metric.icon />
-                </div>
-              </div>
-              <div className={styles.metricLabel}>{metric.label}</div>
-              <div className={styles.metricValue}>{metric.value}</div>
-            </div>
+            <MetricCard
+              key={idx}
+              icon={metric.icon}
+              label={metric.label}
+              value={metric.value}
+              color={metric.color}
+              onClick={() => {
+                if (metric.label === "Total Properties") {
+                  router.push("/admin/properties");
+                }
+              }}
+            />
           ))}
         </div>
 
@@ -145,45 +142,34 @@ export default function AdminDashboard() {
         <div className={styles.recentActivity}>
           <div className={styles.activityHeader}>
             <h3 className={styles.activityTitle}>Properties Overview</h3>
-            <button
-              className={styles.primaryButton}
+            <Button
+              variant="primary"
               onClick={() => router.push("/admin/properties")}
             >
               View All
-            </button>
+            </Button>
           </div>
           <div className={styles.activityList}>
-            {properties && properties.length > 0 ? (
-              properties.slice(0, 5).map((property, idx) => (
-                <div
-                  key={idx}
-                  className={styles.activityItem}
-                  onClick={() => router.push(`/admin/properties/${property._id}`)}
-                  style={{ cursor: 'pointer' }}
-                >
-                  <div className={`${styles.activityIcon} ${styles.blue}`}>
-                    <MdApartment />
-                  </div>
-                  <div className={styles.activityContent}>
-                    <div className={styles.activityTitle}>
-                      {property.name}
-                    </div>
-                    <div className={styles.activityDescription}>
-                      {property.address?.street || property.address} - {property.totalUnits || 0} units
-                    </div>
-                  </div>
-                  <div className={styles.activityTime}>
-                    <span className={`${styles.statusBadge} ${styles.success}`}>
-                      Active
-                    </span>
-                  </div>
+            {properties?.slice(0, 5).map((property) => (
+              <div
+                key={property._id}
+                className={styles.activityItem}
+                onClick={() => router.push(`/admin/properties/${property._id}`)}
+              >
+                <div className={styles.activityIcon}>
+                  <MdApartment />
                 </div>
-              ))
-            ) : (
-              <div style={{ textAlign: "center", padding: "2rem", color: "var(--warm-gray)" }}>
-                No properties found. Create your first property to get started.
+                <div className={styles.activityDetails}>
+                  <p className={styles.activityName}>{property.name}</p>
+                  <p className={styles.activityDescription}>
+                    {property.address?.street}, {property.address?.city}
+                  </p>
+                </div>
+                <div className={styles.activityValue}>
+                  {property.totalUnits || 0} units
+                </div>
               </div>
-            )}
+            ))}
           </div>
         </div>
       </div>

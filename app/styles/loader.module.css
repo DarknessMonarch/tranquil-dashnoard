@@ -1,62 +1,39 @@
-@media screen {
-  .loadingComponent {
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    display: flex;
-    position: fixed;
-    align-items: center;
-    justify-content: center;
+.loader {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
   }
-  .loader {
-    width: 30px;
-    height: 30px;
-    display: inline-block;
-    position: relative;
+  100% {
+    transform: rotate(360deg);
   }
-  .loader::after,
-  .loader::before {
-    content: '';  
-    box-sizing: border-box;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    border: 2px solid var(--background-color);
-    position: absolute;
-    left: 0;
-    top: 0;
-    animation: animloader 2s linear infinite;
-  }
-  .loader::after {
-    animation-delay: 1s;
-  }
-  
-  @keyframes animloader {
-    0% {
-      transform: scale(0);
-      opacity: 1;
-    }
-    100% {
-      transform: scale(1);
-      opacity: 0;
-    }
-  }
-  }
-  /* using it as global style for larger devices  */
-  @media only screen and (min-width: 48em) {
-  }
-  
-  /* ipad pro screens & laptop */
-  @media only screen and (min-width: 49em) and (max-width: 64em) {
-  }
-  
-  /* large screens : Desktop and 4k screens */
-  
-  @media only screen and (min-width: 64.063em) and (max-width: 90em) {
-  }
-  
-  /* 5k screens and above */
-  @media only screen and (min-width: 91em) {
-  }
-  
+}
+
+/* Full page loader container */
+.loadingComponent {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--background-color);
+}
+
+/* Page loader spinner (larger, with green theme) */
+.loadingComponent .loader {
+  width: 60px;
+  height: 60px;
+  border: 4px solid rgba(111, 173, 66, 0.2);
+  border-top-color: var(--secondary-color);
+}

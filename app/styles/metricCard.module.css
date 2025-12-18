@@ -1,0 +1,112 @@
+.metricCard {
+  background: white;
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-light);
+  transition: all var(--transition-base);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+}
+
+.metricCard.clickable {
+  cursor: pointer;
+}
+
+.metricCard.clickable:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
+  border-color: var(--secondary-color);
+}
+
+.iconWrapper {
+  width: 60px;
+  height: 60px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.icon {
+  font-size: 2rem;
+  color: white;
+}
+
+/* Color Variants */
+.primary {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover-color) 100%);
+}
+
+.secondary {
+  background: linear-gradient(135deg, var(--secondary-color) 0%, var(--secondary-hover-color) 100%);
+}
+
+.tertiary {
+  background: linear-gradient(135deg, var(--tertiary-color) 0%, var(--tertiary-hover-color) 100%);
+}
+
+.success {
+  background: linear-gradient(135deg, #6FAD42 0%, #5a8f35 100%);
+}
+
+.warning {
+  background: linear-gradient(135deg, #FDDD81 0%, #fcd24d 100%);
+}
+
+.danger {
+  background: linear-gradient(135deg, #FF3B30 0%, #e63629 100%);
+}
+
+.info {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.label {
+  font-size: var(--font-size-sm);
+  color: var(--warm-gray);
+  font-weight: var(--font-weight-medium);
+  margin: 0;
+}
+
+.value {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--dark-color);
+  margin: 0;
+}
+
+.trend {
+  font-size: var(--font-size-xs);
+  color: var(--warm-gray);
+  margin: 0;
+}
+
+@media only screen and (max-width: 768px) {
+  .metricCard {
+    padding: var(--spacing-md);
+    gap: var(--spacing-md);
+  }
+
+  .iconWrapper {
+    width: 48px;
+    height: 48px;
+  }
+
+  .icon {
+    font-size: 1.5rem;
+  }
+
+  .value {
+    font-size: var(--font-size-xl);
+  }
+}

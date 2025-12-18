@@ -4,7 +4,7 @@ import Head from 'next/head';
 import Script from 'next/script';
 import { useEffect } from "react";
 import { useRouter } from 'next/navigation';
-import LoadingLogo from "@/app/components/LoadingLogo";
+import styles from "@/app/styles/loader.module.css";
 
 export default function App() {
   const router = useRouter();
@@ -32,8 +32,8 @@ export default function App() {
         `}
       </Script>
 
-       <div className="loadingAppMain">
-        <LoadingLogo />
+      <div className={styles.loadingComponent}>
+        <div className={styles.loader}></div>
       </div>
     </>
   );

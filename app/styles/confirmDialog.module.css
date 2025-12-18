@@ -1,0 +1,6 @@
+.message {
+  font-size: var(--font-size-base);
+  color: var(--dark-color);
+  line-height: 1.6;
+  margin: 0;
+}

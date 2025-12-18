@@ -1,0 +1,121 @@
+/* Base Badge Styles */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-family-primary);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-full);
+  white-space: nowrap;
+  transition: all var(--transition-base);
+}
+
+/* Size Variants */
+.small {
+  padding: 2px 8px;
+  font-size: var(--font-size-xs);
+}
+
+.medium {
+  padding: 4px 12px;
+  font-size: var(--font-size-sm);
+}
+
+.large {
+  padding: 6px 16px;
+  font-size: var(--font-size-base);
+}
+
+/* Variant: Success (Green) */
+.success {
+  background: var(--secondary-light-color);
+  color: var(--secondary-hover-color);
+  border: 1px solid var(--secondary-color);
+}
+
+/* Variant: Warning (Yellow) */
+.warning {
+  background: var(--tertiary-light-color);
+  color: #d97706;
+  border: 1px solid var(--tertiary-color);
+}
+
+/* Variant: Danger/Error (Red) */
+.danger {
+  background: #fee2e2;
+  color: #dc2626;
+  border: 1px solid var(--error-color);
+}
+
+/* Variant: Info (Blue) */
+.info {
+  background: #dbeafe;
+  color: #1e40af;
+  border: 1px solid var(--info-color);
+}
+
+/* Variant: Neutral/Default (Gray) */
+.neutral {
+  background: var(--light-gray);
+  color: var(--warm-gray);
+  border: 1px solid var(--border-color);
+}
+
+/* Variant: Primary (Dark) */
+.primary {
+  background: var(--primary-light-color);
+  color: var(--primary-color);
+  border: 1px solid var(--primary-hover-color);
+}
+
+/* Additional status-specific badges */
+.verified {
+  background: var(--secondary-light-color);
+  color: var(--secondary-hover-color);
+  border: 1px solid var(--secondary-color);
+}
+
+.unverified {
+  background: #fee2e2;
+  color: #dc2626;
+  border: 1px solid var(--error-color);
+}
+
+.pending {
+  background: var(--tertiary-light-color);
+  color: #d97706;
+  border: 1px solid var(--tertiary-color);
+}
+
+.active {
+  background: var(--secondary-light-color);
+  color: var(--secondary-hover-color);
+  border: 1px solid var(--secondary-color);
+}
+
+.inactive {
+  background: var(--light-gray);
+  color: var(--warm-gray);
+  border: 1px solid var(--border-color);
+}
+
+/* Role Badges */
+.admin {
+  background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
+  color: white;
+  border: none;
+  font-weight: var(--font-weight-semibold);
+}
+
+.landlord {
+  background: var(--primary-light-color);
+  color: var(--primary-color);
+  border: 1px solid var(--primary-hover-color);
+  font-weight: var(--font-weight-semibold);
+}
+
+.tenant {
+  background: var(--secondary-light-color);
+  color: var(--secondary-hover-color);
+  border: 1px solid var(--secondary-color);
+}

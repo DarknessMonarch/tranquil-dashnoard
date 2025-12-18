@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Loader from "@/app/components/Loader";
+import LogoImg from "@/public/assets/logo.png";
 import { useAuthStore } from "@/app/store/AuthStore";
 import styles from "@/app/styles/auth.module.css";
 
@@ -90,12 +91,15 @@ export default function AdminLogin() {
       >
         <div className={styles.formLogo}>
           <Image
-            src="/assets/logo.png"
-            alt="Tranquil Logo"
-            width={120}
-            height={40}
-            className={styles.logo}
-            priority
+            src={LogoImg}
+            alt="Tranquil image"
+            fill
+            sizes="100%"
+            quality={100}
+            style={{
+              objectFit: "contain",
+            }}
+            priority={true}
           />
         </div>
         <div className={styles.formHeader}>
@@ -170,9 +174,7 @@ export default function AdminLogin() {
           {isLoading ? <Loader /> : "Sign In"}
         </button>
 
-        <p style={{ textAlign: "center", color: "var(--warm-gray)", marginTop: "1rem" }}>
-          Tranquil Property Management System
-        </p>
+        <p>Tranquil Property Management System</p>
       </form>
     </div>
   );

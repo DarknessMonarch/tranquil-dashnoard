@@ -6,10 +6,16 @@ import { toast } from "sonner";
 import { useAdminStore } from "@/app/store/AdminStore";
 import { useAuthStore } from "@/app/store/AuthStore";
 import AdminLayout from "@/app/components/AdminLayout";
+import PageHeader from "@/app/components/PageHeader";
+import SearchBar from "@/app/components/SearchBar";
+import Tabs from "@/app/components/Tabs";
+import Badge from "@/app/components/Badge";
+import Button from "@/app/components/Button";
+import ConfirmDialog from "@/app/components/ConfirmDialog";
+import { formatDate } from "@/app/lib/formatters";
 import styles from "@/app/styles/adminTable.module.css";
 
 import {
-  MdSearch,
   MdDelete,
   MdPerson,
   MdAdminPanelSettings,
@@ -23,6 +29,8 @@ export default function UsersPage() {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("all");
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
 
   useEffect(() => {
     if (!isAuth || !isAdmin) {
@@ -33,27 +41,39 @@ export default function UsersPage() {
     getAllUsers();
   }, [isAuth, isAdmin]);
 
-  const handleDelete = async (userId, username) => {
-    if (!confirm(`Are you sure you want to delete user "${username}"?`)) {
-      return;
-    }
+  const handleDeleteClick = (userId, username) => {
+    setUserToDelete({ id: userId, name: username });
+    setDeleteDialogOpen(true);
+  };
 
-    const result = await deleteUser(userId);
+  const handleDeleteConfirm = async () => {
+    if (!userToDelete) return;
+
+    const result = await deleteUser(userToDelete.id);
     if (result.success) {
       toast.success("User deleted successfully");
     } else {
       toast.error(result.message || "Failed to delete user");
     }
+    setUserToDelete(null);
   };
 
-  const getRoleBadge = (role) => {
+  const getRoleBadgeVariant = (role) => {
     const roleMap = {
-      landlord: { style: "success", label: "Landlord" },
-      tenant: { style: "info", label: "Tenant" },
-      admin: { style: "warning", label: "Admin" },
+      landlord: "landlord",
+      tenant: "tenant",
+      admin: "admin",
     };
-    const info = roleMap[role] || roleMap.tenant;
-    return <span className={`${styles.badge} ${styles[info.style]}`}>{info.label}</span>;
+    return roleMap[role] || "tenant";
+  };
+
+  const getRoleLabel = (role) => {
+    const roleMap = {
+      landlord: "Landlord",
+      tenant: "Tenant",
+      admin: "Admin",
+    };
+    return roleMap[role] || "Tenant";
   };
 
   // Filter by tab first
@@ -80,132 +100,48 @@ export default function UsersPage() {
 
   // Calculate counts for tabs
   const allCount = users?.length || 0;
-  const adminsCount = (users || []).filter(u => u.role === "admin" || u.isAdmin === true).length;
-  const tenantsCount = (users || []).filter(u => u.role === "tenant").length;
+  const adminsCount = (users || []).filter(
+    (u) => u.role === "admin" || u.isAdmin === true
+  ).length;
+  const tenantsCount = (users || []).filter((u) => u.role === "tenant").length;
+
+  // Tabs configuration
+  const tabs = [
+    {
+      id: "all",
+      label: "All Users",
+      icon: <MdPerson size={20} />,
+      count: allCount,
+    },
+    {
+      id: "admins",
+      label: "Admins",
+      icon: <MdAdminPanelSettings size={20} />,
+      count: adminsCount,
+    },
+    {
+      id: "tenants",
+      label: "Tenants",
+      icon: <MdHome size={20} />,
+      count: tenantsCount,
+    },
+  ];
 
   return (
     <AdminLayout>
-      <div className={styles.pageHeader}>
-        <div>
-          <h2 className={styles.pageTitle}>Users Management</h2>
-          <p style={{ color: "var(--warm-gray)", fontSize: "var(--font-size-sm)" }}>
-            Manage all system users
-          </p>
-        </div>
-        <div className={styles.pageActions}>
-          <div className={styles.searchBar}>
-            <MdSearch size={20} color="var(--warm-gray)" />
-            <input
-              type="text"
-              placeholder="Search users..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-        </div>
-      </div>
+      <PageHeader
+        subtitle="Manage all system users"
+        actions={
+          <SearchBar
+            placeholder="Search users..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onClear={() => setSearchTerm("")}
+          />
+        }
+      />
 
-      {/* Tabs */}
-      <div style={{
-        display: 'flex',
-        gap: '12px',
-        marginBottom: '24px',
-        borderBottom: '1px solid var(--border-color)',
-        overflowX: 'auto'
-      }}>
-        <button
-          onClick={() => setActiveTab("all")}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            padding: '12px 20px',
-            background: 'transparent',
-            border: 'none',
-            borderBottom: `2px solid ${activeTab === "all" ? 'var(--secondary-color)' : 'transparent'}`,
-            color: activeTab === "all" ? 'var(--secondary-color)' : 'var(--warm-gray)',
-            cursor: 'pointer',
-            fontSize: 'var(--font-size-base)',
-            fontWeight: '500',
-            transition: 'all 0.2s ease',
-            whiteSpace: 'nowrap'
-          }}
-        >
-          <MdPerson size={20} />
-          <span>All Users</span>
-          <span style={{
-            padding: '2px 8px',
-            borderRadius: '12px',
-            background: activeTab === "all" ? 'rgba(111, 173, 66, 0.1)' : 'rgba(0, 0, 0, 0.05)',
-            fontSize: 'var(--font-size-xs)',
-            fontWeight: '600'
-          }}>
-            {allCount}
-          </span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab("admins")}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            padding: '12px 20px',
-            background: 'transparent',
-            border: 'none',
-            borderBottom: `2px solid ${activeTab === "admins" ? 'var(--secondary-color)' : 'transparent'}`,
-            color: activeTab === "admins" ? 'var(--secondary-color)' : 'var(--warm-gray)',
-            cursor: 'pointer',
-            fontSize: 'var(--font-size-base)',
-            fontWeight: '500',
-            transition: 'all 0.2s ease',
-            whiteSpace: 'nowrap'
-          }}
-        >
-          <MdAdminPanelSettings size={20} />
-          <span>Admins</span>
-          <span style={{
-            padding: '2px 8px',
-            borderRadius: '12px',
-            background: activeTab === "admins" ? 'rgba(111, 173, 66, 0.1)' : 'rgba(0, 0, 0, 0.05)',
-            fontSize: 'var(--font-size-xs)',
-            fontWeight: '600'
-          }}>
-            {adminsCount}
-          </span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab("tenants")}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            padding: '12px 20px',
-            background: 'transparent',
-            border: 'none',
-            borderBottom: `2px solid ${activeTab === "tenants" ? 'var(--secondary-color)' : 'transparent'}`,
-            color: activeTab === "tenants" ? 'var(--secondary-color)' : 'var(--warm-gray)',
-            cursor: 'pointer',
-            fontSize: 'var(--font-size-base)',
-            fontWeight: '500',
-            transition: 'all 0.2s ease',
-            whiteSpace: 'nowrap'
-          }}
-        >
-          <MdHome size={20} />
-          <span>Tenants</span>
-          <span style={{
-            padding: '2px 8px',
-            borderRadius: '12px',
-            background: activeTab === "tenants" ? 'rgba(111, 173, 66, 0.1)' : 'rgba(0, 0, 0, 0.05)',
-            fontSize: 'var(--font-size-xs)',
-            fontWeight: '600'
-          }}>
-            {tenantsCount}
-          </span>
-        </button>
-      </div>
+      <Tabs tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
 
       <div className={styles.tableCard}>
         {usersLoading ? (
@@ -244,32 +180,28 @@ export default function UsersPage() {
                     </td>
                     <td>{user.email || "N/A"}</td>
                     <td>{user.phone || "N/A"}</td>
-                    <td>{getRoleBadge(user.role)}</td>
                     <td>
-                      {user.emailVerified ? (
-                        <span className={`${styles.badge} ${styles.success}`}>
-                          Verified
-                        </span>
-                      ) : (
-                        <span className={`${styles.badge} ${styles.warning}`}>
-                          Unverified
-                        </span>
-                      )}
+                      <Badge variant={getRoleBadgeVariant(user.role)}>
+                        {getRoleLabel(user.role)}
+                      </Badge>
                     </td>
                     <td>
-                      {user.createdAt
-                        ? new Date(user.createdAt).toLocaleDateString()
-                        : "N/A"}
+                      <Badge variant={user.emailVerified ? "verified" : "unverified"}>
+                        {user.emailVerified ? "Verified" : "Unverified"}
+                      </Badge>
                     </td>
+                    <td>{formatDate(user.createdAt)}</td>
                     <td>
                       <div className={styles.actionButtons}>
-                        <button
-                          className={`${styles.iconButton} ${styles.delete}`}
-                          onClick={() => handleDelete(user._id, user.username)}
+                        <Button
+                          variant="icon"
+                          icon={<MdDelete size={18} />}
+                          onClick={() =>
+                            handleDeleteClick(user._id, user.username)
+                          }
                           title="Delete"
-                        >
-                          <MdDelete size={18} />
-                        </button>
+                          className={styles.delete}
+                        />
                       </div>
                     </td>
                   </tr>
@@ -279,6 +211,19 @@ export default function UsersPage() {
           </div>
         )}
       </div>
+
+      <ConfirmDialog
+        isOpen={deleteDialogOpen}
+        onClose={() => {
+          setDeleteDialogOpen(false);
+          setUserToDelete(null);
+        }}
+        onConfirm={handleDeleteConfirm}
+        title="Delete User"
+        message={`Are you sure you want to delete "${userToDelete?.name}"? This action cannot be undone.`}
+        confirmText="Delete"
+        variant="danger"
+      />
     </AdminLayout>
   );
 }
