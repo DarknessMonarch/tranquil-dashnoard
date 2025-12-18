@@ -22,11 +22,10 @@ export default function AdminDashboard() {
   const router = useRouter();
   const { isAuth, isLandlord, isAdmin } = useAuthStore();
   const {
-    selectedProperty,
+    properties,
     analytics,
     fetchAnalytics,
-    maintenanceRequests,
-    fetchMaintenanceRequests,
+    fetchProperties,
   } = useLandlordStore();
 
   const [isLoading, setIsLoading] = useState(true);
@@ -37,19 +36,15 @@ export default function AdminDashboard() {
       return;
     }
 
-    if (selectedProperty) {
-      loadDashboardData();
-    } else {
-      setIsLoading(false);
-    }
-  }, [selectedProperty, isAuth, isLandlord, isAdmin]);
+    loadDashboardData();
+  }, [isAuth, isLandlord, isAdmin]);
 
   const loadDashboardData = async () => {
     setIsLoading(true);
     try {
       await Promise.all([
-        fetchAnalytics(selectedProperty._id),
-        fetchMaintenanceRequests(selectedProperty._id),
+        fetchAnalytics(), // Fetch analytics for all properties
+        fetchProperties(), // Fetch all properties
       ]);
     } catch (error) {
       console.error("Error loading dashboard data:", error);
@@ -68,16 +63,22 @@ export default function AdminDashboard() {
 
   const metrics = [
     {
+      label: "Total Properties",
+      value: properties?.length || 0,
+      icon: MdApartment,
+      color: "blue",
+    },
+    {
       label: "Total Revenue",
       value: formatCurrency(analytics?.currentMonth?.totalRevenue || 0),
       icon: MdAttachMoney,
-      color: "blue",
+      color: "green",
     },
     {
       label: "Collected",
       value: formatCurrency(analytics?.currentMonth?.collectedRevenue || 0),
       icon: MdCheckCircle,
-      color: "green",
+      color: "purple",
     },
     {
       label: "Arrears",
@@ -85,33 +86,7 @@ export default function AdminDashboard() {
       icon: MdWarning,
       color: "orange",
     },
-    {
-      label: "Occupancy Rate",
-      value: `${analytics?.occupancyRate || 0}%`,
-      icon: MdApartment,
-      color: "purple",
-    },
   ];
-
-  if (!selectedProperty) {
-    return (
-      <AdminLayout>
-        <div className={styles.emptyState}>
-          <MdApartment className={styles.emptyStateIcon} />
-          <h2 className={styles.emptyStateTitle}>No Property Selected</h2>
-          <p className={styles.emptyStateDescription}>
-            Please select a property from the dropdown above or create a new property to get started.
-          </p>
-          <button
-            className={styles.primaryButton}
-            onClick={() => router.push("/admin/properties")}
-          >
-            Manage Properties
-          </button>
-        </div>
-      </AdminLayout>
-    );
-  }
 
   return (
     <AdminLayout>
@@ -166,36 +141,47 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Maintenance Summary */}
+        {/* Properties Overview */}
         <div className={styles.recentActivity}>
           <div className={styles.activityHeader}>
-            <h3 className={styles.activityTitle}>Maintenance Overview</h3>
+            <h3 className={styles.activityTitle}>Properties Overview</h3>
+            <button
+              className={styles.primaryButton}
+              onClick={() => router.push("/admin/properties")}
+            >
+              View All
+            </button>
           </div>
           <div className={styles.activityList}>
-            {maintenanceRequests && maintenanceRequests.length > 0 ? (
-              maintenanceRequests.slice(0, 5).map((request, idx) => (
-                <div key={idx} className={styles.activityItem}>
-                  <div className={`${styles.activityIcon} ${styles.maintenance}`}>
-                    <MdBuild />
+            {properties && properties.length > 0 ? (
+              properties.slice(0, 5).map((property, idx) => (
+                <div
+                  key={idx}
+                  className={styles.activityItem}
+                  onClick={() => router.push(`/admin/properties/${property._id}`)}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <div className={`${styles.activityIcon} ${styles.blue}`}>
+                    <MdApartment />
                   </div>
                   <div className={styles.activityContent}>
                     <div className={styles.activityTitle}>
-                      {request.category?.charAt(0).toUpperCase() + request.category?.slice(1)} Request
+                      {property.name}
                     </div>
                     <div className={styles.activityDescription}>
-                      {request.description?.substring(0, 50)}... - Unit {request.unit?.unitNumber}
+                      {property.address?.street || property.address} - {property.totalUnits || 0} units
                     </div>
                   </div>
                   <div className={styles.activityTime}>
-                    <span className={`${styles.statusBadge} ${styles[request.status]}`}>
-                      {request.status}
+                    <span className={`${styles.statusBadge} ${styles.success}`}>
+                      Active
                     </span>
                   </div>
                 </div>
               ))
             ) : (
               <div style={{ textAlign: "center", padding: "2rem", color: "var(--warm-gray)" }}>
-                No maintenance requests
+                No properties found. Create your first property to get started.
               </div>
             )}
           </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { toast } from "sonner";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -87,6 +88,16 @@ export default function AdminLogin() {
         className={styles.formContainer}
         autoComplete="on"
       >
+        <div className={styles.formLogo}>
+          <Image
+            src="/assets/logo.png"
+            alt="Tranquil Logo"
+            width={120}
+            height={40}
+            className={styles.logo}
+            priority
+          />
+        </div>
         <div className={styles.formHeader}>
           <h1>Admin Portal</h1>
           <p>Sign in to manage your properties</p>

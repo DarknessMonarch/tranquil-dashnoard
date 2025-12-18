@@ -3,28 +3,19 @@
 import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuthStore } from "@/app/store/AuthStore";
-import { useLandlordStore } from "@/app/store/LandlordStore";
 import styles from "@/app/styles/adminLayout.module.css";
 
+import Image from "next/image";
 import {
   MdDashboard,
   MdApartment,
-  MdMeetingRoom,
-  MdPeople,
-  MdBuild,
-  MdCampaign,
-  MdBarChart,
   MdSettings,
   MdLogout,
   MdMenu,
   MdNotifications,
   MdClose,
-  MdReceipt,
-  MdPayment,
   MdPerson,
 } from "react-icons/md";
-
-import { FiChevronDown } from "react-icons/fi";
 
 export default function AdminLayout({ children }) {
   const router = useRouter();
@@ -32,12 +23,6 @@ export default function AdminLayout({ children }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const { isAuth, isLandlord, isAdmin, username, clearUser } = useAuthStore();
-  const {
-    selectedProperty,
-    properties,
-    setSelectedProperty,
-    fetchProperties,
-  } = useLandlordStore();
 
   useEffect(() => {
     // Check authentication
@@ -45,24 +30,11 @@ export default function AdminLayout({ children }) {
       router.push("/admin/login");
       return;
     }
-
-    // Fetch properties on mount
-    if (properties.length === 0) {
-      fetchProperties();
-    }
-  }, [isAuth, isLandlord, isAdmin, properties.length]);
+  }, [isAuth, isLandlord, isAdmin]);
 
   const handleLogout = () => {
     clearUser();
     router.push("/admin/login");
-  };
-
-  const handlePropertyChange = (e) => {
-    const propertyId = e.target.value;
-    const property = properties.find((p) => p._id === propertyId);
-    if (property) {
-      setSelectedProperty(property);
-    }
   };
 
   const navItems = [
@@ -74,11 +46,6 @@ export default function AdminLayout({ children }) {
           icon: MdDashboard,
           path: "/admin/dashboard",
         },
-        {
-          label: "Analytics",
-          icon: MdBarChart,
-          path: "/admin/analytics",
-        },
       ],
     },
     {
@@ -88,41 +55,6 @@ export default function AdminLayout({ children }) {
           label: "Properties",
           icon: MdApartment,
           path: "/admin/properties",
-        },
-        {
-          label: "Units",
-          icon: MdMeetingRoom,
-          path: "/admin/units",
-        },
-        {
-          label: "Tenants",
-          icon: MdPeople,
-          path: "/admin/tenants",
-        },
-      ],
-    },
-    {
-      section: "Operations",
-      items: [
-        {
-          label: "Bills",
-          icon: MdReceipt,
-          path: "/admin/bills",
-        },
-        {
-          label: "Payments",
-          icon: MdPayment,
-          path: "/admin/payments",
-        },
-        {
-          label: "Maintenance",
-          icon: MdBuild,
-          path: "/admin/maintenance",
-        },
-        {
-          label: "Announcements",
-          icon: MdCampaign,
-          path: "/admin/announcements",
         },
       ],
     },
@@ -153,14 +85,7 @@ export default function AdminLayout({ children }) {
   const getPageTitle = () => {
     const currentPath = pathname;
     if (currentPath.includes("/dashboard")) return "Dashboard";
-    if (currentPath.includes("/analytics")) return "Analytics";
     if (currentPath.includes("/properties")) return "Properties";
-    if (currentPath.includes("/units")) return "Units";
-    if (currentPath.includes("/tenants")) return "Tenants";
-    if (currentPath.includes("/bills")) return "Bills";
-    if (currentPath.includes("/payments")) return "Payments";
-    if (currentPath.includes("/maintenance")) return "Maintenance";
-    if (currentPath.includes("/announcements")) return "Announcements";
     if (currentPath.includes("/users")) return "Users";
     if (currentPath.includes("/settings")) return "Settings";
     return "Admin Panel";
@@ -186,8 +111,14 @@ export default function AdminLayout({ children }) {
       >
         <div className={styles.sidebarHeader}>
           <div className={styles.sidebarLogo}>
-            <MdApartment className={styles.sidebarLogoIcon} />
-            <span>Tranquil</span>
+            <Image
+              src="/assets/logo.png"
+              alt="Tranquil Logo"
+              width={150}
+              height={50}
+              className={styles.logo}
+              priority
+            />
           </div>
         </div>
 
@@ -258,21 +189,6 @@ export default function AdminLayout({ children }) {
           </div>
 
           <div className={styles.topBarRight}>
-            {properties.length > 0 && (
-              <select
-                className={styles.propertySelector}
-                value={selectedProperty?._id || ""}
-                onChange={handlePropertyChange}
-              >
-                <option value="">Select Property</option>
-                {properties.map((property) => (
-                  <option key={property._id} value={property._id}>
-                    {property.name}
-                  </option>
-                ))}
-              </select>
-            )}
-
             <button className={styles.iconButton}>
               <MdNotifications size={20} />
               <span className={styles.notificationBadge} />

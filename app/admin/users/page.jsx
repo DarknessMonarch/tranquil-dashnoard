@@ -12,6 +12,8 @@ import {
   MdSearch,
   MdDelete,
   MdPerson,
+  MdAdminPanelSettings,
+  MdHome,
 } from "react-icons/md";
 
 export default function UsersPage() {
@@ -20,6 +22,7 @@ export default function UsersPage() {
   const { users, usersLoading, getAllUsers, deleteUser } = useAdminStore();
 
   const [searchTerm, setSearchTerm] = useState("");
+  const [activeTab, setActiveTab] = useState("all");
 
   useEffect(() => {
     if (!isAuth || !isAdmin) {
@@ -53,7 +56,19 @@ export default function UsersPage() {
     return <span className={`${styles.badge} ${styles[info.style]}`}>{info.label}</span>;
   };
 
-  const filteredUsers = (users || []).filter((user) => {
+  // Filter by tab first
+  const tabFilteredUsers = (users || []).filter((user) => {
+    if (activeTab === "admins") {
+      return user.role === "admin" || user.isAdmin === true;
+    }
+    if (activeTab === "tenants") {
+      return user.role === "tenant";
+    }
+    return true; // "all" tab shows everyone
+  });
+
+  // Then filter by search term
+  const filteredUsers = tabFilteredUsers.filter((user) => {
     const search = searchTerm.toLowerCase();
     return (
       user.username?.toLowerCase().includes(search) ||
@@ -62,6 +77,11 @@ export default function UsersPage() {
       user.role?.toLowerCase().includes(search)
     );
   });
+
+  // Calculate counts for tabs
+  const allCount = users?.length || 0;
+  const adminsCount = (users || []).filter(u => u.role === "admin" || u.isAdmin === true).length;
+  const tenantsCount = (users || []).filter(u => u.role === "tenant").length;
 
   return (
     <AdminLayout>
@@ -83,6 +103,108 @@ export default function UsersPage() {
             />
           </div>
         </div>
+      </div>
+
+      {/* Tabs */}
+      <div style={{
+        display: 'flex',
+        gap: '12px',
+        marginBottom: '24px',
+        borderBottom: '1px solid var(--border-color)',
+        overflowX: 'auto'
+      }}>
+        <button
+          onClick={() => setActiveTab("all")}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '12px 20px',
+            background: 'transparent',
+            border: 'none',
+            borderBottom: `2px solid ${activeTab === "all" ? 'var(--secondary-color)' : 'transparent'}`,
+            color: activeTab === "all" ? 'var(--secondary-color)' : 'var(--warm-gray)',
+            cursor: 'pointer',
+            fontSize: 'var(--font-size-base)',
+            fontWeight: '500',
+            transition: 'all 0.2s ease',
+            whiteSpace: 'nowrap'
+          }}
+        >
+          <MdPerson size={20} />
+          <span>All Users</span>
+          <span style={{
+            padding: '2px 8px',
+            borderRadius: '12px',
+            background: activeTab === "all" ? 'rgba(111, 173, 66, 0.1)' : 'rgba(0, 0, 0, 0.05)',
+            fontSize: 'var(--font-size-xs)',
+            fontWeight: '600'
+          }}>
+            {allCount}
+          </span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab("admins")}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '12px 20px',
+            background: 'transparent',
+            border: 'none',
+            borderBottom: `2px solid ${activeTab === "admins" ? 'var(--secondary-color)' : 'transparent'}`,
+            color: activeTab === "admins" ? 'var(--secondary-color)' : 'var(--warm-gray)',
+            cursor: 'pointer',
+            fontSize: 'var(--font-size-base)',
+            fontWeight: '500',
+            transition: 'all 0.2s ease',
+            whiteSpace: 'nowrap'
+          }}
+        >
+          <MdAdminPanelSettings size={20} />
+          <span>Admins</span>
+          <span style={{
+            padding: '2px 8px',
+            borderRadius: '12px',
+            background: activeTab === "admins" ? 'rgba(111, 173, 66, 0.1)' : 'rgba(0, 0, 0, 0.05)',
+            fontSize: 'var(--font-size-xs)',
+            fontWeight: '600'
+          }}>
+            {adminsCount}
+          </span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab("tenants")}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '12px 20px',
+            background: 'transparent',
+            border: 'none',
+            borderBottom: `2px solid ${activeTab === "tenants" ? 'var(--secondary-color)' : 'transparent'}`,
+            color: activeTab === "tenants" ? 'var(--secondary-color)' : 'var(--warm-gray)',
+            cursor: 'pointer',
+            fontSize: 'var(--font-size-base)',
+            fontWeight: '500',
+            transition: 'all 0.2s ease',
+            whiteSpace: 'nowrap'
+          }}
+        >
+          <MdHome size={20} />
+          <span>Tenants</span>
+          <span style={{
+            padding: '2px 8px',
+            borderRadius: '12px',
+            background: activeTab === "tenants" ? 'rgba(111, 173, 66, 0.1)' : 'rgba(0, 0, 0, 0.05)',
+            fontSize: 'var(--font-size-xs)',
+            fontWeight: '600'
+          }}>
+            {tenantsCount}
+          </span>
+        </button>
       </div>
 
       <div className={styles.tableCard}>

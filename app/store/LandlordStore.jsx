@@ -160,6 +160,48 @@ export const useLandlordStore = create(
         }
       },
 
+      fetchPropertyById: async (propertyId) => {
+        try {
+          set({ isLoading: true, error: null });
+          const { accessToken } = useAuthStore.getState();
+
+          const response = await fetch(`${SERVER_API}/landlord/properties/${propertyId}`, {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          });
+
+          const data = await response.json();
+          if (data.status === "success") {
+            const property = data.data.property || data.data;
+            set({ isLoading: false });
+            return property;
+          }
+          set({ error: data.message, isLoading: false });
+          throw new Error(data.message);
+        } catch (error) {
+          console.error("Fetch property by ID error:", error);
+          set({ error: "Failed to fetch property", isLoading: false });
+          throw error;
+        }
+      },
+
+      // Wrapper methods for property detail page
+      fetchPropertyUnits: async (propertyId) => {
+        const result = await get().fetchUnits(propertyId);
+        return result.success ? result.data : [];
+      },
+
+      fetchPropertyTenants: async (propertyId) => {
+        const result = await get().fetchTenants(propertyId);
+        return result.success ? result.data : [];
+      },
+
+      fetchPropertyBills: async (propertyId) => {
+        const result = await get().fetchBills(propertyId);
+        return result.success ? result.data : [];
+      },
+
       // Units Management
       fetchUnits: async (propertyId) => {
         try {

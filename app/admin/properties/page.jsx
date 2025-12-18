@@ -208,7 +208,11 @@ export default function PropertiesPage() {
               </thead>
               <tbody>
                 {filteredProperties.map((property) => (
-                  <tr key={property._id}>
+                  <tr
+                    key={property._id}
+                    onClick={() => router.push(`/admin/properties/${property._id}`)}
+                    className={styles.clickableRow}
+                  >
                     <td>
                       <strong>{property.name}</strong>
                     </td>
@@ -224,16 +228,20 @@ export default function PropertiesPage() {
                       <div className={styles.actionButtons}>
                         <button
                           className={`${styles.iconButton} ${styles.edit}`}
-                          onClick={() => openEditModal(property)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openEditModal(property);
+                          }}
                           title="Edit"
                         >
                           <MdEdit size={18} />
                         </button>
                         <button
                           className={`${styles.iconButton} ${styles.delete}`}
-                          onClick={() =>
-                            handleDelete(property._id, property.name)
-                          }
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(property._id, property.name);
+                          }}
                           title="Delete"
                         >
                           <MdDelete size={18} />

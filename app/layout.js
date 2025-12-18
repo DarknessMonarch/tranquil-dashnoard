@@ -18,8 +18,6 @@ const playfair = Playfair_Display({
 });
 
 const SITE_URL = "https://dashboard.tranquil.com";
-const BANNER_URL =
-  "https://raw.githubusercontent.com/DarknessMonarch/tranquil/refs/heads/master/public/assets/banner.png";
 
 export const viewport = {
   themeColor: "#6FAD42",

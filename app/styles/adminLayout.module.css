@@ -25,11 +25,18 @@
 .sidebarLogo {
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
+  justify-content: center;
   font-family: var(--font-family-heading);
   font-size: var(--font-size-xl);
   font-weight: var(--font-weight-bold);
   color: var(--light-color);
+}
+
+.sidebarLogo .logo {
+  width: auto;
+  height: auto;
+  max-width: 150px;
+  object-fit: contain;
 }
 
 .sidebarLogoIcon {
