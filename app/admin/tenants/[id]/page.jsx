@@ -104,14 +104,19 @@ export default function TenantDetailPage() {
 
       // Fetch feedback
       try {
+        const { accessToken } = useAuthStore.getState();
         const feedbackResponse = await fetch(`${process.env.NEXT_PUBLIC_SERVER_API}/feedback/tenant/${tenantId}`, {
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
           },
         });
         const feedbackData = await feedbackResponse.json();
+        console.log('Feedback response:', feedbackData);
         if (feedbackData.status === 'success') {
           setFeedback(feedbackData.data || []);
+        } else {
+          console.error('Feedback fetch failed:', feedbackData.message);
         }
       } catch (err) {
         console.error('Error loading feedback:', err);
@@ -729,101 +734,244 @@ export default function TenantDetailPage() {
                   <p>No feedback from tenant</p>
                 </div>
               ) : (
-                <div className={styles.tableCard}>
-                  {feedback.map((item) => (
-                    <div key={item._id} style={{
-                      padding: '20px',
-                      borderBottom: '1px solid var(--border-color)',
-                      marginBottom: '0'
-                    }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '12px' }}>
-                        <div>
-                          <h3 style={{ margin: '0 0 8px 0', fontSize: '16px', fontWeight: '600' }}>
-                            {item.subject}
-                          </h3>
-                          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                            <span style={{
-                              padding: '4px 8px',
-                              borderRadius: '4px',
-                              fontSize: '12px',
-                              fontWeight: '500',
-                              backgroundColor: 'var(--primary-light)',
-                              color: 'var(--primary-color)'
+                <div style={{ display: 'grid', gap: '16px', padding: '20px' }}>
+                  {feedback.map((item) => {
+                    const getTypeColor = (type) => {
+                      switch(type) {
+                        case 'bill_dispute': return '#e74c3c';
+                        case 'complaint': return '#f39c12';
+                        case 'request': return 'var(--secondary-color)';
+                        default: return 'var(--primary-color)';
+                      }
+                    };
+
+                    const getTypeIcon = (type) => {
+                      switch(type) {
+                        case 'bill_dispute': return MdReceipt;
+                        case 'complaint': return MdBuild;
+                        case 'request': return MdAdd;
+                        default: return MdEmail;
+                      }
+                    };
+
+                    const typeColor = getTypeColor(item.type);
+                    const TypeIcon = getTypeIcon(item.type);
+
+                    return (
+                      <div key={item._id} style={{
+                        backgroundColor: 'white',
+                        borderRadius: '12px',
+                        overflow: 'hidden',
+                        border: '1px solid var(--border-color)',
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+                        transition: 'all 0.2s ease',
+                        cursor: 'pointer'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
+                        e.currentTarget.style.transform = 'translateY(-2px)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)';
+                        e.currentTarget.style.transform = 'translateY(0)';
+                      }}>
+                        {/* Header Section */}
+                        <div style={{
+                          padding: '16px 20px',
+                          backgroundColor: `${typeColor}10`,
+                          borderBottom: '1px solid var(--border-color)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '12px'
+                        }}>
+                          {/* Type Icon */}
+                          <div style={{
+                            width: '48px',
+                            height: '48px',
+                            borderRadius: '10px',
+                            backgroundColor: `${typeColor}20`,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            flexShrink: 0
+                          }}>
+                            <TypeIcon size={24} color={typeColor} />
+                          </div>
+
+                          {/* Title and Type */}
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <h3 style={{
+                              margin: '0 0 4px 0',
+                              fontSize: '16px',
+                              fontWeight: '600',
+                              color: 'var(--dark-gray)',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap'
                             }}>
-                              {item.type.replace('_', ' ').toUpperCase()}
-                            </span>
+                              {item.subject}
+                            </h3>
                             <span style={{
-                              padding: '4px 8px',
-                              borderRadius: '4px',
-                              fontSize: '12px',
-                              fontWeight: '500',
-                              backgroundColor: item.status === 'open' ? 'var(--warning-light)' :
-                                              item.status === 'in_progress' ? 'var(--secondary-light)' :
-                                              item.status === 'resolved' ? 'var(--success-light)' : 'var(--warm-gray-light)',
-                              color: item.status === 'open' ? 'var(--warning-color)' :
-                                     item.status === 'in_progress' ? 'var(--secondary-color)' :
-                                     item.status === 'resolved' ? 'var(--success-color)' : 'var(--warm-gray)'
+                              fontSize: '13px',
+                              color: typeColor,
+                              fontWeight: '500'
                             }}>
-                              {item.status.replace('_', ' ').toUpperCase()}
-                            </span>
-                            <span style={{
-                              padding: '4px 8px',
-                              borderRadius: '4px',
-                              fontSize: '12px',
-                              fontWeight: '500',
-                              backgroundColor: item.priority === 'urgent' ? '#fee' :
-                                              item.priority === 'high' ? '#ffeaa7' :
-                                              item.priority === 'medium' ? '#dfe6e9' : '#d4f1d4',
-                              color: item.priority === 'urgent' ? '#d63031' :
-                                     item.priority === 'high' ? '#fdcb6e' :
-                                     item.priority === 'medium' ? '#636e72' : '#00b894'
-                            }}>
-                              {item.priority.toUpperCase()}
+                              {item.type.replace('_', ' ').charAt(0).toUpperCase() + item.type.replace('_', ' ').slice(1)}
                             </span>
                           </div>
+
+                          {/* Status Badge */}
+                          <span style={{
+                            padding: '6px 12px',
+                            borderRadius: '6px',
+                            fontSize: '11px',
+                            fontWeight: '600',
+                            letterSpacing: '0.5px',
+                            backgroundColor: item.status === 'open' ? 'var(--warning-light)' :
+                                           item.status === 'in_progress' ? 'var(--secondary-light)' :
+                                           item.status === 'resolved' ? 'var(--success-light)' : 'var(--warm-gray-light)',
+                            color: item.status === 'open' ? 'var(--warning-color)' :
+                                  item.status === 'in_progress' ? 'var(--secondary-color)' :
+                                  item.status === 'resolved' ? 'var(--success-color)' : 'var(--warm-gray)',
+                            whiteSpace: 'nowrap'
+                          }}>
+                            {item.status.replace('_', ' ').toUpperCase()}
+                          </span>
                         </div>
-                        <span style={{ fontSize: '13px', color: 'var(--warm-gray)' }}>
-                          {formatDate(item.createdAt)}
-                        </span>
-                      </div>
 
-                      <p style={{ margin: '0 0 12px 0', color: 'var(--dark-gray)', lineHeight: '1.5' }}>
-                        {item.message}
-                      </p>
-
-                      {item.replies && item.replies.length > 0 && (
-                        <div style={{
-                          marginTop: '16px',
-                          paddingTop: '16px',
-                          borderTop: '1px solid var(--border-color)'
-                        }}>
-                          <p style={{ fontSize: '13px', fontWeight: '600', marginBottom: '12px', color: 'var(--warm-gray)' }}>
-                            {item.replies.length} {item.replies.length === 1 ? 'Reply' : 'Replies'}
+                        {/* Content Section */}
+                        <div style={{ padding: '20px' }}>
+                          <p style={{
+                            margin: '0 0 16px 0',
+                            color: 'var(--dark-gray)',
+                            lineHeight: '1.6',
+                            fontSize: '14px'
+                          }}>
+                            {item.message}
                           </p>
-                          {item.replies.map((reply, idx) => (
-                            <div key={idx} style={{
-                              padding: '12px',
-                              backgroundColor: 'var(--light-gray)',
-                              borderRadius: '8px',
-                              marginBottom: '8px'
+
+                          {/* Footer with Priority, Date, and Replies */}
+                          <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '12px',
+                            flexWrap: 'wrap'
+                          }}>
+                            {/* Priority Badge */}
+                            <span style={{
+                              padding: '4px 10px',
+                              borderRadius: '6px',
+                              fontSize: '11px',
+                              fontWeight: '600',
+                              border: `1.5px solid ${
+                                item.priority === 'urgent' ? '#d63031' :
+                                item.priority === 'high' ? '#e67e22' :
+                                item.priority === 'medium' ? '#95a5a6' : '#27ae60'
+                              }`,
+                              color: item.priority === 'urgent' ? '#d63031' :
+                                    item.priority === 'high' ? '#e67e22' :
+                                    item.priority === 'medium' ? '#95a5a6' : '#27ae60',
+                              backgroundColor: item.priority === 'urgent' ? '#fee' :
+                                             item.priority === 'high' ? '#ffeaa7' :
+                                             item.priority === 'medium' ? '#ecf0f1' : '#d4f1d4',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '4px'
                             }}>
-                              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                                <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--primary-color)' }}>
-                                  {reply.sender?.username || 'User'}
-                                </span>
-                                <span style={{ fontSize: '11px', color: 'var(--warm-gray)' }}>
-                                  {formatDate(reply.createdAt)}
-                                </span>
-                              </div>
-                              <p style={{ margin: 0, fontSize: '13px', color: 'var(--dark-gray)' }}>
-                                {reply.message}
+                              🏴 {item.priority.toUpperCase()}
+                            </span>
+
+                            {/* Date */}
+                            <span style={{
+                              fontSize: '13px',
+                              color: 'var(--warm-gray)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '4px'
+                            }}>
+                              🕐 {formatDate(item.createdAt)}
+                            </span>
+
+                            <div style={{ flex: 1 }} />
+
+                            {/* Replies Count */}
+                            {item.replies && item.replies.length > 0 && (
+                              <span style={{
+                                padding: '4px 10px',
+                                borderRadius: '6px',
+                                fontSize: '12px',
+                                fontWeight: '600',
+                                backgroundColor: 'var(--secondary-light)',
+                                color: 'var(--secondary-color)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '4px'
+                              }}>
+                                💬 {item.replies.length} {item.replies.length === 1 ? 'Reply' : 'Replies'}
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Replies Section */}
+                          {item.replies && item.replies.length > 0 && (
+                            <div style={{
+                              marginTop: '20px',
+                              paddingTop: '20px',
+                              borderTop: '1px solid var(--border-color)'
+                            }}>
+                              <p style={{
+                                fontSize: '13px',
+                                fontWeight: '600',
+                                marginBottom: '12px',
+                                color: 'var(--warm-gray)',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.5px'
+                              }}>
+                                Conversation
                               </p>
+                              {item.replies.map((reply, idx) => (
+                                <div key={idx} style={{
+                                  padding: '12px 16px',
+                                  backgroundColor: 'var(--light-gray)',
+                                  borderRadius: '8px',
+                                  marginBottom: '8px',
+                                  borderLeft: '3px solid var(--primary-color)'
+                                }}>
+                                  <div style={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    marginBottom: '6px'
+                                  }}>
+                                    <span style={{
+                                      fontSize: '12px',
+                                      fontWeight: '600',
+                                      color: 'var(--primary-color)'
+                                    }}>
+                                      {reply.sender?.username || 'User'}
+                                    </span>
+                                    <span style={{
+                                      fontSize: '11px',
+                                      color: 'var(--warm-gray)'
+                                    }}>
+                                      {formatDate(reply.createdAt)}
+                                    </span>
+                                  </div>
+                                  <p style={{
+                                    margin: 0,
+                                    fontSize: '13px',
+                                    color: 'var(--dark-gray)',
+                                    lineHeight: '1.5'
+                                  }}>
+                                    {reply.message}
+                                  </p>
+                                </div>
+                              ))}
                             </div>
-                          ))}
+                          )}
                         </div>
-                      )}
-                    </div>
-                  ))}
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>
