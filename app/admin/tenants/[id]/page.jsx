@@ -18,6 +18,7 @@ import {
   MdHome,
   MdAttachMoney,
   MdAdd,
+  MdDelete,
 } from 'react-icons/md';
 
 export default function TenantDetailPage() {
@@ -38,6 +39,7 @@ export default function TenantDetailPage() {
   const [bills, setBills] = useState([]);
   const [payments, setPayments] = useState([]);
   const [maintenanceRequests, setMaintenanceRequests] = useState([]);
+  const [feedback, setFeedback] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -98,6 +100,21 @@ export default function TenantDetailPage() {
       const maintenanceResult = await fetchTenantMaintenance(tenantId);
       if (maintenanceResult.success) {
         setMaintenanceRequests(maintenanceResult.data || []);
+      }
+
+      // Fetch feedback
+      try {
+        const feedbackResponse = await fetch(`${process.env.NEXT_PUBLIC_SERVER_API}/feedback/tenant/${tenantId}`, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+          },
+        });
+        const feedbackData = await feedbackResponse.json();
+        if (feedbackData.status === 'success') {
+          setFeedback(feedbackData.data || []);
+        }
+      } catch (err) {
+        console.error('Error loading feedback:', err);
       }
 
       setLoading(false);
@@ -248,6 +265,16 @@ export default function TenantDetailPage() {
         totalAmount += parseFloat(otherAmount);
       }
 
+      // Validate that we have at least one item
+      if (items.length === 0) {
+        toast.error('Bill must have at least one item');
+        console.error('Bill generation failed: No items in array');
+        return;
+      }
+
+      // Debug logging
+      console.log('Generating bill with items:', items);
+
       const billData = {
         tenant: tenantId,
         unit: tenant.tenantInfo.currentUnit._id,
@@ -298,6 +325,71 @@ export default function TenantDetailPage() {
     }
   };
 
+  const handleDeleteBill = async (billId) => {
+    // Use toast.promise instead of window.confirm
+    toast.promise(
+      new Promise((resolve, reject) => {
+        const deleteConfirm = window.confirm('Are you sure you want to delete this bill? This action cannot be undone.');
+        if (!deleteConfirm) {
+          reject(new Error('Cancelled'));
+          return;
+        }
+
+        const { accessToken } = useAuthStore.getState();
+        fetch(`${process.env.NEXT_PUBLIC_SERVER_API}/landlord/bills/${billId}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+          },
+        })
+          .then(res => res.json())
+          .then(data => {
+            if (data.status === 'success') {
+              loadTenantData();
+              resolve('Bill deleted successfully');
+            } else {
+              reject(new Error(data.message || 'Failed to delete bill'));
+            }
+          })
+          .catch(err => {
+            console.error('Error deleting bill:', err);
+            reject(err);
+          });
+      }),
+      {
+        loading: 'Deleting bill...',
+        success: (message) => message,
+        error: (err) => err.message === 'Cancelled' ? '' : err.message || 'Failed to delete bill',
+      }
+    );
+  };
+
+  const handleUpdateMaintenanceStatus = async (requestId, newStatus) => {
+    try {
+      const { accessToken } = useAuthStore.getState();
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_API}/landlord/maintenance/${requestId}/status`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      const data = await response.json();
+      if (data.status === 'success') {
+        toast.success(`Maintenance status updated to ${newStatus}`);
+        // Refresh maintenance list
+        loadTenantData();
+      } else {
+        toast.error(data.message || 'Failed to update status');
+      }
+    } catch (error) {
+      console.error('Error updating maintenance status:', error);
+      toast.error('Failed to update status');
+    }
+  };
+
   if (loading) {
     return (
       <AdminLayout>
@@ -336,6 +428,7 @@ export default function TenantDetailPage() {
     { id: 'bills', label: 'Bills', icon: MdReceipt, count: bills.length },
     { id: 'payments', label: 'Payments', icon: MdPayment, count: payments.length },
     { id: 'maintenance', label: 'Maintenance', icon: MdBuild, count: maintenanceCount },
+    { id: 'feedback', label: 'Feedback', icon: MdEmail, count: feedback.length },
   ];
 
   return (
@@ -441,6 +534,7 @@ export default function TenantDetailPage() {
                         <th>Balance</th>
                         <th>Status</th>
                         <th>Due Date</th>
+                        <th>Actions</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -487,6 +581,15 @@ export default function TenantDetailPage() {
                             </span>
                           </td>
                           <td>{bill.dueDate ? formatDate(bill.dueDate) : '-'}</td>
+                          <td>
+                            <button
+                              onClick={() => handleDeleteBill(bill._id)}
+                              className={styles.iconButton}
+                              title="Delete"
+                            >
+                              <MdDelete size={18} />
+                            </button>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -563,6 +666,7 @@ export default function TenantDetailPage() {
                         <th>Priority</th>
                         <th>Status</th>
                         <th>Created</th>
+                        <th>Actions</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -581,10 +685,145 @@ export default function TenantDetailPage() {
                             </span>
                           </td>
                           <td>{formatDate(request.createdAt)}</td>
+                          <td>
+                            <select
+                              value={request.status}
+                              onChange={(e) => handleUpdateMaintenanceStatus(request._id, e.target.value)}
+                              style={{
+                                padding: '6px 10px',
+                                fontSize: '0.875rem',
+                                borderRadius: '6px',
+                                border: '1px solid var(--border-color)',
+                                backgroundColor: 'white',
+                                cursor: 'pointer',
+                                outline: 'none'
+                              }}
+                            >
+                              <option value="submitted">Submitted</option>
+                              <option value="active">Active</option>
+                              <option value="assigned">Assigned</option>
+                              <option value="on-site">On Site</option>
+                              <option value="resolved">Resolved</option>
+                              <option value="cancelled">Cancelled</option>
+                            </select>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Feedback Tab */}
+          {activeTab === 'feedback' && (
+            <div className={styles.tableContainer}>
+              <div className={styles.tableHeader}>
+                <h2>Feedback & Messages</h2>
+              </div>
+
+              {feedback.length === 0 ? (
+                <div className={styles.emptyState}>
+                  <MdEmail size={64} />
+                  <p>No feedback from tenant</p>
+                </div>
+              ) : (
+                <div className={styles.tableCard}>
+                  {feedback.map((item) => (
+                    <div key={item._id} style={{
+                      padding: '20px',
+                      borderBottom: '1px solid var(--border-color)',
+                      marginBottom: '0'
+                    }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '12px' }}>
+                        <div>
+                          <h3 style={{ margin: '0 0 8px 0', fontSize: '16px', fontWeight: '600' }}>
+                            {item.subject}
+                          </h3>
+                          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                            <span style={{
+                              padding: '4px 8px',
+                              borderRadius: '4px',
+                              fontSize: '12px',
+                              fontWeight: '500',
+                              backgroundColor: 'var(--primary-light)',
+                              color: 'var(--primary-color)'
+                            }}>
+                              {item.type.replace('_', ' ').toUpperCase()}
+                            </span>
+                            <span style={{
+                              padding: '4px 8px',
+                              borderRadius: '4px',
+                              fontSize: '12px',
+                              fontWeight: '500',
+                              backgroundColor: item.status === 'open' ? 'var(--warning-light)' :
+                                              item.status === 'in_progress' ? 'var(--secondary-light)' :
+                                              item.status === 'resolved' ? 'var(--success-light)' : 'var(--warm-gray-light)',
+                              color: item.status === 'open' ? 'var(--warning-color)' :
+                                     item.status === 'in_progress' ? 'var(--secondary-color)' :
+                                     item.status === 'resolved' ? 'var(--success-color)' : 'var(--warm-gray)'
+                            }}>
+                              {item.status.replace('_', ' ').toUpperCase()}
+                            </span>
+                            <span style={{
+                              padding: '4px 8px',
+                              borderRadius: '4px',
+                              fontSize: '12px',
+                              fontWeight: '500',
+                              backgroundColor: item.priority === 'urgent' ? '#fee' :
+                                              item.priority === 'high' ? '#ffeaa7' :
+                                              item.priority === 'medium' ? '#dfe6e9' : '#d4f1d4',
+                              color: item.priority === 'urgent' ? '#d63031' :
+                                     item.priority === 'high' ? '#fdcb6e' :
+                                     item.priority === 'medium' ? '#636e72' : '#00b894'
+                            }}>
+                              {item.priority.toUpperCase()}
+                            </span>
+                          </div>
+                        </div>
+                        <span style={{ fontSize: '13px', color: 'var(--warm-gray)' }}>
+                          {formatDate(item.createdAt)}
+                        </span>
+                      </div>
+
+                      <p style={{ margin: '0 0 12px 0', color: 'var(--dark-gray)', lineHeight: '1.5' }}>
+                        {item.message}
+                      </p>
+
+                      {item.replies && item.replies.length > 0 && (
+                        <div style={{
+                          marginTop: '16px',
+                          paddingTop: '16px',
+                          borderTop: '1px solid var(--border-color)'
+                        }}>
+                          <p style={{ fontSize: '13px', fontWeight: '600', marginBottom: '12px', color: 'var(--warm-gray)' }}>
+                            {item.replies.length} {item.replies.length === 1 ? 'Reply' : 'Replies'}
+                          </p>
+                          {item.replies.map((reply, idx) => (
+                            <div key={idx} style={{
+                              padding: '12px',
+                              backgroundColor: 'var(--light-gray)',
+                              borderRadius: '8px',
+                              marginBottom: '8px'
+                            }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                                <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--primary-color)' }}>
+                                  {reply.sender?.username || 'User'}
+                                </span>
+                                <span style={{ fontSize: '11px', color: 'var(--warm-gray)' }}>
+                                  {formatDate(reply.createdAt)}
+                                </span>
+                              </div>
+                              <p style={{ margin: 0, fontSize: '13px', color: 'var(--dark-gray)' }}>
+                                {reply.message}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
@@ -678,18 +917,49 @@ export default function TenantDetailPage() {
                       borderRadius: '8px',
                       border: '1px solid var(--border-color)'
                     }}>
+                      {/* Show previous water reading from unit data */}
+                      {tenant?.tenantInfo?.currentUnit?.lastWaterReading && (
+                        <div style={{
+                          padding: '12px',
+                          background: 'var(--light-blue)',
+                          borderRadius: '6px',
+                          marginBottom: '12px',
+                          borderLeft: '3px solid var(--primary-color)'
+                        }}>
+                          <div style={{ fontSize: '12px', color: 'var(--warm-gray)', marginBottom: '4px' }}>Previous Water Reading</div>
+                          <div style={{ fontSize: '16px', fontWeight: 'bold', color: 'var(--primary-color)' }}>
+                            {tenant.tenantInfo.currentUnit.lastWaterReading.value} units
+                          </div>
+                          <div style={{ fontSize: '11px', color: 'var(--warm-gray)', marginTop: '2px' }}>
+                            Recorded: {new Date(tenant.tenantInfo.currentUnit.lastWaterReading.date).toLocaleDateString()}
+                          </div>
+                        </div>
+                      )}
                       <div className={styles.formRow} style={{ marginBottom: '12px' }}>
                         <div className={styles.formGroup} style={{ margin: 0 }}>
-                          <label style={{ fontSize: '13px', fontWeight: '500', marginBottom: '6px' }}>Previous Reading</label>
+                          <label style={{ fontSize: '13px', fontWeight: '500', marginBottom: '6px' }}>Current Meter Reading *</label>
                           <input
                             type="number"
                             step="0.01"
+                            min="0"
                             value={billFormData.waterMeterReading}
-                            onChange={(e) => setBillFormData({ ...billFormData, waterMeterReading: e.target.value })}
+                            onChange={(e) => {
+                              const currentReading = parseFloat(e.target.value) || 0;
+                              const previousReading = tenant?.tenantInfo?.currentUnit?.lastWaterReading?.value || 0;
+                              const consumption = Math.max(0, currentReading - previousReading);
+                              setBillFormData({
+                                ...billFormData,
+                                waterMeterReading: e.target.value,
+                                waterConsumption: consumption > 0 ? consumption.toFixed(2) : billFormData.waterConsumption
+                              });
+                            }}
                             placeholder="0.00"
+                            required={billFormData.includeWater}
                             style={{ fontSize: '14px' }}
                           />
-                          <span style={{ fontSize: '11px', color: 'var(--warm-gray)', marginTop: '4px', display: 'block' }}>Optional - for reference</span>
+                          <span style={{ fontSize: '11px', color: 'var(--warm-gray)', marginTop: '4px', display: 'block' }}>
+                            {tenant?.tenantInfo?.currentUnit?.lastWaterReading ? 'Consumption will be auto-calculated' : 'Enter current meter reading'}
+                          </span>
                         </div>
                         <div className={styles.formGroup} style={{ margin: 0 }}>
                           <label style={{ fontSize: '13px', fontWeight: '500', marginBottom: '6px' }}>Consumption (Units) *</label>
@@ -703,6 +973,9 @@ export default function TenantDetailPage() {
                             required={billFormData.includeWater}
                             style={{ fontSize: '14px' }}
                           />
+                          <span style={{ fontSize: '11px', color: 'var(--warm-gray)', marginTop: '4px', display: 'block' }}>
+                            Or enter manually
+                          </span>
                         </div>
                         <div className={styles.formGroup} style={{ margin: 0 }}>
                           <label style={{ fontSize: '13px', fontWeight: '500', marginBottom: '6px' }}>Price per Unit (KES) *</label>

@@ -37,21 +37,18 @@ export default function PropertyDetailPage() {
     fetchPropertyById,
     fetchPropertyUnits,
     fetchPropertyTenants,
-    fetchPropertyBills,
     fetchAnnouncements,
     createAnnouncement,
     deleteAnnouncement,
     createUnit,
     updateUnit,
     deleteUnit,
-    createBill
   } = useLandlordStore();
 
   const [activeTab, setActiveTab] = useState('overview');
   const [property, setProperty] = useState(null);
   const [units, setUnits] = useState([]);
   const [tenants, setTenants] = useState([]);
-  const [bills, setBills] = useState([]);
   const [announcements, setAnnouncements] = useState([]);
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -76,19 +73,6 @@ export default function PropertyDetailPage() {
     message: '',
   });
 
-  // Bill modal state
-  const [showBillModal, setShowBillModal] = useState(false);
-  const [billFormData, setBillFormData] = useState({
-    month: new Date().getMonth() + 1,
-    year: new Date().getFullYear(),
-    type: 'rent',
-    dueDate: '',
-    // For utilities (water/electricity)
-    unitPrice: '',
-    // For maintenance/other
-    customAmount: '',
-  });
-
   useEffect(() => {
     loadPropertyData();
   }, [propertyId]);
@@ -99,18 +83,16 @@ export default function PropertyDetailPage() {
       setError(null);
 
       // Fetch all data in parallel
-      const [propertyData, unitsData, tenantsData, billsData, announcementsResult] = await Promise.all([
+      const [propertyData, unitsData, tenantsData, announcementsResult] = await Promise.all([
         fetchPropertyById(propertyId),
         fetchPropertyUnits(propertyId),
         fetchPropertyTenants(propertyId),
-        fetchPropertyBills(propertyId),
         fetchAnnouncements(propertyId),
       ]);
 
       setProperty(propertyData);
       setUnits(unitsData);
       setTenants(tenantsData);
-      setBills(billsData);
 
       // Handle announcements result
       if (announcementsResult.success) {
@@ -122,7 +104,7 @@ export default function PropertyDetailPage() {
       // Calculate analytics
       const totalUnits = unitsData.length;
       const occupiedUnits = unitsData.filter(u => u.status === 'occupied').length;
-      const totalRevenue = billsData.filter(b => b.status === 'paid').reduce((sum, b) => sum + b.totalAmount, 0);
+      const totalRevenue = 0; // Revenue tracking moved to tenant bills section
 
       // Count pending maintenance requests from bills or set to 0
       const pendingMaintenance = 0; // Will be implemented when maintenance endpoint is available
@@ -253,52 +235,7 @@ export default function PropertyDetailPage() {
     }
   };
 
-  const handleGenerateBills = async (e) => {
-    e.preventDefault();
-
-    const { month, year, type } = billFormData;
-
-    if (!month || !year || !type) {
-      toast.error('Please fill in all fields');
-      return;
-    }
-
-    try {
-      const billData = {
-        propertyId: propertyId,
-        billingPeriod: {
-          month: parseInt(month),
-          year: parseInt(year),
-        },
-        type: type,
-      };
-
-      const result = await createBill(billData);
-
-      if (result.success) {
-        toast.success(`${type.charAt(0).toUpperCase() + type.slice(1)} bills generated for ${month}/${year}`);
-        setShowBillModal(false);
-        setBillFormData({
-          month: new Date().getMonth() + 1,
-          year: new Date().getFullYear(),
-          type: 'rent',
-        });
-        loadPropertyData();
-      } else {
-        toast.error(result.message || 'Failed to generate bills');
-      }
-    } catch (error) {
-      console.error('Error generating bills:', error);
-      toast.error('An error occurred while generating bills');
-    }
-  };
-
   const getStatusClass = (status) => {
-    const statusLower = status?.toLowerCase();
-    return `${styles.statusBadge} ${styles[statusLower] || ''}`;
-  };
-
-  const getBillStatusClass = (status) => {
     const statusLower = status?.toLowerCase();
     return `${styles.statusBadge} ${styles[statusLower] || ''}`;
   };
@@ -352,7 +289,6 @@ export default function PropertyDetailPage() {
     { id: 'units', label: 'Units', icon: MdApartment, count: units.length },
     { id: 'tenants', label: 'Tenants', icon: MdPeople, count: tenants.length },
     { id: 'analytics', label: 'Analytics', icon: MdAnalytics, count: null },
-    { id: 'bills', label: 'Bills', icon: MdReceipt, count: bills.length },
     { id: 'announcements', label: 'Announcements', icon: MdCampaign, count: announcements.length },
   ];
 
@@ -656,18 +592,16 @@ export default function PropertyDetailPage() {
                   <h3>Revenue Summary</h3>
                   <div className={styles.analyticsContent}>
                     <div className={styles.statRow}>
-                      <span>Total Revenue:</span>
-                      <strong>{formatCurrency(analytics?.totalRevenue || 0)}</strong>
+                      <span>Total Tenants:</span>
+                      <strong>{tenants.length}</strong>
                     </div>
                     <div className={styles.statRow}>
-                      <span>Paid Bills:</span>
-                      <strong>{bills.filter(b => b.status === 'paid').length}</strong>
+                      <span>Total Units:</span>
+                      <strong>{analytics?.totalUnits || 0}</strong>
                     </div>
                     <div className={styles.statRow}>
-                      <span>Unpaid Bills:</span>
-                      <strong>
-                        {bills.filter(b => b.status === 'unpaid' || b.status === 'overdue').length}
-                      </strong>
+                      <span>Occupied Units:</span>
+                      <strong>{analytics?.occupiedUnits || 0}</strong>
                     </div>
                   </div>
                 </div>
@@ -682,63 +616,6 @@ export default function PropertyDetailPage() {
                   </div>
                 </div>
               </div>
-            </div>
-          )}
-
-          {/* Bills Tab */}
-          {activeTab === 'bills' && (
-            <div className={styles.tableContainer}>
-              <div className={styles.tableHeader}>
-                <h2>Bills</h2>
-                <button onClick={() => setShowBillModal(true)} className={styles.createButton}>
-                  <MdAdd size={20} />
-                  Generate Bills
-                </button>
-              </div>
-
-              {bills.length === 0 ? (
-                <div className={styles.emptyState}>
-                  <MdReceipt size={64} />
-                  <p>No bills found for this property</p>
-                </div>
-              ) : (
-                <div className={styles.tableCard}>
-                  <table className={styles.table}>
-                    <thead>
-                      <tr>
-                        <th>Tenant</th>
-                        <th>Unit</th>
-                        <th>Period</th>
-                        <th>Total Amount</th>
-                        <th>Paid Amount</th>
-                        <th>Balance</th>
-                        <th>Status</th>
-                        <th>Due Date</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {bills.map((bill) => (
-                        <tr key={bill._id}>
-                          <td>{bill.tenant?.username || '-'}</td>
-                          <td>{bill.unit?.unitNumber || '-'}</td>
-                          <td>
-                            {bill.billingPeriod?.month}/{bill.billingPeriod?.year}
-                          </td>
-                          <td>{formatCurrency(bill.totalAmount)}</td>
-                          <td>{formatCurrency(bill.paidAmount)}</td>
-                          <td>{formatCurrency(bill.totalAmount - bill.paidAmount)}</td>
-                          <td>
-                            <span className={getBillStatusClass(bill.status)}>
-                              {bill.status}
-                            </span>
-                          </td>
-                          <td>{bill.dueDate ? formatDate(bill.dueDate) : '-'}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
             </div>
           )}
 
@@ -929,73 +806,6 @@ export default function PropertyDetailPage() {
                 </button>
                 <button type="submit" className={styles.saveButton}>
                   Create Announcement
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Bill Generation Modal */}
-      {showBillModal && (
-        <div className={styles.modalOverlay} onClick={() => setShowBillModal(false)}>
-          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-            <div className={styles.modalHeader}>
-              <h2>Generate Bills</h2>
-              <button onClick={() => setShowBillModal(false)} className={styles.closeButton}>
-                ×
-              </button>
-            </div>
-            <form onSubmit={handleGenerateBills} className={styles.modalForm}>
-              <div className={styles.formRow}>
-                <div className={styles.formGroup}>
-                  <label>Month *</label>
-                  <input
-                    type="number"
-                    min="1"
-                    max="12"
-                    value={billFormData.month}
-                    onChange={(e) => setBillFormData({ ...billFormData, month: e.target.value })}
-                    placeholder="1-12"
-                    required
-                  />
-                </div>
-
-                <div className={styles.formGroup}>
-                  <label>Year *</label>
-                  <input
-                    type="number"
-                    min="2020"
-                    max="2100"
-                    value={billFormData.year}
-                    onChange={(e) => setBillFormData({ ...billFormData, year: e.target.value })}
-                    placeholder="e.g., 2024"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className={styles.formGroup}>
-                <label>Bill Type *</label>
-                <select
-                  value={billFormData.type}
-                  onChange={(e) => setBillFormData({ ...billFormData, type: e.target.value })}
-                  required
-                >
-                  <option value="rent">Rent</option>
-                  <option value="water">Water</option>
-                  <option value="electricity">Electricity</option>
-                  <option value="maintenance">Maintenance</option>
-                  <option value="other">Other</option>
-                </select>
-              </div>
-
-              <div className={styles.modalActions}>
-                <button type="button" onClick={() => setShowBillModal(false)} className={styles.cancelButton}>
-                  Cancel
-                </button>
-                <button type="submit" className={styles.saveButton}>
-                  Generate Bills
                 </button>
               </div>
             </form>
