@@ -191,5 +191,57 @@
   .textarea,
   .select {
     font-size: var(--font-size-sm);
+    padding: var(--spacing-sm);
+  }
+
+  .input.withIcon {
+    padding-left: calc(var(--spacing-sm) * 3);
+  }
+
+  .inputIcon {
+    left: var(--spacing-sm);
+    font-size: 1.125rem;
+  }
+
+  .select {
+    padding-right: calc(var(--spacing-sm) * 3);
+    background-position: right var(--spacing-sm) center;
+  }
+}
+
+@media only screen and (max-width: 480px) {
+  .formGroup {
+    margin-bottom: var(--spacing-sm);
+    gap: var(--spacing-xs);
+  }
+
+  .label {
+    font-size: var(--font-size-xs);
+  }
+
+  .input,
+  .textarea,
+  .select {
+    padding: var(--spacing-xs);
+    font-size: var(--font-size-xs);
+  }
+
+  .input.withIcon {
+    padding-left: calc(var(--spacing-xs) * 4);
+  }
+
+  .inputIcon {
+    left: var(--spacing-xs);
+    font-size: 1rem;
+  }
+
+  .select {
+    padding-right: calc(var(--spacing-xs) * 4);
+    background-position: right var(--spacing-xs) center;
+    background-size: 1rem;
+  }
+
+  .textarea {
+    min-height: 80px;
   }
 }

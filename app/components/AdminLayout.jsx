@@ -148,17 +148,10 @@ export default function AdminLayout({ children }) {
         </nav>
 
         <div className={styles.sidebarFooter}>
-          <div className={styles.userCard}>
-            <div className={styles.userAvatar}>{getUserInitials()}</div>
-            <div className={styles.userInfo}>
-              <div className={styles.userName}>{username || "Admin"}</div>
-              <div className={styles.userRole}>Property Manager</div>
-            </div>
-          </div>
+     
           <button
             onClick={handleLogout}
-            className={`${styles.navItem}`}
-            style={{ marginTop: "var(--spacing-md)", width: "100%" }}
+            className={`${styles.navItembtn}`}
           >
             <MdLogout className={styles.navIcon} />
             <span className={styles.navLabel}>Logout</span>

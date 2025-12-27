@@ -109,4 +109,36 @@
   .value {
     font-size: var(--font-size-xl);
   }
+
+  .label {
+    font-size: var(--font-size-xs);
+  }
+}
+
+@media only screen and (max-width: 480px) {
+  .metricCard {
+    padding: var(--spacing-sm);
+    gap: var(--spacing-sm);
+  }
+
+  .iconWrapper {
+    width: 40px;
+    height: 40px;
+  }
+
+  .icon {
+    font-size: 1.25rem;
+  }
+
+  .label {
+    font-size: 0.7rem;
+  }
+
+  .value {
+    font-size: var(--font-size-lg);
+  }
+
+  .trend {
+    font-size: 0.65rem;
+  }
 }

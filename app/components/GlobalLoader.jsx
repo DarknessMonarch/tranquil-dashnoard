@@ -24,8 +24,18 @@ export default function GlobalLoader() {
   return (
     <div className={styles.overlay}>
       <div className={styles.loaderContainer}>
-        <div className={styles.spinner}></div>
-        <p className={styles.loadingText}>Loading...</p>
+        <div className={styles.spinnerWrapper}>
+          <div className={styles.spinner}></div>
+          <div className={styles.spinnerInner}></div>
+        </div>
+        <p className={styles.loadingText}>
+          Loading
+          <span className={styles.dots}>
+            <span className={styles.dot}>.</span>
+            <span className={styles.dot}>.</span>
+            <span className={styles.dot}>.</span>
+          </span>
+        </p>
       </div>
     </div>
   );

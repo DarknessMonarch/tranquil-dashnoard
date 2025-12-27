@@ -62,7 +62,7 @@
   color: rgba(255, 255, 255, 0.5);
 }
 
-.navItem {
+.navItem , .navItembtn {
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
@@ -74,18 +74,30 @@
   border-left: 3px solid transparent;
 }
 
+.navItembtn {
+  width: 100%;
+  color: var(--secondary-color);
+}
+
+.navItembtn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-left-color: var(--background-color);
+
+}
+
 .navItem:hover {
   background: rgba(255, 255, 255, 0.05);
   color: var(--light-color);
   border-left-color: var(--secondary-color);
 }
 
-.navItem.active {
+.navItem.active , .navItembtn {
   background: rgba(111, 173, 66, 0.1);
   color: var(--light-color);
   border-left-color: var(--secondary-color);
   font-weight: var(--font-weight-medium);
 }
+
 
 .navIcon {
   font-size: 1.25rem;

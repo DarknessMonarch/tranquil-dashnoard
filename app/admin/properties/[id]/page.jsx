@@ -2,6 +2,7 @@
 
 import { useParams, useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 import AdminLayout from '@/app/components/AdminLayout';
 import { useLandlordStore } from '@/app/store/LandlordStore';
 import styles from '@/app/styles/tenantDetail.module.css';
@@ -32,7 +33,19 @@ export default function PropertyDetailPage() {
   const router = useRouter();
   const propertyId = params.id;
 
-  const { fetchPropertyById, fetchPropertyUnits, fetchPropertyTenants, fetchPropertyBills, fetchAnnouncements, createAnnouncement, deleteAnnouncement } = useLandlordStore();
+  const {
+    fetchPropertyById,
+    fetchPropertyUnits,
+    fetchPropertyTenants,
+    fetchPropertyBills,
+    fetchAnnouncements,
+    createAnnouncement,
+    deleteAnnouncement,
+    createUnit,
+    updateUnit,
+    deleteUnit,
+    createBill
+  } = useLandlordStore();
 
   const [activeTab, setActiveTab] = useState('overview');
   const [property, setProperty] = useState(null);
@@ -52,7 +65,7 @@ export default function PropertyDetailPage() {
     floor: '',
     bedrooms: 1,
     bathrooms: 1,
-    rentAmount: '',
+    monthlyRent: '',
     status: 'vacant',
   });
 
@@ -61,6 +74,19 @@ export default function PropertyDetailPage() {
   const [announcementFormData, setAnnouncementFormData] = useState({
     title: '',
     message: '',
+  });
+
+  // Bill modal state
+  const [showBillModal, setShowBillModal] = useState(false);
+  const [billFormData, setBillFormData] = useState({
+    month: new Date().getMonth() + 1,
+    year: new Date().getFullYear(),
+    type: 'rent',
+    dueDate: '',
+    // For utilities (water/electricity)
+    unitPrice: '',
+    // For maintenance/other
+    customAmount: '',
   });
 
   useEffect(() => {
@@ -125,7 +151,7 @@ export default function PropertyDetailPage() {
       floor: '',
       bedrooms: 1,
       bathrooms: 1,
-      rentAmount: '',
+      monthlyRent: '',
       status: 'vacant',
     });
     setShowUnitModal(true);
@@ -138,7 +164,7 @@ export default function PropertyDetailPage() {
       floor: unit.floor || '',
       bedrooms: unit.bedrooms,
       bathrooms: unit.bathrooms,
-      rentAmount: unit.rentAmount,
+      monthlyRent: unit.monthlyRent,
       status: unit.status,
     });
     setShowUnitModal(true);
@@ -150,22 +176,15 @@ export default function PropertyDetailPage() {
     }
 
     try {
-      const response = await fetch(`/api/landlord/units/${unitId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to delete unit');
+      const result = await deleteUnit(unitId);
+      if (result.success) {
+        toast.success('Unit deleted successfully');
+        loadPropertyData();
+      } else {
+        throw new Error(result.message || 'Failed to delete unit');
       }
-
-      alert('Unit deleted successfully');
-      loadPropertyData();
     } catch (err) {
-      alert('Error deleting unit: ' + err.message);
+      toast.error('Error deleting unit: ' + err.message);
     }
   };
 
@@ -173,34 +192,23 @@ export default function PropertyDetailPage() {
     e.preventDefault();
 
     try {
-      const url = editingUnit
-        ? `/api/landlord/units/${editingUnit._id}`
-        : '/api/landlord/units';
+      let result;
 
-      const method = editingUnit ? 'PUT' : 'POST';
-
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
-        body: JSON.stringify({
-          ...unitFormData,
-          property: propertyId,
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to save unit');
+      if (editingUnit) {
+        result = await updateUnit(propertyId, editingUnit._id, unitFormData);
+      } else {
+        result = await createUnit(propertyId, unitFormData);
       }
 
-      alert(editingUnit ? 'Unit updated successfully' : 'Unit created successfully');
-      setShowUnitModal(false);
-      loadPropertyData();
+      if (result.success) {
+        toast.success(editingUnit ? 'Unit updated successfully' : 'Unit created successfully');
+        setShowUnitModal(false);
+        loadPropertyData();
+      } else {
+        throw new Error(result.message || 'Failed to save unit');
+      }
     } catch (err) {
-      alert('Error saving unit: ' + err.message);
+      toast.error('Error saving unit: ' + err.message);
     }
   };
 
@@ -208,22 +216,22 @@ export default function PropertyDetailPage() {
     e.preventDefault();
 
     if (!announcementFormData.title.trim() || !announcementFormData.message.trim()) {
-      alert('Please fill in all fields');
+      toast.error('Please fill in all fields');
       return;
     }
 
     try {
       const result = await createAnnouncement(propertyId, announcementFormData);
       if (result.success) {
-        alert('Announcement created successfully');
+        toast.success('Announcement created successfully');
         setShowAnnouncementModal(false);
         setAnnouncementFormData({ title: '', message: '' });
         loadPropertyData();
       } else {
-        alert('Error creating announcement: ' + result.message);
+        toast.error('Error creating announcement: ' + result.message);
       }
     } catch (err) {
-      alert('Error creating announcement: ' + err.message);
+      toast.error('Error creating announcement: ' + err.message);
     }
   };
 
@@ -235,13 +243,53 @@ export default function PropertyDetailPage() {
     try {
       const result = await deleteAnnouncement(announcementId);
       if (result.success) {
-        alert('Announcement deleted successfully');
+        toast.success('Announcement deleted successfully');
         loadPropertyData();
       } else {
-        alert('Error deleting announcement: ' + result.message);
+        toast.error('Error deleting announcement: ' + result.message);
       }
     } catch (err) {
-      alert('Error deleting announcement: ' + err.message);
+      toast.error('Error deleting announcement: ' + err.message);
+    }
+  };
+
+  const handleGenerateBills = async (e) => {
+    e.preventDefault();
+
+    const { month, year, type } = billFormData;
+
+    if (!month || !year || !type) {
+      toast.error('Please fill in all fields');
+      return;
+    }
+
+    try {
+      const billData = {
+        propertyId: propertyId,
+        billingPeriod: {
+          month: parseInt(month),
+          year: parseInt(year),
+        },
+        type: type,
+      };
+
+      const result = await createBill(billData);
+
+      if (result.success) {
+        toast.success(`${type.charAt(0).toUpperCase() + type.slice(1)} bills generated for ${month}/${year}`);
+        setShowBillModal(false);
+        setBillFormData({
+          month: new Date().getMonth() + 1,
+          year: new Date().getFullYear(),
+          type: 'rent',
+        });
+        loadPropertyData();
+      } else {
+        toast.error(result.message || 'Failed to generate bills');
+      }
+    } catch (error) {
+      console.error('Error generating bills:', error);
+      toast.error('An error occurred while generating bills');
     }
   };
 
@@ -402,7 +450,9 @@ export default function PropertyDetailPage() {
                       <span className={styles.infoLabel}>Address:</span>
                       <span className={styles.infoValue}>
                         <MdLocationOn size={16} />
-                        {property.address}
+                        {property.address
+                          ? `${property.address.street || ''}, ${property.address.city || ''}, ${property.address.country || ''}`.replace(/^, |, $/g, '').replace(/, ,/g, ',') || 'N/A'
+                          : 'N/A'}
                       </span>
                     </div>
                     {property.description && (
@@ -461,10 +511,7 @@ export default function PropertyDetailPage() {
                 <div className={styles.emptyState}>
                   <MdApartment size={64} />
                   <p>No units found for this property</p>
-                  <button onClick={handleCreateUnit} className={styles.createButton}>
-                    <MdAdd size={20} />
-                    Create First Unit
-                  </button>
+           
                 </div>
               ) : (
                 <div className={styles.tableCard}>
@@ -488,7 +535,7 @@ export default function PropertyDetailPage() {
                           <td>{unit.floor || '-'}</td>
                           <td>{unit.bedrooms}</td>
                           <td>{unit.bathrooms}</td>
-                          <td>{formatCurrency(unit.rentAmount)}</td>
+                          <td>{formatCurrency(unit.monthlyRent)}</td>
                           <td>
                             <span className={getStatusClass(unit.status)}>
                               {unit.status}
@@ -643,6 +690,10 @@ export default function PropertyDetailPage() {
             <div className={styles.tableContainer}>
               <div className={styles.tableHeader}>
                 <h2>Bills</h2>
+                <button onClick={() => setShowBillModal(true)} className={styles.createButton}>
+                  <MdAdd size={20} />
+                  Generate Bills
+                </button>
               </div>
 
               {bills.length === 0 ? (
@@ -706,10 +757,7 @@ export default function PropertyDetailPage() {
                 <div className={styles.emptyState}>
                   <MdCampaign size={64} />
                   <p>No announcements for this property</p>
-                  <button onClick={() => setShowAnnouncementModal(true)} className={styles.createButton}>
-                    <MdAdd size={20} />
-                    Create First Announcement
-                  </button>
+             
                 </div>
               ) : (
                 <div className={styles.tableCard}>
@@ -810,8 +858,8 @@ export default function PropertyDetailPage() {
                 <input
                   type="number"
                   min="0"
-                  value={unitFormData.rentAmount}
-                  onChange={(e) => setUnitFormData({ ...unitFormData, rentAmount: e.target.value })}
+                  value={unitFormData.monthlyRent}
+                  onChange={(e) => setUnitFormData({ ...unitFormData, monthlyRent: e.target.value })}
                   required
                 />
               </div>
@@ -881,6 +929,73 @@ export default function PropertyDetailPage() {
                 </button>
                 <button type="submit" className={styles.saveButton}>
                   Create Announcement
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Bill Generation Modal */}
+      {showBillModal && (
+        <div className={styles.modalOverlay} onClick={() => setShowBillModal(false)}>
+          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h2>Generate Bills</h2>
+              <button onClick={() => setShowBillModal(false)} className={styles.closeButton}>
+                ×
+              </button>
+            </div>
+            <form onSubmit={handleGenerateBills} className={styles.modalForm}>
+              <div className={styles.formRow}>
+                <div className={styles.formGroup}>
+                  <label>Month *</label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="12"
+                    value={billFormData.month}
+                    onChange={(e) => setBillFormData({ ...billFormData, month: e.target.value })}
+                    placeholder="1-12"
+                    required
+                  />
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label>Year *</label>
+                  <input
+                    type="number"
+                    min="2020"
+                    max="2100"
+                    value={billFormData.year}
+                    onChange={(e) => setBillFormData({ ...billFormData, year: e.target.value })}
+                    placeholder="e.g., 2024"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label>Bill Type *</label>
+                <select
+                  value={billFormData.type}
+                  onChange={(e) => setBillFormData({ ...billFormData, type: e.target.value })}
+                  required
+                >
+                  <option value="rent">Rent</option>
+                  <option value="water">Water</option>
+                  <option value="electricity">Electricity</option>
+                  <option value="maintenance">Maintenance</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+
+              <div className={styles.modalActions}>
+                <button type="button" onClick={() => setShowBillModal(false)} className={styles.cancelButton}>
+                  Cancel
+                </button>
+                <button type="submit" className={styles.saveButton}>
+                  Generate Bills
                 </button>
               </div>
             </form>

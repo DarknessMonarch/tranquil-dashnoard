@@ -34,11 +34,39 @@
 }
 
 @media only screen and (max-width: 768px) {
+  .pageHeader {
+    margin-bottom: var(--spacing-lg);
+  }
+
   .pageTitle {
     font-size: var(--font-size-xl);
   }
 
+  .pageSubtitle {
+    font-size: var(--font-size-xs);
+  }
+
   .pageActions {
     width: 100%;
+  }
+}
+
+@media only screen and (max-width: 480px) {
+  .pageHeader {
+    margin-bottom: var(--spacing-md);
+    gap: var(--spacing-sm);
+  }
+
+  .pageTitle {
+    font-size: var(--font-size-lg);
+  }
+
+  .pageSubtitle {
+    font-size: 0.75rem;
+  }
+
+  .pageActions {
+    gap: var(--spacing-sm);
+    flex-direction: column;
   }
 }

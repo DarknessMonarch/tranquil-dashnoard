@@ -219,7 +219,7 @@ export const useLandlordStore = create(
 
           const data = await response.json();
           if (data.status === "success") {
-            const units = Array.isArray(data.data) ? data.data : data.data.units || [];
+            const units = data.data.units || [];
             set({ units, isLoading: false });
             return { success: true, data: units };
           }
@@ -267,18 +267,12 @@ export const useLandlordStore = create(
         }
       },
 
-      updateUnit: async (unitId, unitData) => {
+      updateUnit: async (propertyId, unitId, unitData) => {
         try {
           set({ isLoading: true, error: null });
           const { accessToken } = useAuthStore.getState();
-          const { selectedProperty } = get();
 
-          if (!selectedProperty) {
-            set({ error: "No property selected", isLoading: false });
-            return { success: false, message: "No property selected" };
-          }
-
-          const response = await fetch(`${SERVER_API}/landlord/properties/${selectedProperty._id}/units/${unitId}`, {
+          const response = await fetch(`${SERVER_API}/landlord/properties/${propertyId}/units/${unitId}`, {
             method: "PATCH",
             headers: {
               "Content-Type": "application/json",
@@ -858,6 +852,127 @@ export const useLandlordStore = create(
           console.error("Fetch analytics error:", error);
           set({ error: "Failed to fetch analytics", isLoading: false });
           return { success: false, message: "Failed to fetch analytics" };
+        }
+      },
+
+      // Get tenant by ID
+      getTenantById: async (tenantId) => {
+        try {
+          set({ isLoading: true, error: null });
+          const { accessToken } = useAuthStore.getState();
+
+          const response = await fetch(`${SERVER_API}/landlord/tenants/${tenantId}`, {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          });
+
+          const data = await response.json();
+          if (data.status === "success") {
+            set({ isLoading: false });
+            return { success: true, data: data.data };
+          }
+          set({ error: data.message, isLoading: false });
+          return { success: false, message: data.message };
+        } catch (error) {
+          console.error("Get tenant error:", error);
+          set({ error: "Failed to fetch tenant", isLoading: false });
+          return { success: false, message: "Failed to fetch tenant" };
+        }
+      },
+
+      // Fetch tenant bills
+      fetchTenantBills: async (tenantId) => {
+        try {
+          const { accessToken } = useAuthStore.getState();
+
+          const response = await fetch(`${SERVER_API}/landlord/tenants/${tenantId}/bills`, {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          });
+
+          const data = await response.json();
+          if (data.status === "success") {
+            return { success: true, data: data.data.bills || data.data || [] };
+          }
+          return { success: false, message: data.message, data: [] };
+        } catch (error) {
+          console.error("Fetch tenant bills error:", error);
+          return { success: false, message: "Failed to fetch bills", data: [] };
+        }
+      },
+
+      // Fetch tenant payments
+      fetchTenantPayments: async (tenantId) => {
+        try {
+          const { accessToken } = useAuthStore.getState();
+
+          const response = await fetch(`${SERVER_API}/landlord/tenants/${tenantId}/payments`, {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          });
+
+          const data = await response.json();
+          if (data.status === "success") {
+            return { success: true, data: data.data.payments || data.data || [] };
+          }
+          return { success: false, message: data.message, data: [] };
+        } catch (error) {
+          console.error("Fetch tenant payments error:", error);
+          return { success: false, message: "Failed to fetch payments", data: [] };
+        }
+      },
+
+      // Fetch tenant maintenance
+      fetchTenantMaintenance: async (tenantId) => {
+        try {
+          const { accessToken } = useAuthStore.getState();
+
+          const response = await fetch(`${SERVER_API}/landlord/tenants/${tenantId}/maintenance`, {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          });
+
+          const data = await response.json();
+          if (data.status === "success") {
+            return { success: true, data: data.data.requests || data.data || [] };
+          }
+          return { success: false, message: data.message, data: [] };
+        } catch (error) {
+          console.error("Fetch tenant maintenance error:", error);
+          return { success: false, message: "Failed to fetch maintenance", data: [] };
+        }
+      },
+
+      // Add water expense to bill
+      addWaterExpense: async (billId, expenseData) => {
+        try {
+          set({ isLoading: true, error: null });
+          const { accessToken } = useAuthStore.getState();
+
+          const response = await fetch(`${SERVER_API}/landlord/bills/${billId}/water-expense`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${accessToken}`,
+            },
+            body: JSON.stringify(expenseData),
+          });
+
+          const data = await response.json();
+          if (data.status === "success") {
+            set({ isLoading: false });
+            return { success: true, data: data.data };
+          }
+          set({ error: data.message, isLoading: false });
+          return { success: false, message: data.message };
+        } catch (error) {
+          console.error("Add water expense error:", error);
+          set({ error: "Failed to add water expense", isLoading: false });
+          return { success: false, message: "Failed to add water expense" };
         }
       },
 

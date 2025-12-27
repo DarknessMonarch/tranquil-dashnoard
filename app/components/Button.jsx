@@ -1,24 +1,32 @@
 "use client";
 
 import styles from "@/app/styles/button.module.css";
-import Loader from "./Loader";
 
 export default function Button({
+  children,
   variant = "primary",
   size = "medium",
-  loading = false,
-  disabled = false,
-  icon = null,
+  icon,
   iconPosition = "left",
   onClick,
-  children,
-  className = "",
+  disabled = false,
   type = "button",
+  className = "",
+  fullWidth = false,
+  loading = false,
   ...props
 }) {
-  const buttonClass = `${styles.button} ${styles[variant]} ${styles[size]} ${
-    loading ? styles.loading : ""
-  } ${className}`;
+  const buttonClass = [
+    styles.button,
+    styles[variant],
+    styles[size],
+    fullWidth && styles.fullWidth,
+    icon && !children && styles.iconOnly,
+    loading && styles.loading,
+    className,
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   return (
     <button
@@ -29,7 +37,7 @@ export default function Button({
       {...props}
     >
       {loading ? (
-        <Loader />
+        <span className={styles.spinner}></span>
       ) : (
         <>
           {icon && iconPosition === "left" && (

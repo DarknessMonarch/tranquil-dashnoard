@@ -89,7 +89,7 @@ export default function PropertiesPage() {
   const openEditModal = (property) => {
     setEditingProperty(property);
     setFormData({
-      name: property.name,
+      name: property.name || "",
       street: property.address?.street || "",
       city: property.address?.city || "",
       country: property.address?.country || "Kenya",
@@ -180,7 +180,7 @@ export default function PropertiesPage() {
 
   const filteredProperties = (properties || []).filter(
     (property) =>
-      property.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      property.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       property.address?.street?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       property.address?.city?.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -248,7 +248,7 @@ export default function PropertiesPage() {
                     className={styles.clickableRow}
                   >
                     <td>
-                      <strong>{property.name}</strong>
+                      <strong>{property.name || "N/A"}</strong>
                     </td>
                     <td>{property.address?.street || "N/A"}</td>
                     <td>{property.address?.city || "N/A"}</td>
@@ -273,7 +273,7 @@ export default function PropertiesPage() {
                           icon={<MdDelete size={18} />}
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleDeleteClick(property._id, property.name);
+                            handleDeleteClick(property._id, property.name || "Property");
                           }}
                           title="Delete"
                           className={styles.delete}

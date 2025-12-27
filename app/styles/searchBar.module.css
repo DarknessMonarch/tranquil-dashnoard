@@ -61,5 +61,34 @@
 @media only screen and (max-width: 768px) {
   .searchBar {
     min-width: 200px;
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
+
+  .searchInput {
+    font-size: var(--font-size-sm);
+  }
+
+  .searchIcon {
+    font-size: 1.125rem;
+  }
+}
+
+@media only screen and (max-width: 480px) {
+  .searchBar {
+    min-width: 100%;
+    width: 100%;
+    padding: var(--spacing-xs);
+  }
+
+  .searchInput {
+    font-size: var(--font-size-xs);
+  }
+
+  .searchIcon {
+    font-size: 1rem;
+  }
+
+  .clearButton {
+    padding: 2px;
   }
 }

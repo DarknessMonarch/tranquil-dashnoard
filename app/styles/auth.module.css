@@ -4,6 +4,7 @@
     left: 0;
     right: 0;
     bottom: 0;
+    padding: 10px;
     height: 100%;
     position: fixed;
     display: flex;
@@ -15,11 +16,11 @@
 
 
   .formContainer {
-    gap: 24px;
+    gap: 20px;
     width: 100%;
-    max-width: 440px;
     display: flex;
-    padding: 32px;
+    padding: 20px;
+    max-width: 440px;
     flex-direction: column;
     border-radius: var(--radius-xl);
     background: var(--glass-background);
@@ -27,6 +28,7 @@
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid var(--glass-border);
     box-shadow: var(--shadow-heavy);
+
   }
 
   .formContainer p {

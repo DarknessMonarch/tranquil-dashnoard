@@ -174,7 +174,12 @@ export default function UsersPage() {
               </thead>
               <tbody>
                 {filteredUsers.map((user) => (
-                  <tr key={user._id}>
+                  <tr
+                    key={user._id}
+                    onClick={() => user.role === 'tenant' && router.push(`/admin/tenants/${user._id}`)}
+                    className={user.role === 'tenant' ? styles.clickableRow : ''}
+                    style={{ cursor: user.role === 'tenant' ? 'pointer' : 'default' }}
+                  >
                     <td>
                       <strong>{user.username || "N/A"}</strong>
                     </td>
@@ -191,7 +196,7 @@ export default function UsersPage() {
                       </Badge>
                     </td>
                     <td>{formatDate(user.createdAt)}</td>
-                    <td>
+                    <td onClick={(e) => e.stopPropagation()}>
                       <div className={styles.actionButtons}>
                         <Button
                           variant="icon"

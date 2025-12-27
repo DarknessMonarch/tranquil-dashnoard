@@ -504,22 +504,184 @@
   .pageHeader {
     flex-direction: column;
     align-items: flex-start;
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .pageTitle {
+    font-size: var(--font-size-xl);
+  }
+
+  .pageActions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .primaryButton,
+  .secondaryButton {
+    padding: var(--spacing-sm) var(--spacing-lg);
+    font-size: var(--font-size-sm);
   }
 
   .searchBar {
     max-width: 100%;
+    width: 100%;
   }
 
   .tableWrapper {
-    overflow-x: scroll;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .table {
     min-width: 600px;
   }
 
+  .table th,
+  .table td {
+    padding: var(--spacing-md);
+    font-size: var(--font-size-xs);
+  }
+
+  .pagination {
+    flex-direction: column;
+    gap: var(--spacing-md);
+    align-items: flex-start;
+  }
+
+  .paginationButtons {
+    width: 100%;
+    justify-content: space-between;
+  }
+
   .modal {
     max-width: 100%;
     margin: var(--spacing-md);
+  }
+
+  .modalHeader,
+  .modalBody,
+  .modalFooter {
+    padding: var(--spacing-lg);
+  }
+
+  .modalTitle {
+    font-size: var(--font-size-lg);
+  }
+
+  .emptyState {
+    padding: var(--spacing-xl);
+  }
+
+  .emptyStateIcon {
+    font-size: 3rem;
+  }
+
+  .truncate {
+    max-width: 200px;
+  }
+}
+
+@media only screen and (max-width: 480px) {
+  .pageHeader {
+    margin-bottom: var(--spacing-md);
+    gap: var(--spacing-sm);
+  }
+
+  .pageTitle {
+    font-size: var(--font-size-lg);
+  }
+
+  .primaryButton,
+  .secondaryButton {
+    padding: var(--spacing-xs) var(--spacing-md);
+    font-size: var(--font-size-xs);
+    width: 100%;
+    justify-content: center;
+  }
+
+  .searchBar {
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
+
+  .table {
+    min-width: 500px;
+  }
+
+  .table th,
+  .table td {
+    padding: var(--spacing-sm);
+  }
+
+  .badge,
+  .statusBadge {
+    font-size: 0.65rem;
+    padding: 2px 8px;
+  }
+
+  .actionButtons {
+    gap: var(--spacing-xs);
+  }
+
+  .iconButton {
+    padding: var(--spacing-xs);
+  }
+
+  .pagination {
+    padding: var(--spacing-md);
+  }
+
+  .paginationButton {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: var(--font-size-xs);
+  }
+
+  .modal {
+    margin: var(--spacing-sm);
+    max-height: 95vh;
+  }
+
+  .modalHeader,
+  .modalBody,
+  .modalFooter {
+    padding: var(--spacing-md);
+  }
+
+  .modalTitle {
+    font-size: var(--font-size-base);
+  }
+
+  .modalFooter {
+    flex-direction: column-reverse;
+  }
+
+  .modalFooter > * {
+    width: 100%;
+  }
+
+  .formGroup {
+    margin-bottom: var(--spacing-md);
+  }
+
+  .formInput,
+  .formTextarea,
+  .formSelect {
+    padding: var(--spacing-sm);
+    font-size: var(--font-size-xs);
+  }
+
+  .emptyState {
+    padding: var(--spacing-lg);
+  }
+
+  .emptyStateIcon {
+    font-size: 2.5rem;
+  }
+
+  .emptyStateTitle {
+    font-size: var(--font-size-base);
+  }
+
+  .truncate {
+    max-width: 150px;
   }
 }
