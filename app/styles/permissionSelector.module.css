@@ -1,0 +1,102 @@
+.permissionSelector {
+  margin: 20px 0;
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 16px;
+}
+
+.permissionGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.permissionItem {
+  display: flex;
+  align-items: flex-start;
+  padding: 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: #fff;
+}
+
+.permissionItem:hover:not(.disabled) {
+  border-color: #4CAF50;
+  background-color: #f9fdf9;
+}
+
+.permissionItem.selected {
+  border-color: #4CAF50;
+  background-color: #f0f8f0;
+}
+
+.permissionItem.disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.checkbox {
+  margin-right: 12px;
+  margin-top: 2px;
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #4CAF50;
+}
+
+.checkbox:disabled {
+  cursor: not-allowed;
+}
+
+.permissionInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.permissionLabel {
+  font-size: 15px;
+  font-weight: 500;
+  color: #1a1a1a;
+}
+
+.permissionDescription {
+  font-size: 13px;
+  color: #666;
+}
+
+.warning {
+  margin-top: 12px;
+  padding: 12px;
+  background-color: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 6px;
+  color: #856404;
+  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  .permissionItem {
+    padding: 12px;
+  }
+
+  .permissionLabel {
+    font-size: 14px;
+  }
+
+  .permissionDescription {
+    font-size: 12px;
+  }
+}

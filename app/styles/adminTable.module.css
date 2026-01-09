@@ -487,6 +487,174 @@
   }
 }
 
+/* Credit Notes & Edit History */
+.creditNotesContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.creditNoteCard {
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: #e8f5e9;
+  border-radius: var(--radius-md);
+  border-left: 3px solid #4caf50;
+}
+
+.creditNoteHeader {
+  font-size: 0.7rem;
+  font-weight: var(--font-weight-semibold);
+  color: #2e7d32;
+  margin-bottom: var(--spacing-xs);
+}
+
+.creditNoteItem {
+  font-size: 0.7rem;
+  color: #1b5e20;
+  margin-bottom: var(--spacing-xs);
+}
+
+.creditNoteItem:last-child {
+  margin-bottom: 0;
+}
+
+.creditNoteReason {
+  color: #558b2f;
+  font-size: 0.65rem;
+}
+
+.creditNoteApplied {
+  font-size: 0.65rem;
+  color: #689f38;
+  font-style: italic;
+}
+
+.editHistoryCard {
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: #fff3e0;
+  border-radius: var(--radius-md);
+  border-left: 3px solid #ff9800;
+}
+
+.editHistoryHeader {
+  font-size: 0.7rem;
+  font-weight: var(--font-weight-semibold);
+  color: #e65100;
+  margin-bottom: var(--spacing-xs);
+}
+
+.editHistoryItem {
+  font-size: 0.7rem;
+  color: #e65100;
+  margin-bottom: var(--spacing-xs);
+}
+
+.editHistoryItem:last-child {
+  margin-bottom: 0;
+}
+
+.editHistoryReason {
+  color: #f57c00;
+  font-size: 0.65rem;
+}
+
+/* Invoice/File List */
+.invoiceList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.invoiceLink {
+  font-size: 0.75rem;
+  color: var(--primary-color);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  transition: color var(--transition-normal);
+}
+
+.invoiceLink:hover {
+  color: var(--primary-hover-color);
+  text-decoration: underline;
+}
+
+/* File Upload Section */
+.fileUploadSection {
+  margin-top: var(--spacing-md);
+}
+
+.fileUploadLabel {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  margin-bottom: var(--spacing-sm);
+  display: block;
+}
+
+.fileInput {
+  font-size: var(--font-size-sm);
+  padding: var(--spacing-sm);
+  width: 100%;
+}
+
+.fileInputHint {
+  font-size: 0.7rem;
+  color: var(--warm-gray);
+  margin-top: var(--spacing-xs);
+  display: block;
+}
+
+.selectedFilesHeader {
+  font-size: 0.75rem;
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--spacing-sm);
+  color: var(--dark-color);
+}
+
+.fileListItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--light-gray);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-xs);
+  font-size: 0.75rem;
+}
+
+.fileListItem:last-child {
+  margin-bottom: 0;
+}
+
+.fileName {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fileSize {
+  color: var(--warm-gray);
+  margin-left: var(--spacing-sm);
+  margin-right: var(--spacing-sm);
+}
+
+.fileRemoveBtn {
+  background: transparent;
+  border: none;
+  color: var(--error-color);
+  cursor: pointer;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: 1rem;
+  line-height: 1;
+  transition: opacity var(--transition-normal);
+}
+
+.fileRemoveBtn:hover {
+  opacity: 0.7;
+}
+
 /* Utility Classes */
 .capitalize {
   text-transform: capitalize;

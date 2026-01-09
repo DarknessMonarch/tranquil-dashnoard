@@ -8,6 +8,8 @@ import AdminLayout from "@/app/components/AdminLayout";
 import PageHeader from "@/app/components/PageHeader";
 import MetricCard from "@/app/components/MetricCard";
 import Button from "@/app/components/Button";
+import RevenueChart from "@/app/components/charts/RevenueChart";
+import OccupancyChart from "@/app/components/charts/OccupancyChart";
 import { formatCurrency } from "@/app/lib/formatters";
 import styles from "@/app/styles/adminDashboard.module.css";
 
@@ -20,7 +22,7 @@ import {
 
 export default function AdminDashboard() {
   const router = useRouter();
-  const { isAuth, isLandlord, isAdmin } = useAuthStore();
+  const { isAuth, isManager, isAdmin } = useAuthStore();
   const {
     properties,
     analytics,
@@ -31,13 +33,13 @@ export default function AdminDashboard() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!isAuth || (!isLandlord && !isAdmin)) {
+    if (!isAuth || (!isManager && !isAdmin)) {
       router.push("/admin/login");
       return;
     }
 
     loadDashboardData();
-  }, [isAuth, isLandlord, isAdmin]);
+  }, [isAuth, isManager, isAdmin]);
 
   const loadDashboardData = async () => {
     setIsLoading(true);
@@ -110,68 +112,50 @@ export default function AdminDashboard() {
               <h3 className={styles.chartTitle}>Revenue Trend</h3>
               <select className={styles.chartFilter}>
                 <option>Last 6 Months</option>
-                <option>Last Year</option>
-                <option>All Time</option>
               </select>
             </div>
             <div className={styles.chartContent}>
-              <p style={{ color: "var(--warm-gray)" }}>
-                Chart visualization will be displayed here
-              </p>
+              {isLoading ? (
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  height: '300px',
+                  color: 'var(--warm-gray)'
+                }}>
+                  Loading chart...
+                </div>
+              ) : (
+                <RevenueChart data={analytics?.revenueChart || []} />
+              )}
             </div>
           </div>
 
           <div className={styles.chartCard}>
             <div className={styles.chartHeader}>
               <h3 className={styles.chartTitle}>Occupancy Overview</h3>
-              <select className={styles.chartFilter}>
-                <option>Current Month</option>
-                <option>Last Month</option>
-                <option>Last Quarter</option>
-              </select>
             </div>
             <div className={styles.chartContent}>
-              <p style={{ color: "var(--warm-gray)" }}>
-                Chart visualization will be displayed here
-              </p>
+              {isLoading ? (
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  height: '300px',
+                  color: 'var(--warm-gray)'
+                }}>
+                  Loading chart...
+                </div>
+              ) : (
+                <OccupancyChart
+                  occupiedUnits={analytics?.occupiedUnits || 0}
+                  vacantUnits={analytics?.vacantUnits || 0}
+                />
+              )}
             </div>
           </div>
         </div>
 
-        {/* Properties Overview */}
-        <div className={styles.recentActivity}>
-          <div className={styles.activityHeader}>
-            <h3 className={styles.activityTitle}>Properties Overview</h3>
-            <Button
-              variant="primary"
-              onClick={() => router.push("/admin/properties")}
-            >
-              View All
-            </Button>
-          </div>
-          <div className={styles.activityList}>
-            {properties?.slice(0, 5).map((property) => (
-              <div
-                key={property._id}
-                className={styles.activityItem}
-                onClick={() => router.push(`/admin/properties/${property._id}`)}
-              >
-                <div className={styles.activityIcon}>
-                  <MdApartment />
-                </div>
-                <div className={styles.activityDetails}>
-                  <p className={styles.activityName}>{property.name}</p>
-                  <p className={styles.activityDescription}>
-                    {property.address?.street}, {property.address?.city}
-                  </p>
-                </div>
-                <div className={styles.activityValue}>
-                  {property.totalUnits || 0} units
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
     </AdminLayout>
   );

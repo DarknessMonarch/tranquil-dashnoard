@@ -32,7 +32,7 @@ export const metadata = {
   },
   applicationName: "Tranquil Property Management",
   description:
-    "Tranquil Property Management Dashboard - Manage properties, tenants, bills, and maintenance requests with ease. Modern property management solution for landlords and property managers.",
+    "Tranquil Property Management Dashboard - Manage properties, tenants, bills, and maintenance requests with ease. Modern property management solution for property managers.",
   referrer: "origin-when-cross-origin",
   creator: "Tranquil",
   publisher: "Tranquil",

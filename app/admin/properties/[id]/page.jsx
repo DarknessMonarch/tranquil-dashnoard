@@ -37,9 +37,9 @@ export default function PropertyDetailPage() {
     fetchPropertyById,
     fetchPropertyUnits,
     fetchPropertyTenants,
-    fetchAnnouncements,
-    createAnnouncement,
-    deleteAnnouncement,
+    fetchNotices,
+    createNotice,
+    deleteNotice,
     createUnit,
     updateUnit,
     deleteUnit,
@@ -49,7 +49,7 @@ export default function PropertyDetailPage() {
   const [property, setProperty] = useState(null);
   const [units, setUnits] = useState([]);
   const [tenants, setTenants] = useState([]);
-  const [announcements, setAnnouncements] = useState([]);
+  const [notices, setNotices] = useState([]);
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -66,9 +66,9 @@ export default function PropertyDetailPage() {
     status: 'vacant',
   });
 
-  // Announcement modal state
-  const [showAnnouncementModal, setShowAnnouncementModal] = useState(false);
-  const [announcementFormData, setAnnouncementFormData] = useState({
+  // Notice modal state
+  const [showNoticeModal, setShowNoticeModal] = useState(false);
+  const [noticeFormData, setNoticeFormData] = useState({
     title: '',
     message: '',
   });
@@ -83,22 +83,22 @@ export default function PropertyDetailPage() {
       setError(null);
 
       // Fetch all data in parallel
-      const [propertyData, unitsData, tenantsData, announcementsResult] = await Promise.all([
+      const [propertyData, unitsData, tenantsData, noticesResult] = await Promise.all([
         fetchPropertyById(propertyId),
         fetchPropertyUnits(propertyId),
         fetchPropertyTenants(propertyId),
-        fetchAnnouncements(propertyId),
+        fetchNotices(propertyId),
       ]);
 
       setProperty(propertyData);
       setUnits(unitsData);
       setTenants(tenantsData);
 
-      // Handle announcements result
-      if (announcementsResult.success) {
-        setAnnouncements(announcementsResult.data);
+      // Handle notices result
+      if (noticesResult.success) {
+        setNotices(noticesResult.data);
       } else {
-        setAnnouncements([]);
+        setNotices([]);
       }
 
       // Calculate analytics
@@ -194,44 +194,44 @@ export default function PropertyDetailPage() {
     }
   };
 
-  const handleSaveAnnouncement = async (e) => {
+  const handleSaveNotice = async (e) => {
     e.preventDefault();
 
-    if (!announcementFormData.title.trim() || !announcementFormData.message.trim()) {
+    if (!noticeFormData.title.trim() || !noticeFormData.message.trim()) {
       toast.error('Please fill in all fields');
       return;
     }
 
     try {
-      const result = await createAnnouncement(propertyId, announcementFormData);
+      const result = await createNotice(propertyId, noticeFormData);
       if (result.success) {
-        toast.success('Announcement created successfully');
-        setShowAnnouncementModal(false);
-        setAnnouncementFormData({ title: '', message: '' });
+        toast.success('Notice created successfully');
+        setShowNoticeModal(false);
+        setNoticeFormData({ title: '', message: '' });
         loadPropertyData();
       } else {
-        toast.error('Error creating announcement: ' + result.message);
+        toast.error('Error creating notice: ' + result.message);
       }
     } catch (err) {
-      toast.error('Error creating announcement: ' + err.message);
+      toast.error('Error creating notice: ' + err.message);
     }
   };
 
-  const handleDeleteAnnouncement = async (announcementId) => {
-    if (!confirm('Are you sure you want to delete this announcement?')) {
+  const handleDeleteNotice = async (noticeId) => {
+    if (!confirm('Are you sure you want to delete this notice?')) {
       return;
     }
 
     try {
-      const result = await deleteAnnouncement(announcementId);
+      const result = await deleteNotice(noticeId);
       if (result.success) {
-        toast.success('Announcement deleted successfully');
+        toast.success('Notice deleted successfully');
         loadPropertyData();
       } else {
-        toast.error('Error deleting announcement: ' + result.message);
+        toast.error('Error deleting notice: ' + result.message);
       }
     } catch (err) {
-      toast.error('Error deleting announcement: ' + err.message);
+      toast.error('Error deleting notice: ' + err.message);
     }
   };
 
@@ -289,7 +289,7 @@ export default function PropertyDetailPage() {
     { id: 'units', label: 'Units', icon: MdApartment, count: units.length },
     { id: 'tenants', label: 'Tenants', icon: MdPeople, count: tenants.length },
     { id: 'analytics', label: 'Analytics', icon: MdAnalytics, count: null },
-    { id: 'announcements', label: 'Announcements', icon: MdCampaign, count: announcements.length },
+    { id: 'notices', label: 'Notices', icon: MdCampaign, count: notices.length },
   ];
 
   return (
@@ -619,21 +619,21 @@ export default function PropertyDetailPage() {
             </div>
           )}
 
-          {/* Announcements Tab */}
-          {activeTab === 'announcements' && (
+          {/* Notices Tab */}
+          {activeTab === 'notices' && (
             <div className={styles.tableContainer}>
               <div className={styles.tableHeader}>
-                <h2>Announcements</h2>
-                <button onClick={() => setShowAnnouncementModal(true)} className={styles.createButton}>
+                <h2>Notices</h2>
+                <button onClick={() => setShowNoticeModal(true)} className={styles.createButton}>
                   <MdAdd size={20} />
-                  Create Announcement
+                  Create Notice
                 </button>
               </div>
 
-              {announcements.length === 0 ? (
+              {notices.length === 0 ? (
                 <div className={styles.emptyState}>
                   <MdCampaign size={64} />
-                  <p>No announcements for this property</p>
+                  <p>No notices for this property</p>
              
                 </div>
               ) : (
@@ -648,15 +648,15 @@ export default function PropertyDetailPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {announcements.map((announcement) => (
-                        <tr key={announcement._id}>
-                          <td><strong>{announcement.title}</strong></td>
-                          <td className={styles.truncate}>{announcement.message}</td>
-                          <td>{announcement.createdAt ? formatDate(announcement.createdAt) : '-'}</td>
+                      {notices.map((notice) => (
+                        <tr key={notice._id}>
+                          <td><strong>{notice.title}</strong></td>
+                          <td className={styles.truncate}>{notice.message}</td>
+                          <td>{notice.createdAt ? formatDate(notice.createdAt) : '-'}</td>
                           <td>
                             <div className={styles.actionButtons}>
                               <button
-                                onClick={() => handleDeleteAnnouncement(announcement._id)}
+                                onClick={() => handleDeleteNotice(notice._id)}
                                 className={styles.iconButton}
                                 title="Delete"
                               >
@@ -767,23 +767,23 @@ export default function PropertyDetailPage() {
         </div>
       )}
 
-      {/* Announcement Modal */}
-      {showAnnouncementModal && (
-        <div className={styles.modalOverlay} onClick={() => setShowAnnouncementModal(false)}>
+      {/* Notice Modal */}
+      {showNoticeModal && (
+        <div className={styles.modalOverlay} onClick={() => setShowNoticeModal(false)}>
           <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
             <div className={styles.modalHeader}>
-              <h2>Create Announcement</h2>
-              <button onClick={() => setShowAnnouncementModal(false)} className={styles.closeButton}>
+              <h2>Create Notice</h2>
+              <button onClick={() => setShowNoticeModal(false)} className={styles.closeButton}>
                 ×
               </button>
             </div>
-            <form onSubmit={handleSaveAnnouncement} className={styles.modalForm}>
+            <form onSubmit={handleSaveNotice} className={styles.modalForm}>
               <div className={styles.formGroup}>
                 <label>Title *</label>
                 <input
                   type="text"
-                  value={announcementFormData.title}
-                  onChange={(e) => setAnnouncementFormData({ ...announcementFormData, title: e.target.value })}
+                  value={noticeFormData.title}
+                  onChange={(e) => setNoticeFormData({ ...noticeFormData, title: e.target.value })}
                   placeholder="e.g., Water Outage Schedule"
                   required
                 />
@@ -792,20 +792,20 @@ export default function PropertyDetailPage() {
               <div className={styles.formGroup}>
                 <label>Message *</label>
                 <textarea
-                  value={announcementFormData.message}
-                  onChange={(e) => setAnnouncementFormData({ ...announcementFormData, message: e.target.value })}
-                  placeholder="Enter announcement message..."
+                  value={noticeFormData.message}
+                  onChange={(e) => setNoticeFormData({ ...noticeFormData, message: e.target.value })}
+                  placeholder="Enter notice message..."
                   rows="5"
                   required
                 />
               </div>
 
               <div className={styles.modalActions}>
-                <button type="button" onClick={() => setShowAnnouncementModal(false)} className={styles.cancelButton}>
+                <button type="button" onClick={() => setShowNoticeModal(false)} className={styles.cancelButton}>
                   Cancel
                 </button>
                 <button type="submit" className={styles.saveButton}>
-                  Create Announcement
+                  Create Notice
                 </button>
               </div>
             </form>

@@ -12,6 +12,7 @@ import Tabs from "@/app/components/Tabs";
 import Badge from "@/app/components/Badge";
 import Button from "@/app/components/Button";
 import ConfirmDialog from "@/app/components/ConfirmDialog";
+import CreateUserModal from "@/app/components/CreateUserModal";
 import { formatDate } from "@/app/lib/formatters";
 import styles from "@/app/styles/adminTable.module.css";
 
@@ -20,17 +21,34 @@ import {
   MdPerson,
   MdAdminPanelSettings,
   MdHome,
+  MdHourglassEmpty,
+  MdCheck,
+  MdClose,
+  MdAdd,
+  MdBusiness,
+  MdWork,
 } from "react-icons/md";
 
 export default function UsersPage() {
   const router = useRouter();
-  const { isAuth, isAdmin } = useAuthStore();
-  const { users, usersLoading, getAllUsers, deleteUser } = useAdminStore();
+  const { isAuth, isAdmin, isSuperAdmin, role } = useAuthStore();
+  const {
+    users,
+    usersLoading,
+    getAllUsers,
+    deleteUser,
+    getPendingApprovals,
+    approveUser,
+    rejectUser
+  } = useAdminStore();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("all");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
+  const [pendingUsers, setPendingUsers] = useState([]);
+  const [pendingLoading, setPendingLoading] = useState(false);
+  const [createUserModalOpen, setCreateUserModalOpen] = useState(false);
 
   useEffect(() => {
     if (!isAuth || !isAdmin) {
@@ -39,10 +57,52 @@ export default function UsersPage() {
     }
 
     getAllUsers();
+    fetchPendingApprovals();
   }, [isAuth, isAdmin]);
 
-  const handleDeleteClick = (userId, username) => {
-    setUserToDelete({ id: userId, name: username });
+  const fetchPendingApprovals = async () => {
+    setPendingLoading(true);
+    const result = await getPendingApprovals();
+    if (result.success) {
+      setPendingUsers(result.data || []);
+    }
+    setPendingLoading(false);
+  };
+
+  const handleApprove = async (userId, username) => {
+    const result = await approveUser(userId);
+    if (result.success) {
+      toast.success(`${username} approved successfully`);
+      fetchPendingApprovals();
+    } else {
+      toast.error(result.message || "Failed to approve user");
+    }
+  };
+
+  const handleReject = async (userId, username) => {
+    const result = await rejectUser(userId);
+    if (result.success) {
+      toast.success(`${username} rejected`);
+      fetchPendingApprovals();
+    } else {
+      toast.error(result.message || "Failed to reject user");
+    }
+  };
+
+  const handleDeleteClick = (user) => {
+    // Check if user is a super admin
+    if (user.isSuperAdmin) {
+      toast.error("Super admin cannot be deleted");
+      return;
+    }
+
+    // Check if regular admin trying to delete another admin
+    if (!isSuperAdmin && role === 'admin' && user.role === 'admin') {
+      toast.error("Regular admins cannot delete other admin users");
+      return;
+    }
+
+    setUserToDelete({ id: user._id, name: user.username, user });
     setDeleteDialogOpen(true);
   };
 
@@ -52,26 +112,34 @@ export default function UsersPage() {
     const result = await deleteUser(userToDelete.id);
     if (result.success) {
       toast.success("User deleted successfully");
+      getAllUsers(); // Refresh user list
     } else {
       toast.error(result.message || "Failed to delete user");
     }
     setUserToDelete(null);
   };
 
+  const handleUserCreated = () => {
+    toast.success("User created successfully");
+    getAllUsers(); // Refresh user list
+  };
+
   const getRoleBadgeVariant = (role) => {
     const roleMap = {
-      landlord: "landlord",
+      manager: "landlord",
       tenant: "tenant",
       admin: "admin",
+      specialist: "info",
     };
     return roleMap[role] || "tenant";
   };
 
   const getRoleLabel = (role) => {
     const roleMap = {
-      landlord: "Landlord",
+      manager: "Manager",
       tenant: "Tenant",
       admin: "Admin",
+      specialist: "Specialist",
     };
     return roleMap[role] || "Tenant";
   };
@@ -80,6 +148,12 @@ export default function UsersPage() {
   const tabFilteredUsers = (users || []).filter((user) => {
     if (activeTab === "admins") {
       return user.role === "admin" || user.isAdmin === true;
+    }
+    if (activeTab === "managers") {
+      return user.role === "manager";
+    }
+    if (activeTab === "specialists") {
+      return user.role === "specialist";
     }
     if (activeTab === "tenants") {
       return user.role === "tenant";
@@ -103,10 +177,22 @@ export default function UsersPage() {
   const adminsCount = (users || []).filter(
     (u) => u.role === "admin" || u.isAdmin === true
   ).length;
+  const managersCount = (users || []).filter(
+    (u) => u.role === "manager"
+  ).length;
+  const specialistsCount = (users || []).filter(
+    (u) => u.role === "specialist"
+  ).length;
   const tenantsCount = (users || []).filter((u) => u.role === "tenant").length;
 
   // Tabs configuration
   const tabs = [
+    {
+      id: "pending",
+      label: "Pending Approval",
+      icon: <MdHourglassEmpty size={20} />,
+      count: pendingUsers.length,
+    },
     {
       id: "all",
       label: "All Users",
@@ -118,6 +204,18 @@ export default function UsersPage() {
       label: "Admins",
       icon: <MdAdminPanelSettings size={20} />,
       count: adminsCount,
+    },
+    {
+      id: "managers",
+      label: "Managers",
+      icon: <MdBusiness size={20} />,
+      count: managersCount,
+    },
+    {
+      id: "specialists",
+      label: "Specialists",
+      icon: <MdWork size={20} />,
+      count: specialistsCount,
     },
     {
       id: "tenants",
@@ -132,19 +230,91 @@ export default function UsersPage() {
       <PageHeader
         subtitle="Manage all system users"
         actions={
-          <SearchBar
-            placeholder="Search users..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            onClear={() => setSearchTerm("")}
-          />
+          <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+            <SearchBar
+              placeholder="Search users..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onClear={() => setSearchTerm("")}
+            />
+            <Button
+              icon={<MdAdd size={20} />}
+              onClick={() => setCreateUserModalOpen(true)}
+            >
+              Create User
+            </Button>
+          </div>
         }
       />
 
       <Tabs tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
 
       <div className={styles.tableCard}>
-        {usersLoading ? (
+        {activeTab === "pending" ? (
+          pendingLoading ? (
+            <div className={styles.emptyState}>
+              <p>Loading pending approvals...</p>
+            </div>
+          ) : pendingUsers.length === 0 ? (
+            <div className={styles.emptyState}>
+              <MdHourglassEmpty className={styles.emptyStateIcon} />
+              <h3 className={styles.emptyStateTitle}>No Pending Approvals</h3>
+              <p className={styles.emptyStateDescription}>
+                All users have been approved
+              </p>
+            </div>
+          ) : (
+            <div className={styles.tableWrapper}>
+              <table className={styles.table}>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Unit Number</th>
+                    <th>Registered</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {pendingUsers.map((user) => (
+                    <tr key={user._id}>
+                      <td>
+                        <strong>{user.username || "N/A"}</strong>
+                      </td>
+                      <td>{user.email || "N/A"}</td>
+                      <td>{user.phone || "N/A"}</td>
+                      <td>
+                        {user.tenantInfo?.unitNumber || "N/A"}
+                      </td>
+                      <td>{formatDate(user.createdAt)}</td>
+                      <td>
+                        <div style={{ display: "flex", gap: "8px" }}>
+                          <Button
+                            variant="success"
+                            size="sm"
+                            onClick={() => handleApprove(user._id, user.username)}
+                          >
+                            <MdCheck size={16} />
+                            Approve
+                          </Button>
+                          <Button
+                            variant="danger"
+                            size="sm"
+                            onClick={() => handleReject(user._id, user.username)}
+                          >
+                            <MdClose size={16} />
+                            Reject
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )
+        ) : usersLoading ? (
           <div className={styles.emptyState}>
             <p>Loading users...</p>
           </div>
@@ -167,6 +337,7 @@ export default function UsersPage() {
                   <th>Email</th>
                   <th>Phone</th>
                   <th>Role</th>
+                  <th>Permissions</th>
                   <th>Email Verified</th>
                   <th>Created</th>
                   <th>Actions</th>
@@ -181,7 +352,14 @@ export default function UsersPage() {
                     style={{ cursor: user.role === 'tenant' ? 'pointer' : 'default' }}
                   >
                     <td>
-                      <strong>{user.username || "N/A"}</strong>
+                      <div>
+                        <strong>{user.username || "N/A"}</strong>
+                        {user.isSuperAdmin && (
+                          <Badge variant="warning" style={{ marginLeft: "8px", fontSize: "11px" }}>
+                            SUPER ADMIN
+                          </Badge>
+                        )}
+                      </div>
                     </td>
                     <td>{user.email || "N/A"}</td>
                     <td>{user.phone || "N/A"}</td>
@@ -189,6 +367,19 @@ export default function UsersPage() {
                       <Badge variant={getRoleBadgeVariant(user.role)}>
                         {getRoleLabel(user.role)}
                       </Badge>
+                    </td>
+                    <td>
+                      {user.role === 'specialist' && user.specialistPermissions?.length > 0 ? (
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: "4px" }}>
+                          {user.specialistPermissions.map((perm) => (
+                            <Badge key={perm} variant="info" style={{ fontSize: "11px" }}>
+                              {perm}
+                            </Badge>
+                          ))}
+                        </div>
+                      ) : (
+                        <span style={{ color: "#999" }}>—</span>
+                      )}
                     </td>
                     <td>
                       <Badge variant={user.emailVerified ? "verified" : "unverified"}>
@@ -201,10 +392,18 @@ export default function UsersPage() {
                         <Button
                           variant="icon"
                           icon={<MdDelete size={18} />}
-                          onClick={() =>
-                            handleDeleteClick(user._id, user.username)
+                          onClick={() => handleDeleteClick(user)}
+                          title={
+                            user.isSuperAdmin
+                              ? "Super admin cannot be deleted"
+                              : !isSuperAdmin && role === 'admin' && user.role === 'admin'
+                              ? "Regular admins cannot delete other admins"
+                              : "Delete"
                           }
-                          title="Delete"
+                          disabled={
+                            user.isSuperAdmin ||
+                            (!isSuperAdmin && role === 'admin' && user.role === 'admin')
+                          }
                           className={styles.delete}
                         />
                       </div>
@@ -228,6 +427,12 @@ export default function UsersPage() {
         message={`Are you sure you want to delete "${userToDelete?.name}"? This action cannot be undone.`}
         confirmText="Delete"
         variant="danger"
+      />
+
+      <CreateUserModal
+        isOpen={createUserModalOpen}
+        onClose={() => setCreateUserModalOpen(false)}
+        onSuccess={handleUserCreated}
       />
     </AdminLayout>
   );

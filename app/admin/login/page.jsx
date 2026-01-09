@@ -62,8 +62,8 @@ export default function AdminLogin() {
       if (result.success) {
         const authState = useAuthStore.getState();
 
-        // Check if user is landlord/admin
-        if (!authState.isLandlord && !authState.isAdmin) {
+        // Check if user is manager/admin
+        if (!authState.isManager && !authState.isAdmin) {
           toast.error("Access denied. Admin credentials required.");
           useAuthStore.getState().clearUser();
           return;

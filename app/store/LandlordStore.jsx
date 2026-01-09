@@ -12,7 +12,7 @@ export const useLandlordStore = create(
       units: [],
       tenants: [],
       maintenanceRequests: [],
-      announcements: [],
+      notices: [],
       bills: [],
       payments: [],
       analytics: null,
@@ -32,7 +32,7 @@ export const useLandlordStore = create(
           set({ isLoading: true, error: null });
           const { accessToken } = useAuthStore.getState();
 
-          const response = await fetch(`${SERVER_API}/landlord/properties`, {
+          const response = await fetch(`${SERVER_API}/manager/properties`, {
             headers: {
               Authorization: `Bearer ${accessToken}`,
             },
@@ -64,7 +64,7 @@ export const useLandlordStore = create(
           set({ isLoading: true, error: null });
           const { accessToken } = useAuthStore.getState();
 
-          const response = await fetch(`${SERVER_API}/landlord/properties`, {
+          const response = await fetch(`${SERVER_API}/manager/properties`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -95,7 +95,7 @@ export const useLandlordStore = create(
           set({ isLoading: true, error: null });
           const { accessToken } = useAuthStore.getState();
 
-          const response = await fetch(`${SERVER_API}/landlord/properties/${propertyId}`, {
+          const response = await fetch(`${SERVER_API}/manager/properties/${propertyId}`, {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",
@@ -132,7 +132,7 @@ export const useLandlordStore = create(
           set({ isLoading: true, error: null });
           const { accessToken } = useAuthStore.getState();
 
-          const response = await fetch(`${SERVER_API}/landlord/properties/${propertyId}`, {
+          const response = await fetch(`${SERVER_API}/manager/properties/${propertyId}`, {
             method: "DELETE",
             headers: {
               Authorization: `Bearer ${accessToken}`,
@@ -165,7 +165,7 @@ export const useLandlordStore = create(
           set({ isLoading: true, error: null });
           const { accessToken } = useAuthStore.getState();
 
-          const response = await fetch(`${SERVER_API}/landlord/properties/${propertyId}`, {
+          const response = await fetch(`${SERVER_API}/manager/properties/${propertyId}`, {
             headers: {
               Authorization: `Bearer ${accessToken}`,
             },
@@ -209,7 +209,7 @@ export const useLandlordStore = create(
           const { accessToken } = useAuthStore.getState();
 
           const response = await fetch(
-            `${SERVER_API}/landlord/properties/${propertyId}/units`,
+            `${SERVER_API}/manager/properties/${propertyId}/units`,
             {
               headers: {
                 Authorization: `Bearer ${accessToken}`,
@@ -238,7 +238,7 @@ export const useLandlordStore = create(
           const { accessToken } = useAuthStore.getState();
 
           const response = await fetch(
-            `${SERVER_API}/landlord/properties/${propertyId}/units`,
+            `${SERVER_API}/manager/properties/${propertyId}/units`,
             {
               method: "POST",
               headers: {
@@ -272,7 +272,7 @@ export const useLandlordStore = create(
           set({ isLoading: true, error: null });
           const { accessToken } = useAuthStore.getState();
 
-          const response = await fetch(`${SERVER_API}/landlord/properties/${propertyId}/units/${unitId}`, {
+          const response = await fetch(`${SERVER_API}/manager/properties/${propertyId}/units/${unitId}`, {
             method: "PATCH",
             headers: {
               "Content-Type": "application/json",
@@ -306,7 +306,7 @@ export const useLandlordStore = create(
           set({ isLoading: true, error: null });
           const { accessToken } = useAuthStore.getState();
 
-          const response = await fetch(`${SERVER_API}/landlord/units/${unitId}`, {
+          const response = await fetch(`${SERVER_API}/manager/units/${unitId}`, {
             method: "DELETE",
             headers: {
               Authorization: `Bearer ${accessToken}`,
@@ -337,7 +337,7 @@ export const useLandlordStore = create(
           const { accessToken } = useAuthStore.getState();
 
           const response = await fetch(
-            `${SERVER_API}/landlord/properties/${propertyId}/tenants`,
+            `${SERVER_API}/manager/properties/${propertyId}/tenants`,
             {
               headers: {
                 Authorization: `Bearer ${accessToken}`,
@@ -364,7 +364,7 @@ export const useLandlordStore = create(
           set({ isLoading: true, error: null });
           const { accessToken } = useAuthStore.getState();
 
-          const response = await fetch(`${SERVER_API}/landlord/tenants`, {
+          const response = await fetch(`${SERVER_API}/manager/tenants`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -395,7 +395,7 @@ export const useLandlordStore = create(
           set({ isLoading: true, error: null });
           const { accessToken } = useAuthStore.getState();
 
-          const response = await fetch(`${SERVER_API}/landlord/tenants/${tenantId}`, {
+          const response = await fetch(`${SERVER_API}/manager/tenants/${tenantId}`, {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",
@@ -428,7 +428,7 @@ export const useLandlordStore = create(
           set({ isLoading: true, error: null });
           const { accessToken } = useAuthStore.getState();
 
-          const response = await fetch(`${SERVER_API}/landlord/tenants/${tenantId}`, {
+          const response = await fetch(`${SERVER_API}/manager/tenants/${tenantId}`, {
             method: "DELETE",
             headers: {
               Authorization: `Bearer ${accessToken}`,
@@ -459,7 +459,7 @@ export const useLandlordStore = create(
           const { accessToken } = useAuthStore.getState();
 
           const response = await fetch(
-            `${SERVER_API}/landlord/properties/${propertyId}/maintenance`,
+            `${SERVER_API}/manager/properties/${propertyId}/maintenance`,
             {
               headers: {
                 Authorization: `Bearer ${accessToken}`,
@@ -487,7 +487,7 @@ export const useLandlordStore = create(
           const { accessToken } = useAuthStore.getState();
 
           const response = await fetch(
-            `${SERVER_API}/landlord/maintenance/${requestId}/status`,
+            `${SERVER_API}/manager/maintenance/${requestId}/status`,
             {
               method: "PATCH",
               headers: {
@@ -517,14 +517,14 @@ export const useLandlordStore = create(
         }
       },
 
-      // Announcements
-      fetchAnnouncements: async (propertyId) => {
+      // Notices
+      fetchNotices: async (propertyId) => {
         try {
           set({ isLoading: true, error: null });
           const { accessToken } = useAuthStore.getState();
 
           const response = await fetch(
-            `${SERVER_API}/landlord/properties/${propertyId}/announcements`,
+            `${SERVER_API}/manager/properties/${propertyId}/notices`,
             {
               headers: {
                 Authorization: `Bearer ${accessToken}`,
@@ -534,59 +534,59 @@ export const useLandlordStore = create(
 
           const data = await response.json();
           if (data.status === "success") {
-            set({ announcements: data.data.announcements, isLoading: false });
-            return { success: true, data: data.data.announcements };
+            set({ notices: data.data.notices, isLoading: false });
+            return { success: true, data: data.data.notices };
           }
           set({ error: data.message, isLoading: false });
           return { success: false, message: data.message };
         } catch (error) {
-          console.error("Fetch announcements error:", error);
-          set({ error: "Failed to fetch announcements", isLoading: false });
-          return { success: false, message: "Failed to fetch announcements" };
+          console.error("Fetch notices error:", error);
+          set({ error: "Failed to fetch notices", isLoading: false });
+          return { success: false, message: "Failed to fetch notices" };
         }
       },
 
-      createAnnouncement: async (propertyId, announcementData) => {
+      createNotice: async (propertyId, noticeData) => {
         try {
           set({ isLoading: true, error: null });
           const { accessToken } = useAuthStore.getState();
 
           const response = await fetch(
-            `${SERVER_API}/landlord/properties/${propertyId}/announcements`,
+            `${SERVER_API}/manager/properties/${propertyId}/notices`,
             {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${accessToken}`,
               },
-              body: JSON.stringify(announcementData),
+              body: JSON.stringify(noticeData),
             }
           );
 
           const data = await response.json();
           if (data.status === "success") {
             set((state) => ({
-              announcements: [...state.announcements, data.data.announcement],
+              notices: [...state.notices, data.data.notice],
               isLoading: false,
             }));
-            return { success: true, data: data.data.announcement };
+            return { success: true, data: data.data.notice };
           }
           set({ error: data.message, isLoading: false });
           return { success: false, message: data.message };
         } catch (error) {
-          console.error("Create announcement error:", error);
-          set({ error: "Failed to create announcement", isLoading: false });
-          return { success: false, message: "Failed to create announcement" };
+          console.error("Create notice error:", error);
+          set({ error: "Failed to create notice", isLoading: false });
+          return { success: false, message: "Failed to create notice" };
         }
       },
 
-      deleteAnnouncement: async (announcementId) => {
+      deleteNotice: async (noticeId) => {
         try {
           set({ isLoading: true, error: null });
           const { accessToken } = useAuthStore.getState();
 
           const response = await fetch(
-            `${SERVER_API}/landlord/announcements/${announcementId}`,
+            `${SERVER_API}/manager/notices/${noticeId}`,
             {
               method: "DELETE",
               headers: {
@@ -598,8 +598,8 @@ export const useLandlordStore = create(
           const data = await response.json();
           if (data.status === "success") {
             set((state) => ({
-              announcements: state.announcements.filter(
-                (a) => a._id !== announcementId
+              notices: state.notices.filter(
+                (n) => n._id !== noticeId
               ),
               isLoading: false,
             }));
@@ -608,9 +608,9 @@ export const useLandlordStore = create(
           set({ error: data.message, isLoading: false });
           return { success: false, message: data.message };
         } catch (error) {
-          console.error("Delete announcement error:", error);
-          set({ error: "Failed to delete announcement", isLoading: false });
-          return { success: false, message: "Failed to delete announcement" };
+          console.error("Delete notice error:", error);
+          set({ error: "Failed to delete notice", isLoading: false });
+          return { success: false, message: "Failed to delete notice" };
         }
       },
 
@@ -621,7 +621,7 @@ export const useLandlordStore = create(
           const { accessToken } = useAuthStore.getState();
 
           const response = await fetch(
-            `${SERVER_API}/landlord/properties/${propertyId}/bills`,
+            `${SERVER_API}/manager/properties/${propertyId}/bills`,
             {
               headers: {
                 Authorization: `Bearer ${accessToken}`,
@@ -648,7 +648,7 @@ export const useLandlordStore = create(
           set({ isLoading: true, error: null });
           const { accessToken } = useAuthStore.getState();
 
-          const response = await fetch(`${SERVER_API}/landlord/bills`, {
+          const response = await fetch(`${SERVER_API}/manager/bills`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -679,7 +679,7 @@ export const useLandlordStore = create(
           set({ isLoading: true, error: null });
           const { accessToken } = useAuthStore.getState();
 
-          const response = await fetch(`${SERVER_API}/landlord/bills/${billId}`, {
+          const response = await fetch(`${SERVER_API}/manager/bills/${billId}`, {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",
@@ -712,7 +712,7 @@ export const useLandlordStore = create(
           set({ isLoading: true, error: null });
           const { accessToken } = useAuthStore.getState();
 
-          const response = await fetch(`${SERVER_API}/landlord/bills/${billId}`, {
+          const response = await fetch(`${SERVER_API}/manager/bills/${billId}`, {
             method: "DELETE",
             headers: {
               Authorization: `Bearer ${accessToken}`,
@@ -743,7 +743,7 @@ export const useLandlordStore = create(
           const { accessToken } = useAuthStore.getState();
 
           const response = await fetch(
-            `${SERVER_API}/landlord/properties/${propertyId}/payments`,
+            `${SERVER_API}/manager/properties/${propertyId}/payments`,
             {
               headers: {
                 Authorization: `Bearer ${accessToken}`,
@@ -770,7 +770,7 @@ export const useLandlordStore = create(
           set({ isLoading: true, error: null });
           const { accessToken } = useAuthStore.getState();
 
-          const response = await fetch(`${SERVER_API}/landlord/payments`, {
+          const response = await fetch(`${SERVER_API}/manager/payments`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -801,7 +801,7 @@ export const useLandlordStore = create(
           set({ isLoading: true, error: null });
           const { accessToken } = useAuthStore.getState();
 
-          const response = await fetch(`${SERVER_API}/landlord/payments/${paymentId}`, {
+          const response = await fetch(`${SERVER_API}/manager/payments/${paymentId}`, {
             method: "DELETE",
             headers: {
               Authorization: `Bearer ${accessToken}`,
@@ -861,7 +861,7 @@ export const useLandlordStore = create(
           set({ isLoading: true, error: null });
           const { accessToken } = useAuthStore.getState();
 
-          const response = await fetch(`${SERVER_API}/landlord/tenants/${tenantId}`, {
+          const response = await fetch(`${SERVER_API}/manager/tenants/${tenantId}`, {
             headers: {
               Authorization: `Bearer ${accessToken}`,
             },
@@ -886,7 +886,7 @@ export const useLandlordStore = create(
         try {
           const { accessToken } = useAuthStore.getState();
 
-          const response = await fetch(`${SERVER_API}/landlord/tenants/${tenantId}/bills`, {
+          const response = await fetch(`${SERVER_API}/manager/tenants/${tenantId}/bills`, {
             headers: {
               Authorization: `Bearer ${accessToken}`,
             },
@@ -908,7 +908,7 @@ export const useLandlordStore = create(
         try {
           const { accessToken } = useAuthStore.getState();
 
-          const response = await fetch(`${SERVER_API}/landlord/tenants/${tenantId}/payments`, {
+          const response = await fetch(`${SERVER_API}/manager/tenants/${tenantId}/payments`, {
             headers: {
               Authorization: `Bearer ${accessToken}`,
             },
@@ -930,7 +930,7 @@ export const useLandlordStore = create(
         try {
           const { accessToken } = useAuthStore.getState();
 
-          const response = await fetch(`${SERVER_API}/landlord/tenants/${tenantId}/maintenance`, {
+          const response = await fetch(`${SERVER_API}/manager/tenants/${tenantId}/maintenance`, {
             headers: {
               Authorization: `Bearer ${accessToken}`,
             },
@@ -953,7 +953,7 @@ export const useLandlordStore = create(
           set({ isLoading: true, error: null });
           const { accessToken } = useAuthStore.getState();
 
-          const response = await fetch(`${SERVER_API}/landlord/bills/${billId}/water-expense`, {
+          const response = await fetch(`${SERVER_API}/manager/bills/${billId}/water-expense`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -984,7 +984,7 @@ export const useLandlordStore = create(
           units: [],
           tenants: [],
           maintenanceRequests: [],
-          announcements: [],
+          notices: [],
           bills: [],
           payments: [],
           analytics: null,

@@ -16,7 +16,7 @@ import { MdSave } from "react-icons/md";
 
 export default function SettingsPage() {
   const router = useRouter();
-  const { isAuth, isLandlord, isAdmin, username, email, phone, updateProfile } =
+  const { isAuth, isManager, isAdmin, username, email, phone, updateProfile } =
     useAuthStore();
 
   const [profileData, setProfileData] = useState({
@@ -27,7 +27,7 @@ export default function SettingsPage() {
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    if (!isAuth || (!isLandlord && !isAdmin)) {
+    if (!isAuth || (!isManager && !isAdmin)) {
       router.push("/admin/login");
       return;
     }
@@ -37,7 +37,7 @@ export default function SettingsPage() {
       email: email || "",
       phone: phone || "",
     });
-  }, [isAuth, isLandlord, isAdmin, username, email, phone]);
+  }, [isAuth, isManager, isAdmin, username, email, phone]);
 
   const handleProfileChange = (e) => {
     const { name, value } = e.target;

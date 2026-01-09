@@ -115,7 +115,7 @@ export const useAdminStore = create((set, get) => ({
   removeAdmin: async (userId) => {
     try {
       const { getAuthHeader } = useAuthStore.getState();
-      
+
       const response = await fetch(`${SERVER_API}/auth/remove-admin`, {
         method: "POST",
         headers: {
@@ -134,6 +134,61 @@ export const useAdminStore = create((set, get) => ({
     } catch (error) {
       console.error("Remove admin error:", error);
       return { success: false, message: "Failed to remove admin privileges" };
+    }
+  },
+
+  // Get Pending Approvals
+  getPendingApprovals: async () => {
+    try {
+      const { getAuthHeader } = useAuthStore.getState();
+
+      const response = await fetch(`${SERVER_API}/admin/pending-approvals`, {
+        headers: getAuthHeader(),
+      });
+
+      const data = await response.json();
+      if (data.status === "success") {
+        return { success: true, data: data.data };
+      }
+      return { success: false, message: data.message };
+    } catch (error) {
+      console.error("Get pending approvals error:", error);
+      return { success: false, message: "Failed to fetch pending approvals" };
+    }
+  },
+
+  // Approve User
+  approveUser: async (userId) => {
+    try {
+      const { getAuthHeader } = useAuthStore.getState();
+
+      const response = await fetch(`${SERVER_API}/admin/approve-user/${userId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          ...getAuthHeader(),
+        },
+      });
+
+      const data = await response.json();
+      if (data.status === "success") {
+        get().getAllUsers(); // Refresh users list
+        return { success: true, message: "User approved successfully" };
+      }
+      return { success: false, message: data.message };
+    } catch (error) {
+      console.error("Approve user error:", error);
+      return { success: false, message: "Failed to approve user" };
+    }
+  },
+
+  // Reject User (Delete)
+  rejectUser: async (userId) => {
+    try {
+      return await get().deleteUser(userId);
+    } catch (error) {
+      console.error("Reject user error:", error);
+      return { success: false, message: "Failed to reject user" };
     }
   },
 

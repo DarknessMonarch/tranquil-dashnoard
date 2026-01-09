@@ -35,6 +35,15 @@
   border: 1px solid var(--border-color);
 }
 
+.success {
+  background: var(--secondary-color);
+  color: white;
+}
+
+.success:not(:disabled):hover {
+  background: var(--secondary-hover-color);
+}
+
 .danger {
   background: var(--error-color);
   color: white;
@@ -43,6 +52,20 @@
 .ghost {
   background: transparent;
   color: var(--dark-color);
+}
+
+.icon {
+  background: transparent;
+  color: var(--warm-gray);
+  padding: var(--spacing-sm);
+  border-radius: var(--radius-sm);
+}
+
+.icon:not(:disabled):hover {
+  background: var(--light-background-color);
+  color: var(--dark-color);
+  transform: none;
+  box-shadow: none;
 }
 
 /* Sizes */

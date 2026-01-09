@@ -22,23 +22,25 @@ export default function AdminLayout({ children }) {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const { isAuth, isLandlord, isAdmin, username, clearUser } = useAuthStore();
+  const { isAuth, isAdmin, isManager, isSpecialist, role, username, clearUser } = useAuthStore();
 
   useEffect(() => {
-    // Check authentication
-    if (!isAuth || (!isLandlord && !isAdmin)) {
+    // Check authentication - allow admin, manager, and specialist
+    if (!isAuth || !['admin', 'manager', 'specialist'].includes(role)) {
       router.push("/admin/login");
       return;
     }
-  }, [isAuth, isLandlord, isAdmin]);
+  }, [isAuth, role]);
 
   const handleLogout = () => {
     clearUser();
     router.push("/admin/login");
   };
 
+  // Conditionally build navigation based on role
   const navItems = [
-    {
+    // Dashboard - only for admins
+    ...(role === 'admin' ? [{
       section: "Overview",
       items: [
         {
@@ -47,7 +49,8 @@ export default function AdminLayout({ children }) {
           path: "/admin/dashboard",
         },
       ],
-    },
+    }] : []),
+    // Properties - for all roles
     {
       section: "Management",
       items: [
@@ -58,7 +61,8 @@ export default function AdminLayout({ children }) {
         },
       ],
     },
-    {
+    // Users - only for admins
+    ...(role === 'admin' ? [{
       section: "Administration",
       items: [
         {
@@ -67,8 +71,9 @@ export default function AdminLayout({ children }) {
           path: "/admin/users",
         },
       ],
-    },
-    {
+    }] : []),
+    // Settings - only for admins
+    ...(role === 'admin' ? [{
       section: "Settings",
       items: [
         {
@@ -77,7 +82,7 @@ export default function AdminLayout({ children }) {
           path: "/admin/settings",
         },
       ],
-    },
+    }] : []),
   ];
 
   const isActive = (path) => pathname === path;

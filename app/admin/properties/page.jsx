@@ -27,7 +27,7 @@ import {
 
 export default function PropertiesPage() {
   const router = useRouter();
-  const { isAuth, isLandlord, isAdmin } = useAuthStore();
+  const { isAuth, isManager, isAdmin } = useAuthStore();
   const {
     properties,
     isLoading,
@@ -53,7 +53,7 @@ export default function PropertiesPage() {
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    if (!isAuth || (!isLandlord && !isAdmin)) {
+    if (!isAuth || (!isManager && !isAdmin)) {
       router.push("/admin/login");
       return;
     }
@@ -61,7 +61,7 @@ export default function PropertiesPage() {
     if (properties.length === 0) {
       fetchProperties();
     }
-  }, [isAuth, isLandlord, isAdmin]);
+  }, [isAuth, isManager, isAdmin]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;

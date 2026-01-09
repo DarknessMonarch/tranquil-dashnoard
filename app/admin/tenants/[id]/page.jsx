@@ -19,13 +19,14 @@ import {
   MdAttachMoney,
   MdAdd,
   MdDelete,
+  MdCloudUpload,
 } from 'react-icons/md';
 
 export default function TenantDetailPage() {
   const params = useParams();
   const router = useRouter();
   const tenantId = params.id;
-  const { isAuth, isLandlord, isAdmin } = useAuthStore();
+  const { isAuth, isManager, isAdmin } = useAuthStore();
   const {
     getTenantById,
     fetchTenantBills,
@@ -67,6 +68,8 @@ export default function TenantDetailPage() {
     otherAmount: '',
     otherDetails: '',
   });
+  const [maintenanceInvoices, setMaintenanceInvoices] = useState([]);
+  const [uploadingInvoices, setUploadingInvoices] = useState(false);
 
   useEffect(() => {
     loadTenantData();
@@ -167,6 +170,48 @@ export default function TenantDetailPage() {
     return `${styles.statusBadge} ${styles[priorityLower] || ''}`;
   };
 
+  const handleInvoiceFileChange = (e) => {
+    const files = Array.from(e.target.files);
+    setMaintenanceInvoices(files);
+  };
+
+  const handleRemoveInvoiceFile = (index) => {
+    setMaintenanceInvoices(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const uploadInvoiceFiles = async (files) => {
+    if (!files || files.length === 0) return [];
+
+    setUploadingInvoices(true);
+    try {
+      const { accessToken } = useAuthStore.getState();
+      const formData = new FormData();
+      files.forEach(file => {
+        formData.append('invoices', file);
+      });
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_API}/manager/upload-invoices`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+        },
+        body: formData,
+      });
+
+      const data = await response.json();
+      if (data.status === 'success') {
+        return data.data.files;
+      } else {
+        throw new Error(data.message || 'Failed to upload invoices');
+      }
+    } catch (error) {
+      console.error('Error uploading invoices:', error);
+      throw error;
+    } finally {
+      setUploadingInvoices(false);
+    }
+  };
+
   const handleGenerateBill = async (e) => {
     e.preventDefault();
 
@@ -188,6 +233,17 @@ export default function TenantDetailPage() {
     }
 
     try {
+      // Upload invoices first if any
+      let uploadedInvoiceFiles = [];
+      if (includeMaintenance && maintenanceInvoices.length > 0) {
+        try {
+          uploadedInvoiceFiles = await uploadInvoiceFiles(maintenanceInvoices);
+        } catch (error) {
+          toast.error('Failed to upload invoice files');
+          return;
+        }
+      }
+
       const items = [];
       let totalAmount = 0;
 
@@ -251,6 +307,7 @@ export default function TenantDetailPage() {
           type: 'service_fee',
           amount: parseFloat(maintenanceAmount),
           details: maintenanceDetails || 'Maintenance charges',
+          invoiceFiles: uploadedInvoiceFiles,
         });
         totalAmount += parseFloat(maintenanceAmount);
       }
@@ -320,6 +377,7 @@ export default function TenantDetailPage() {
           otherAmount: '',
           otherDetails: '',
         });
+        setMaintenanceInvoices([]);
         loadTenantData();
       } else {
         toast.error(result.message || 'Failed to generate bill');
@@ -341,7 +399,7 @@ export default function TenantDetailPage() {
         }
 
         const { accessToken } = useAuthStore.getState();
-        fetch(`${process.env.NEXT_PUBLIC_SERVER_API}/landlord/bills/${billId}`, {
+        fetch(`${process.env.NEXT_PUBLIC_SERVER_API}/manager/bills/${billId}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${accessToken}`,
@@ -372,7 +430,7 @@ export default function TenantDetailPage() {
   const handleUpdateMaintenanceStatus = async (requestId, newStatus) => {
     try {
       const { accessToken } = useAuthStore.getState();
-      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_API}/landlord/maintenance/${requestId}/status`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_API}/manager/maintenance/${requestId}/status`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -539,64 +597,140 @@ export default function TenantDetailPage() {
                         <th>Balance</th>
                         <th>Status</th>
                         <th>Due Date</th>
+                        <th>Credits/History</th>
+                        <th>Invoices</th>
                         <th>Actions</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {bills.map((bill) => (
-                        <tr key={bill._id}>
-                          <td>{bill.billingPeriod?.month}/{bill.billingPeriod?.year}</td>
-                          <td>
-                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-                              {bill.items && bill.items.length > 0 ? (
-                                bill.items.map((item, idx) => (
-                                  <span
-                                    key={idx}
-                                    style={{
-                                      padding: '2px 8px',
-                                      borderRadius: '4px',
-                                      fontSize: '0.75rem',
-                                      fontWeight: '500',
-                                      background: item.type === 'rent' ? 'var(--primary-light)' :
-                                                  item.type === 'water' ? '#E3F2FD' :
-                                                  item.type === 'electricity' ? '#FFF3E0' :
-                                                  item.type === 'service_fee' ? '#F3E5F5' :
-                                                  'var(--light-gray)',
-                                      color: item.type === 'rent' ? 'var(--primary-color)' :
-                                             item.type === 'water' ? '#1976D2' :
-                                             item.type === 'electricity' ? '#F57C00' :
-                                             item.type === 'service_fee' ? '#7B1FA2' :
-                                             'var(--dark-gray)'
-                                    }}
-                                  >
-                                    {item.type === 'service_fee' ? 'Service' : item.type.charAt(0).toUpperCase() + item.type.slice(1)}
-                                  </span>
-                                ))
+                      {bills.map((bill) => {
+                        // Check if any items have invoice files
+                        const hasInvoices = bill.items?.some(item => item.invoiceFiles && item.invoiceFiles.length > 0);
+                        const allInvoices = bill.items?.flatMap(item => item.invoiceFiles || []);
+
+                        return (
+                          <tr key={bill._id}>
+                            <td>{bill.billingPeriod?.month}/{bill.billingPeriod?.year}</td>
+                            <td>
+                              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                                {bill.items && bill.items.length > 0 ? (
+                                  bill.items.map((item, idx) => (
+                                    <span
+                                      key={idx}
+                                      style={{
+                                        padding: '2px 8px',
+                                        borderRadius: '4px',
+                                        fontSize: '0.75rem',
+                                        fontWeight: '500',
+                                        background: item.type === 'rent' ? 'var(--primary-light)' :
+                                                    item.type === 'water' ? '#E3F2FD' :
+                                                    item.type === 'electricity' ? '#FFF3E0' :
+                                                    item.type === 'service_fee' ? '#F3E5F5' :
+                                                    'var(--light-gray)',
+                                        color: item.type === 'rent' ? 'var(--primary-color)' :
+                                               item.type === 'water' ? '#1976D2' :
+                                               item.type === 'electricity' ? '#F57C00' :
+                                               item.type === 'service_fee' ? '#7B1FA2' :
+                                               'var(--dark-gray)'
+                                      }}
+                                    >
+                                      {item.type === 'service_fee' ? 'Service' : item.type.charAt(0).toUpperCase() + item.type.slice(1)}
+                                    </span>
+                                  ))
+                                ) : (
+                                  <span style={{ fontSize: '0.75rem', color: 'var(--warm-gray)' }}>No items</span>
+                                )}
+                              </div>
+                            </td>
+                            <td>{formatCurrency(bill.totalAmount)}</td>
+                            <td>{formatCurrency(bill.paidAmount)}</td>
+                            <td>{formatCurrency(bill.totalAmount - bill.paidAmount)}</td>
+                            <td>
+                              <span className={getBillStatusClass(bill.status)}>
+                                {bill.status}
+                              </span>
+                            </td>
+                            <td>{bill.dueDate ? formatDate(bill.dueDate) : '-'}</td>
+                            <td>
+                              <div className={styles.creditNotesContainer}>
+                                {/* Credit Notes */}
+                                {bill.creditNotes && bill.creditNotes.length > 0 && (
+                                  <div className={styles.creditNoteCard}>
+                                    <div className={styles.creditNoteHeader}>
+                                      💳 {bill.creditNotes.length} Credit Note{bill.creditNotes.length > 1 ? 's' : ''}
+                                    </div>
+                                    {bill.creditNotes.map((credit, idx) => (
+                                      <div key={idx} className={styles.creditNoteItem}>
+                                        <div>{formatCurrency(credit.amount)}</div>
+                                        <div className={styles.creditNoteReason}>
+                                          {credit.reason}
+                                        </div>
+                                        {credit.appliedToBill && (
+                                          <div className={styles.creditNoteApplied}>
+                                            ✓ Applied to next bill
+                                          </div>
+                                        )}
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+
+                                {/* Edit History */}
+                                {bill.editHistory && bill.editHistory.length > 0 && (
+                                  <div className={styles.editHistoryCard}>
+                                    <div className={styles.editHistoryHeader}>
+                                      📝 {bill.editHistory.length} Edit{bill.editHistory.length > 1 ? 's' : ''}
+                                    </div>
+                                    {bill.editHistory.map((edit, idx) => (
+                                      <div key={idx} className={styles.editHistoryItem}>
+                                        <div>
+                                          {formatCurrency(edit.previousAmount)} → {formatCurrency(edit.newAmount)}
+                                        </div>
+                                        <div className={styles.editHistoryReason}>
+                                          {edit.reason}
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+
+                                {(!bill.creditNotes || bill.creditNotes.length === 0) && (!bill.editHistory || bill.editHistory.length === 0) && (
+                                  <span style={{ fontSize: '0.75rem', color: 'var(--warm-gray)' }}>-</span>
+                                )}
+                              </div>
+                            </td>
+                            <td>
+                              {hasInvoices ? (
+                                <div className={styles.invoiceList}>
+                                  {allInvoices.map((invoice, idx) => (
+                                    <a
+                                      key={idx}
+                                      href={invoice.url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className={styles.invoiceLink}
+                                      title={invoice.filename}
+                                    >
+                                      📎 {invoice.filename.length > 15 ? invoice.filename.substring(0, 15) + '...' : invoice.filename}
+                                    </a>
+                                  ))}
+                                </div>
                               ) : (
-                                <span style={{ fontSize: '0.75rem', color: 'var(--warm-gray)' }}>No items</span>
+                                <span style={{ fontSize: '0.75rem', color: 'var(--warm-gray)' }}>-</span>
                               )}
-                            </div>
-                          </td>
-                          <td>{formatCurrency(bill.totalAmount)}</td>
-                          <td>{formatCurrency(bill.paidAmount)}</td>
-                          <td>{formatCurrency(bill.totalAmount - bill.paidAmount)}</td>
-                          <td>
-                            <span className={getBillStatusClass(bill.status)}>
-                              {bill.status}
-                            </span>
-                          </td>
-                          <td>{bill.dueDate ? formatDate(bill.dueDate) : '-'}</td>
-                          <td>
-                            <button
-                              onClick={() => handleDeleteBill(bill._id)}
-                              className={styles.iconButton}
-                              title="Delete"
-                            >
-                              <MdDelete size={18} />
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
+                            </td>
+                            <td>
+                              <button
+                                onClick={() => handleDeleteBill(bill._id)}
+                                className={styles.iconButton}
+                                title="Delete"
+                              >
+                                <MdDelete size={18} />
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>
@@ -1274,7 +1408,7 @@ export default function TenantDetailPage() {
                           style={{ fontSize: '14px' }}
                         />
                       </div>
-                      <div className={styles.formGroup} style={{ margin: 0 }}>
+                      <div className={styles.formGroup} style={{ margin: 0, marginBottom: '12px' }}>
                         <label style={{ fontSize: '13px', fontWeight: '500', marginBottom: '6px' }}>Details</label>
                         <input
                           type="text"
@@ -1283,6 +1417,46 @@ export default function TenantDetailPage() {
                           placeholder="e.g., Monthly service fee"
                           style={{ fontSize: '14px' }}
                         />
+                      </div>
+                      <div className={styles.formGroup} style={{ margin: 0 }}>
+                        <label className={styles.fileUploadLabel}>
+                          📎 Invoice/Receipt (Optional)
+                        </label>
+                        <input
+                          type="file"
+                          accept=".pdf,.jpg,.jpeg,.png,.xlsx,.xls,.csv"
+                          multiple
+                          onChange={handleInvoiceFileChange}
+                          className={styles.fileInput}
+                        />
+                        <span className={styles.fileInputHint}>
+                          Upload invoice files (PDF, Images, Excel). Max 5 files, 5MB each.
+                        </span>
+                        {maintenanceInvoices.length > 0 && (
+                          <div className={styles.fileUploadSection}>
+                            <p className={styles.selectedFilesHeader}>
+                              Selected Files ({maintenanceInvoices.length}):
+                            </p>
+                            {maintenanceInvoices.map((file, index) => (
+                              <div key={index} className={styles.fileListItem}>
+                                <span className={styles.fileName}>
+                                  📄 {file.name}
+                                </span>
+                                <span className={styles.fileSize}>
+                                  {(file.size / 1024).toFixed(1)} KB
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveInvoiceFile(index)}
+                                  className={styles.fileRemoveBtn}
+                                  title="Remove file"
+                                >
+                                  ×
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     </div>
                   )}
@@ -1336,11 +1510,18 @@ export default function TenantDetailPage() {
               </div>
 
               <div className={styles.modalActions}>
-                <button type="button" onClick={() => setShowBillModal(false)} className={styles.cancelButton}>
+                <button type="button" onClick={() => setShowBillModal(false)} className={styles.cancelButton} disabled={uploadingInvoices}>
                   Cancel
                 </button>
-                <button type="submit" className={styles.saveButton}>
-                  Generate Bill
+                <button type="submit" className={styles.saveButton} disabled={uploadingInvoices}>
+                  {uploadingInvoices ? (
+                    <>
+                      <MdCloudUpload size={18} style={{ animation: 'pulse 1.5s ease-in-out infinite' }} />
+                      Uploading Invoices...
+                    </>
+                  ) : (
+                    'Generate Bill'
+                  )}
                 </button>
               </div>
             </form>
