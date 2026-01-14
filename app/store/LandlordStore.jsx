@@ -40,7 +40,9 @@ export const useLandlordStore = create(
 
           const data = await response.json();
           if (data.status === "success") {
-            const properties = Array.isArray(data.data) ? data.data : data.data.properties || [];
+            const properties = Array.isArray(data.data)
+              ? data.data
+              : data.data.properties || [];
             set({ properties, isLoading: false });
 
             // Auto-select first property if none selected
@@ -74,13 +76,12 @@ export const useLandlordStore = create(
           });
 
           const data = await response.json();
+
           if (data.status === "success") {
-            set((state) => ({
-              properties: [...state.properties, data.data.property],
-              isLoading: false,
-            }));
-            return { success: true, data: data.data.property };
+            set({ isLoading: false });
+            return { success: true };
           }
+
           set({ error: data.message, isLoading: false });
           return { success: false, message: data.message };
         } catch (error) {
@@ -95,14 +96,17 @@ export const useLandlordStore = create(
           set({ isLoading: true, error: null });
           const { accessToken } = useAuthStore.getState();
 
-          const response = await fetch(`${SERVER_API}/manager/properties/${propertyId}`, {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${accessToken}`,
-            },
-            body: JSON.stringify(propertyData),
-          });
+          const response = await fetch(
+            `${SERVER_API}/manager/properties/${propertyId}`,
+            {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${accessToken}`,
+              },
+              body: JSON.stringify(propertyData),
+            }
+          );
 
           const data = await response.json();
           if (data.status === "success") {
@@ -132,12 +136,15 @@ export const useLandlordStore = create(
           set({ isLoading: true, error: null });
           const { accessToken } = useAuthStore.getState();
 
-          const response = await fetch(`${SERVER_API}/manager/properties/${propertyId}`, {
-            method: "DELETE",
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          });
+          const response = await fetch(
+            `${SERVER_API}/manager/properties/${propertyId}`,
+            {
+              method: "DELETE",
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+              },
+            }
+          );
 
           const data = await response.json();
           if (data.status === "success") {
@@ -165,11 +172,14 @@ export const useLandlordStore = create(
           set({ isLoading: true, error: null });
           const { accessToken } = useAuthStore.getState();
 
-          const response = await fetch(`${SERVER_API}/manager/properties/${propertyId}`, {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          });
+          const response = await fetch(
+            `${SERVER_API}/manager/properties/${propertyId}`,
+            {
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+              },
+            }
+          );
 
           const data = await response.json();
           if (data.status === "success") {
@@ -272,22 +282,23 @@ export const useLandlordStore = create(
           set({ isLoading: true, error: null });
           const { accessToken } = useAuthStore.getState();
 
-          const response = await fetch(`${SERVER_API}/manager/properties/${propertyId}/units/${unitId}`, {
-            method: "PATCH",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${accessToken}`,
-            },
-            body: JSON.stringify(unitData),
-          });
+          const response = await fetch(
+            `${SERVER_API}/manager/properties/${propertyId}/units/${unitId}`,
+            {
+              method: "PATCH",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${accessToken}`,
+              },
+              body: JSON.stringify(unitData),
+            }
+          );
 
           const data = await response.json();
           if (data.status === "success") {
             const unit = data.data.unit || data.data;
             set((state) => ({
-              units: state.units.map((u) =>
-                u._id === unitId ? unit : u
-              ),
+              units: state.units.map((u) => (u._id === unitId ? unit : u)),
               isLoading: false,
             }));
             return { success: true, data: unit };
@@ -306,12 +317,15 @@ export const useLandlordStore = create(
           set({ isLoading: true, error: null });
           const { accessToken } = useAuthStore.getState();
 
-          const response = await fetch(`${SERVER_API}/manager/units/${unitId}`, {
-            method: "DELETE",
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          });
+          const response = await fetch(
+            `${SERVER_API}/manager/units/${unitId}`,
+            {
+              method: "DELETE",
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+              },
+            }
+          );
 
           const data = await response.json();
           if (data.status === "success") {
@@ -395,14 +409,17 @@ export const useLandlordStore = create(
           set({ isLoading: true, error: null });
           const { accessToken } = useAuthStore.getState();
 
-          const response = await fetch(`${SERVER_API}/manager/tenants/${tenantId}`, {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${accessToken}`,
-            },
-            body: JSON.stringify(tenantData),
-          });
+          const response = await fetch(
+            `${SERVER_API}/manager/tenants/${tenantId}`,
+            {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${accessToken}`,
+              },
+              body: JSON.stringify(tenantData),
+            }
+          );
 
           const data = await response.json();
           if (data.status === "success") {
@@ -428,12 +445,15 @@ export const useLandlordStore = create(
           set({ isLoading: true, error: null });
           const { accessToken } = useAuthStore.getState();
 
-          const response = await fetch(`${SERVER_API}/manager/tenants/${tenantId}`, {
-            method: "DELETE",
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          });
+          const response = await fetch(
+            `${SERVER_API}/manager/tenants/${tenantId}`,
+            {
+              method: "DELETE",
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+              },
+            }
+          );
 
           const data = await response.json();
           if (data.status === "success") {
@@ -476,8 +496,14 @@ export const useLandlordStore = create(
           return { success: false, message: data.message };
         } catch (error) {
           console.error("Fetch maintenance requests error:", error);
-          set({ error: "Failed to fetch maintenance requests", isLoading: false });
-          return { success: false, message: "Failed to fetch maintenance requests" };
+          set({
+            error: "Failed to fetch maintenance requests",
+            isLoading: false,
+          });
+          return {
+            success: false,
+            message: "Failed to fetch maintenance requests",
+          };
         }
       },
 
@@ -512,8 +538,14 @@ export const useLandlordStore = create(
           return { success: false, message: data.message };
         } catch (error) {
           console.error("Update maintenance status error:", error);
-          set({ error: "Failed to update maintenance status", isLoading: false });
-          return { success: false, message: "Failed to update maintenance status" };
+          set({
+            error: "Failed to update maintenance status",
+            isLoading: false,
+          });
+          return {
+            success: false,
+            message: "Failed to update maintenance status",
+          };
         }
       },
 
@@ -598,9 +630,7 @@ export const useLandlordStore = create(
           const data = await response.json();
           if (data.status === "success") {
             set((state) => ({
-              notices: state.notices.filter(
-                (n) => n._id !== noticeId
-              ),
+              notices: state.notices.filter((n) => n._id !== noticeId),
               isLoading: false,
             }));
             return { success: true };
@@ -679,14 +709,17 @@ export const useLandlordStore = create(
           set({ isLoading: true, error: null });
           const { accessToken } = useAuthStore.getState();
 
-          const response = await fetch(`${SERVER_API}/manager/bills/${billId}`, {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${accessToken}`,
-            },
-            body: JSON.stringify(billData),
-          });
+          const response = await fetch(
+            `${SERVER_API}/manager/bills/${billId}`,
+            {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${accessToken}`,
+              },
+              body: JSON.stringify(billData),
+            }
+          );
 
           const data = await response.json();
           if (data.status === "success") {
@@ -712,12 +745,15 @@ export const useLandlordStore = create(
           set({ isLoading: true, error: null });
           const { accessToken } = useAuthStore.getState();
 
-          const response = await fetch(`${SERVER_API}/manager/bills/${billId}`, {
-            method: "DELETE",
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          });
+          const response = await fetch(
+            `${SERVER_API}/manager/bills/${billId}`,
+            {
+              method: "DELETE",
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+              },
+            }
+          );
 
           const data = await response.json();
           if (data.status === "success") {
@@ -801,12 +837,15 @@ export const useLandlordStore = create(
           set({ isLoading: true, error: null });
           const { accessToken } = useAuthStore.getState();
 
-          const response = await fetch(`${SERVER_API}/manager/payments/${paymentId}`, {
-            method: "DELETE",
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          });
+          const response = await fetch(
+            `${SERVER_API}/manager/payments/${paymentId}`,
+            {
+              method: "DELETE",
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+              },
+            }
+          );
 
           const data = await response.json();
           if (data.status === "success") {
@@ -861,11 +900,14 @@ export const useLandlordStore = create(
           set({ isLoading: true, error: null });
           const { accessToken } = useAuthStore.getState();
 
-          const response = await fetch(`${SERVER_API}/manager/tenants/${tenantId}`, {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          });
+          const response = await fetch(
+            `${SERVER_API}/manager/tenants/${tenantId}`,
+            {
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+              },
+            }
+          );
 
           const data = await response.json();
           if (data.status === "success") {
@@ -886,11 +928,14 @@ export const useLandlordStore = create(
         try {
           const { accessToken } = useAuthStore.getState();
 
-          const response = await fetch(`${SERVER_API}/manager/tenants/${tenantId}/bills`, {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          });
+          const response = await fetch(
+            `${SERVER_API}/manager/tenants/${tenantId}/bills`,
+            {
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+              },
+            }
+          );
 
           const data = await response.json();
           if (data.status === "success") {
@@ -908,20 +953,30 @@ export const useLandlordStore = create(
         try {
           const { accessToken } = useAuthStore.getState();
 
-          const response = await fetch(`${SERVER_API}/manager/tenants/${tenantId}/payments`, {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          });
+          const response = await fetch(
+            `${SERVER_API}/manager/tenants/${tenantId}/payments`,
+            {
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+              },
+            }
+          );
 
           const data = await response.json();
           if (data.status === "success") {
-            return { success: true, data: data.data.payments || data.data || [] };
+            return {
+              success: true,
+              data: data.data.payments || data.data || [],
+            };
           }
           return { success: false, message: data.message, data: [] };
         } catch (error) {
           console.error("Fetch tenant payments error:", error);
-          return { success: false, message: "Failed to fetch payments", data: [] };
+          return {
+            success: false,
+            message: "Failed to fetch payments",
+            data: [],
+          };
         }
       },
 
@@ -930,20 +985,30 @@ export const useLandlordStore = create(
         try {
           const { accessToken } = useAuthStore.getState();
 
-          const response = await fetch(`${SERVER_API}/manager/tenants/${tenantId}/maintenance`, {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          });
+          const response = await fetch(
+            `${SERVER_API}/manager/tenants/${tenantId}/maintenance`,
+            {
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+              },
+            }
+          );
 
           const data = await response.json();
           if (data.status === "success") {
-            return { success: true, data: data.data.requests || data.data || [] };
+            return {
+              success: true,
+              data: data.data.requests || data.data || [],
+            };
           }
           return { success: false, message: data.message, data: [] };
         } catch (error) {
           console.error("Fetch tenant maintenance error:", error);
-          return { success: false, message: "Failed to fetch maintenance", data: [] };
+          return {
+            success: false,
+            message: "Failed to fetch maintenance",
+            data: [],
+          };
         }
       },
 
@@ -953,14 +1018,17 @@ export const useLandlordStore = create(
           set({ isLoading: true, error: null });
           const { accessToken } = useAuthStore.getState();
 
-          const response = await fetch(`${SERVER_API}/manager/bills/${billId}/water-expense`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${accessToken}`,
-            },
-            body: JSON.stringify(expenseData),
-          });
+          const response = await fetch(
+            `${SERVER_API}/manager/bills/${billId}/water-expense`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${accessToken}`,
+              },
+              body: JSON.stringify(expenseData),
+            }
+          );
 
           const data = await response.json();
           if (data.status === "success") {

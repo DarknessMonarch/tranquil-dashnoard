@@ -69,8 +69,15 @@ export default function AdminLogin() {
           return;
         }
 
-        toast.success("Welcome back, Admin!");
-        router.push("/admin/dashboard", { scroll: false });
+        if (authState.isManager) {
+          toast.success("Welcome back, Manager!");
+          router.push("/admin/properties", { scroll: false });
+          return;
+        } else if (authState.isAdmin) {
+          toast.success("Welcome back, Admin!");
+          router.push("/admin/dashboard", { scroll: false });
+          return;
+        }
       } else {
         toast.error(result.message || "Login failed");
       }

@@ -190,7 +190,7 @@ export default function TenantDetailPage() {
         formData.append('invoices', file);
       });
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_API}/manager/upload-invoices`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_API}/manager/invoices/upload`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${accessToken}`,

@@ -173,6 +173,20 @@ export default function CreateUserModal({ isOpen, onClose, onSuccess }) {
     }
   };
 
+  // Helper function to format address
+  const formatAddress = (address) => {
+    if (!address) return "No address";
+    if (typeof address === "string") return address;
+    
+    // Handle address object
+    const parts = [];
+    if (address.street) parts.push(address.street);
+    if (address.city) parts.push(address.city);
+    if (address.country) parts.push(address.country);
+    
+    return parts.length > 0 ? parts.join(", ") : "No address";
+  };
+
   // Filter available roles based on current user's role
   const availableRoles = currentUserRole === "admin"
     ? [
@@ -346,7 +360,7 @@ export default function CreateUserModal({ isOpen, onClose, onSuccess }) {
                     <div className={styles.propertyInfo}>
                       <span className={styles.propertyName}>{property.name}</span>
                       <span className={styles.propertyAddress}>
-                        {property.address}
+                        {formatAddress(property.address)}
                       </span>
                     </div>
                   </label>

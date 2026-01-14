@@ -178,12 +178,20 @@ export default function PropertiesPage() {
     setPropertyToDelete(null);
   };
 
-  const filteredProperties = (properties || []).filter(
-    (property) =>
-      property.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      property.address?.street?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      property.address?.city?.toLowerCase().includes(searchTerm.toLowerCase())
+const search = searchTerm.toLowerCase();
+
+const filteredProperties = (properties || []).filter((property) => {
+  const name = (property?.name ?? "").toLowerCase();
+  const street = (property?.address?.street ?? "").toLowerCase();
+  const city = (property?.address?.city ?? "").toLowerCase();
+
+  return (
+    name.includes(search) ||
+    street.includes(search) ||
+    city.includes(search)
   );
+});
+
 
   return (
     <AdminLayout>

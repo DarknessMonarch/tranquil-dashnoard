@@ -292,19 +292,19 @@ export default function UsersPage() {
                         <div style={{ display: "flex", gap: "8px" }}>
                           <Button
                             variant="success"
-                            size="sm"
+                            size="small"
+                            loading={user.approvalLoading}
                             onClick={() => handleApprove(user._id, user.username)}
                           >
                             <MdCheck size={16} />
-                            Approve
                           </Button>
                           <Button
                             variant="danger"
-                            size="sm"
+                          size="small"
+                            loading={user.approvalLoading}
                             onClick={() => handleReject(user._id, user.username)}
                           >
                             <MdClose size={16} />
-                            Reject
                           </Button>
                         </div>
                       </td>
