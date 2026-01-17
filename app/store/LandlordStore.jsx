@@ -772,6 +772,42 @@ export const useLandlordStore = create(
         }
       },
 
+      addBillAdjustment: async (billId, adjustmentData) => {
+        try {
+          set({ isLoading: true, error: null });
+          const { accessToken } = useAuthStore.getState();
+
+          const response = await fetch(
+            `${SERVER_API}/manager/bills/${billId}/adjustment`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${accessToken}`,
+              },
+              body: JSON.stringify(adjustmentData),
+            }
+          );
+
+          const data = await response.json();
+          if (data.status === "success") {
+            set((state) => ({
+              bills: state.bills.map((b) =>
+                b._id === billId ? data.data.bill : b
+              ),
+              isLoading: false,
+            }));
+            return { success: true, data: data.data.bill };
+          }
+          set({ error: data.message, isLoading: false });
+          return { success: false, message: data.message };
+        } catch (error) {
+          console.error("Add bill adjustment error:", error);
+          set({ error: "Failed to add adjustment", isLoading: false });
+          return { success: false, message: "Failed to add adjustment" };
+        }
+      },
+
       // Payments Management
       fetchPayments: async (propertyId) => {
         try {

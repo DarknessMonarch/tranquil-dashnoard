@@ -20,6 +20,11 @@ import {
   MdAdd,
   MdDelete,
   MdCloudUpload,
+  MdEdit,
+  MdImage,
+  MdClose,
+  MdChevronLeft,
+  MdChevronRight,
 } from 'react-icons/md';
 
 export default function TenantDetailPage() {
@@ -33,6 +38,7 @@ export default function TenantDetailPage() {
     fetchTenantPayments,
     fetchTenantMaintenance,
     createBill,
+    addBillAdjustment,
   } = useLandlordStore();
 
   const [activeTab, setActiveTab] = useState('bills');
@@ -70,6 +76,20 @@ export default function TenantDetailPage() {
   });
   const [maintenanceInvoices, setMaintenanceInvoices] = useState([]);
   const [uploadingInvoices, setUploadingInvoices] = useState(false);
+
+  // Adjustment modal state
+  const [showAdjustmentModal, setShowAdjustmentModal] = useState(false);
+  const [selectedBillForAdjustment, setSelectedBillForAdjustment] = useState(null);
+  const [adjustmentFormData, setAdjustmentFormData] = useState({
+    amount: '',
+    reason: '',
+    isCredit: true, // true = credit (reduces bill), false = charge (increases bill)
+  });
+
+  // Image viewer modal state
+  const [showImageModal, setShowImageModal] = useState(false);
+  const [selectedImages, setSelectedImages] = useState([]);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   useEffect(() => {
     loadTenantData();
@@ -427,6 +447,57 @@ export default function TenantDetailPage() {
     );
   };
 
+  const openAdjustmentModal = (bill) => {
+    setSelectedBillForAdjustment(bill);
+    setAdjustmentFormData({
+      amount: '',
+      reason: '',
+      isCredit: true,
+    });
+    setShowAdjustmentModal(true);
+  };
+
+  const handleAddAdjustment = async (e) => {
+    e.preventDefault();
+
+    const { amount, reason, isCredit } = adjustmentFormData;
+
+    if (!amount || !reason) {
+      toast.error('Please enter amount and reason');
+      return;
+    }
+
+    const numAmount = parseFloat(amount);
+    if (isNaN(numAmount) || numAmount <= 0) {
+      toast.error('Please enter a valid positive amount');
+      return;
+    }
+
+    try {
+      // If it's a credit, amount is positive (reduces bill)
+      // If it's a charge, amount is negative (increases bill)
+      const finalAmount = isCredit ? numAmount : -numAmount;
+
+      const result = await addBillAdjustment(selectedBillForAdjustment._id, {
+        amount: finalAmount,
+        reason: reason,
+      });
+
+      if (result.success) {
+        toast.success(isCredit ? 'Credit applied successfully' : 'Additional charge added successfully');
+        setShowAdjustmentModal(false);
+        setSelectedBillForAdjustment(null);
+        setAdjustmentFormData({ amount: '', reason: '', isCredit: true });
+        loadTenantData();
+      } else {
+        toast.error(result.message || 'Failed to add adjustment');
+      }
+    } catch (error) {
+      console.error('Error adding adjustment:', error);
+      toast.error('An error occurred while adding adjustment');
+    }
+  };
+
   const handleUpdateMaintenanceStatus = async (requestId, newStatus) => {
     try {
       const { accessToken } = useAuthStore.getState();
@@ -450,6 +521,22 @@ export default function TenantDetailPage() {
     } catch (error) {
       console.error('Error updating maintenance status:', error);
       toast.error('Failed to update status');
+    }
+  };
+
+  const openImageViewer = (photos) => {
+    if (photos && photos.length > 0) {
+      setSelectedImages(photos);
+      setCurrentImageIndex(0);
+      setShowImageModal(true);
+    }
+  };
+
+  const navigateImage = (direction) => {
+    if (direction === 'prev') {
+      setCurrentImageIndex((prev) => (prev === 0 ? selectedImages.length - 1 : prev - 1));
+    } else {
+      setCurrentImageIndex((prev) => (prev === selectedImages.length - 1 ? 0 : prev + 1));
     }
   };
 
@@ -653,25 +740,42 @@ export default function TenantDetailPage() {
                             <td>{bill.dueDate ? formatDate(bill.dueDate) : '-'}</td>
                             <td>
                               <div className={styles.creditNotesContainer}>
-                                {/* Credit Notes */}
+                                {/* Adjustments (Credits & Charges) */}
                                 {bill.creditNotes && bill.creditNotes.length > 0 && (
                                   <div className={styles.creditNoteCard}>
                                     <div className={styles.creditNoteHeader}>
-                                      💳 {bill.creditNotes.length} Credit Note{bill.creditNotes.length > 1 ? 's' : ''}
+                                      📝 {bill.creditNotes.length} Adjustment{bill.creditNotes.length > 1 ? 's' : ''}
                                     </div>
-                                    {bill.creditNotes.map((credit, idx) => (
-                                      <div key={idx} className={styles.creditNoteItem}>
-                                        <div>{formatCurrency(credit.amount)}</div>
-                                        <div className={styles.creditNoteReason}>
-                                          {credit.reason}
-                                        </div>
-                                        {credit.appliedToBill && (
-                                          <div className={styles.creditNoteApplied}>
-                                            ✓ Applied to next bill
+                                    {bill.creditNotes.map((adjustment, idx) => {
+                                      const isCredit = adjustment.amount > 0;
+                                      const displayAmount = Math.abs(adjustment.amount);
+                                      return (
+                                        <div key={idx} className={styles.creditNoteItem}>
+                                          <div style={{
+                                            color: isCredit ? 'var(--success-color)' : 'var(--error-color)',
+                                            fontWeight: '600'
+                                          }}>
+                                            {isCredit ? '-' : '+'}{formatCurrency(displayAmount)}
+                                            <span style={{
+                                              marginLeft: '6px',
+                                              fontSize: '10px',
+                                              fontWeight: '500',
+                                              textTransform: 'uppercase'
+                                            }}>
+                                              {isCredit ? 'Credit' : 'Charge'}
+                                            </span>
                                           </div>
-                                        )}
-                                      </div>
-                                    ))}
+                                          <div className={styles.creditNoteReason}>
+                                            {adjustment.reason}
+                                          </div>
+                                          {adjustment.appliedToBill && (
+                                            <div className={styles.creditNoteApplied}>
+                                              ✓ Applied to next bill
+                                            </div>
+                                          )}
+                                        </div>
+                                      );
+                                    })}
                                   </div>
                                 )}
 
@@ -720,13 +824,23 @@ export default function TenantDetailPage() {
                               )}
                             </td>
                             <td>
-                              <button
-                                onClick={() => handleDeleteBill(bill._id)}
-                                className={styles.iconButton}
-                                title="Delete"
-                              >
-                                <MdDelete size={18} />
-                              </button>
+                              <div style={{ display: 'flex', gap: '8px' }}>
+                                <button
+                                  onClick={() => openAdjustmentModal(bill)}
+                                  className={styles.iconButton}
+                                  title="Add Credit/Charge"
+                                  style={{ color: 'var(--primary-color)' }}
+                                >
+                                  <MdEdit size={18} />
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteBill(bill._id)}
+                                  className={styles.iconButton}
+                                  title="Delete"
+                                >
+                                  <MdDelete size={18} />
+                                </button>
+                              </div>
                             </td>
                           </tr>
                         );
@@ -802,6 +916,7 @@ export default function TenantDetailPage() {
                       <tr>
                         <th>Category</th>
                         <th>Description</th>
+                        <th>Photos</th>
                         <th>Priority</th>
                         <th>Status</th>
                         <th>Created</th>
@@ -813,6 +928,40 @@ export default function TenantDetailPage() {
                         <tr key={request._id}>
                           <td className={styles.capitalize}>{request.category}</td>
                           <td className={styles.truncate}>{request.description}</td>
+                          <td>
+                            {request.photos && request.photos.length > 0 ? (
+                              <button
+                                onClick={() => openImageViewer(request.photos)}
+                                style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '6px',
+                                  padding: '6px 12px',
+                                  borderRadius: '6px',
+                                  border: '1px solid var(--primary-color)',
+                                  backgroundColor: 'var(--primary-light)',
+                                  color: 'var(--primary-color)',
+                                  cursor: 'pointer',
+                                  fontSize: '0.85rem',
+                                  fontWeight: '500',
+                                  transition: 'all 0.2s ease'
+                                }}
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.backgroundColor = 'var(--primary-color)';
+                                  e.currentTarget.style.color = 'white';
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.backgroundColor = 'var(--primary-light)';
+                                  e.currentTarget.style.color = 'var(--primary-color)';
+                                }}
+                              >
+                                <MdImage size={16} />
+                                {request.photos.length} {request.photos.length === 1 ? 'Photo' : 'Photos'}
+                              </button>
+                            ) : (
+                              <span style={{ fontSize: '0.85rem', color: 'var(--warm-gray)' }}>No photos</span>
+                            )}
+                          </td>
                           <td>
                             <span className={getPriorityClass(request.priority)}>
                               {request.priority}
@@ -1526,6 +1675,350 @@ export default function TenantDetailPage() {
               </div>
             </form>
           </div>
+        </div>
+      )}
+
+      {/* Adjustment Modal */}
+      {showAdjustmentModal && selectedBillForAdjustment && (
+        <div className={styles.modalOverlay} onClick={() => setShowAdjustmentModal(false)}>
+          <div className={styles.modal} onClick={(e) => e.stopPropagation()} style={{ maxWidth: '500px' }}>
+            <div className={styles.modalHeader}>
+              <h2>Add Adjustment</h2>
+              <button onClick={() => setShowAdjustmentModal(false)} className={styles.closeButton}>
+                ×
+              </button>
+            </div>
+            <form onSubmit={handleAddAdjustment} className={styles.modalForm}>
+              {/* Bill Info */}
+              <div style={{
+                padding: '16px',
+                background: 'var(--light-gray)',
+                borderRadius: '8px',
+                marginBottom: '20px'
+              }}>
+                <p style={{ margin: '0 0 8px 0', fontSize: '14px', color: 'var(--warm-gray)' }}>
+                  Bill Period: {selectedBillForAdjustment.billingPeriod?.month}/{selectedBillForAdjustment.billingPeriod?.year}
+                </p>
+                <p style={{ margin: '0 0 8px 0', fontSize: '16px', fontWeight: '600' }}>
+                  Current Total: {formatCurrency(selectedBillForAdjustment.totalAmount)}
+                </p>
+                <p style={{ margin: '0', fontSize: '14px' }}>
+                  Balance: {formatCurrency(selectedBillForAdjustment.totalAmount - selectedBillForAdjustment.paidAmount)}
+                </p>
+              </div>
+
+              {/* Adjustment Type */}
+              <div className={styles.formGroup}>
+                <label style={{ fontWeight: '600', marginBottom: '12px', display: 'block' }}>Adjustment Type</label>
+                <div style={{ display: 'flex', gap: '16px' }}>
+                  <label style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    cursor: 'pointer',
+                    padding: '12px 20px',
+                    borderRadius: '8px',
+                    border: adjustmentFormData.isCredit ? '2px solid var(--success-color)' : '2px solid var(--border-color)',
+                    background: adjustmentFormData.isCredit ? 'var(--success-light)' : 'white',
+                    flex: 1,
+                    transition: 'all 0.2s ease'
+                  }}>
+                    <input
+                      type="radio"
+                      name="adjustmentType"
+                      checked={adjustmentFormData.isCredit}
+                      onChange={() => setAdjustmentFormData({ ...adjustmentFormData, isCredit: true })}
+                      style={{ display: 'none' }}
+                    />
+                    <span style={{ fontSize: '20px' }}>-</span>
+                    <div>
+                      <div style={{ fontWeight: '600', color: 'var(--success-color)' }}>Credit</div>
+                      <div style={{ fontSize: '12px', color: 'var(--warm-gray)' }}>Reduces the bill</div>
+                    </div>
+                  </label>
+                  <label style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    cursor: 'pointer',
+                    padding: '12px 20px',
+                    borderRadius: '8px',
+                    border: !adjustmentFormData.isCredit ? '2px solid var(--error-color)' : '2px solid var(--border-color)',
+                    background: !adjustmentFormData.isCredit ? 'var(--error-light)' : 'white',
+                    flex: 1,
+                    transition: 'all 0.2s ease'
+                  }}>
+                    <input
+                      type="radio"
+                      name="adjustmentType"
+                      checked={!adjustmentFormData.isCredit}
+                      onChange={() => setAdjustmentFormData({ ...adjustmentFormData, isCredit: false })}
+                      style={{ display: 'none' }}
+                    />
+                    <span style={{ fontSize: '20px' }}>+</span>
+                    <div>
+                      <div style={{ fontWeight: '600', color: 'var(--error-color)' }}>Charge</div>
+                      <div style={{ fontSize: '12px', color: 'var(--warm-gray)' }}>Adds to the bill</div>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              {/* Amount */}
+              <div className={styles.formGroup}>
+                <label>Amount (KES) *</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={adjustmentFormData.amount}
+                  onChange={(e) => setAdjustmentFormData({ ...adjustmentFormData, amount: e.target.value })}
+                  placeholder="0.00"
+                  required
+                />
+              </div>
+
+              {/* Reason */}
+              <div className={styles.formGroup}>
+                <label>Reason *</label>
+                <textarea
+                  value={adjustmentFormData.reason}
+                  onChange={(e) => setAdjustmentFormData({ ...adjustmentFormData, reason: e.target.value })}
+                  placeholder="Enter the reason for this adjustment..."
+                  required
+                  rows={3}
+                  style={{ resize: 'vertical', minHeight: '80px' }}
+                />
+              </div>
+
+              {/* Preview */}
+              {adjustmentFormData.amount && (
+                <div style={{
+                  padding: '16px',
+                  background: adjustmentFormData.isCredit ? 'var(--success-light)' : 'var(--error-light)',
+                  borderRadius: '8px',
+                  borderLeft: `4px solid ${adjustmentFormData.isCredit ? 'var(--success-color)' : 'var(--error-color)'}`,
+                  marginBottom: '20px'
+                }}>
+                  <p style={{ margin: '0 0 8px 0', fontSize: '14px', fontWeight: '600' }}>
+                    Preview:
+                  </p>
+                  <p style={{ margin: '0', fontSize: '16px' }}>
+                    New Total: {formatCurrency(
+                      adjustmentFormData.isCredit
+                        ? selectedBillForAdjustment.totalAmount - parseFloat(adjustmentFormData.amount || 0)
+                        : selectedBillForAdjustment.totalAmount + parseFloat(adjustmentFormData.amount || 0)
+                    )}
+                    <span style={{
+                      marginLeft: '8px',
+                      color: adjustmentFormData.isCredit ? 'var(--success-color)' : 'var(--error-color)',
+                      fontWeight: '600'
+                    }}>
+                      ({adjustmentFormData.isCredit ? '-' : '+'}{formatCurrency(parseFloat(adjustmentFormData.amount || 0))})
+                    </span>
+                  </p>
+                </div>
+              )}
+
+              <div className={styles.modalActions}>
+                <button type="button" onClick={() => setShowAdjustmentModal(false)} className={styles.cancelButton}>
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className={styles.saveButton}
+                  style={{
+                    background: adjustmentFormData.isCredit ? 'var(--success-color)' : 'var(--error-color)'
+                  }}
+                >
+                  {adjustmentFormData.isCredit ? 'Apply Credit' : 'Add Charge'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Image Viewer Modal */}
+      {showImageModal && selectedImages.length > 0 && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.9)',
+            zIndex: 1000,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+          onClick={() => setShowImageModal(false)}
+        >
+          {/* Close button */}
+          <button
+            onClick={() => setShowImageModal(false)}
+            style={{
+              position: 'absolute',
+              top: '20px',
+              right: '20px',
+              background: 'rgba(255, 255, 255, 0.1)',
+              border: 'none',
+              borderRadius: '50%',
+              width: '48px',
+              height: '48px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              color: 'white',
+              transition: 'background 0.2s ease',
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)'}
+            onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'}
+          >
+            <MdClose size={28} />
+          </button>
+
+          {/* Image counter */}
+          <div
+            style={{
+              position: 'absolute',
+              top: '20px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              color: 'white',
+              fontSize: '16px',
+              fontWeight: '500',
+              padding: '8px 20px',
+              borderRadius: '20px',
+              background: 'rgba(255, 255, 255, 0.1)',
+            }}
+          >
+            {currentImageIndex + 1} / {selectedImages.length}
+          </div>
+
+          {/* Navigation buttons */}
+          {selectedImages.length > 1 && (
+            <>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigateImage('prev');
+                }}
+                style={{
+                  position: 'absolute',
+                  left: '20px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'rgba(255, 255, 255, 0.1)',
+                  border: 'none',
+                  borderRadius: '50%',
+                  width: '56px',
+                  height: '56px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  color: 'white',
+                  transition: 'background 0.2s ease',
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)'}
+                onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'}
+              >
+                <MdChevronLeft size={36} />
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigateImage('next');
+                }}
+                style={{
+                  position: 'absolute',
+                  right: '20px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'rgba(255, 255, 255, 0.1)',
+                  border: 'none',
+                  borderRadius: '50%',
+                  width: '56px',
+                  height: '56px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  color: 'white',
+                  transition: 'background 0.2s ease',
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)'}
+                onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'}
+              >
+                <MdChevronRight size={36} />
+              </button>
+            </>
+          )}
+
+          {/* Main image */}
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              maxWidth: '90vw',
+              maxHeight: '80vh',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <img
+              src={selectedImages[currentImageIndex]}
+              alt={`Maintenance photo ${currentImageIndex + 1}`}
+              style={{
+                maxWidth: '100%',
+                maxHeight: '80vh',
+                objectFit: 'contain',
+                borderRadius: '8px',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+              }}
+            />
+          </div>
+
+          {/* Thumbnail strip */}
+          {selectedImages.length > 1 && (
+            <div
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                display: 'flex',
+                gap: '10px',
+                marginTop: '20px',
+                padding: '10px',
+                background: 'rgba(255, 255, 255, 0.1)',
+                borderRadius: '10px',
+                overflowX: 'auto',
+                maxWidth: '90vw',
+              }}
+            >
+              {selectedImages.map((img, idx) => (
+                <img
+                  key={idx}
+                  src={img}
+                  alt={`Thumbnail ${idx + 1}`}
+                  onClick={() => setCurrentImageIndex(idx)}
+                  style={{
+                    width: '60px',
+                    height: '60px',
+                    objectFit: 'cover',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    border: idx === currentImageIndex ? '3px solid white' : '3px solid transparent',
+                    opacity: idx === currentImageIndex ? 1 : 0.6,
+                    transition: 'all 0.2s ease',
+                  }}
+                />
+              ))}
+            </div>
+          )}
         </div>
       )}
     </AdminLayout>

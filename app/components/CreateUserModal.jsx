@@ -12,21 +12,17 @@ import styles from "@/app/styles/createUserModal.module.css";
 const SERVER_API = process.env.NEXT_PUBLIC_SERVER_API;
 
 export default function CreateUserModal({ isOpen, onClose, onSuccess }) {
-  const { accessToken, role: currentUserRole } = useAuthStore();
+  const { accessToken, role: currentUserRole, isSuperAdmin } = useAuthStore();
   const { properties, fetchProperties } = useLandlordStore();
 
-  const [formData, setFormData] = useState({
-    username: "",
-    email: "",
-    password: "",
-    phone: "",
-    role: "manager",
-  });
-
+  const [selectedRole, setSelectedRole] = useState("manager");
+  const [selectedUserId, setSelectedUserId] = useState("");
+  const [assignableUsers, setAssignableUsers] = useState([]);
   const [selectedPermissions, setSelectedPermissions] = useState([]);
   const [selectedProperties, setSelectedProperties] = useState([]);
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingUsers, setIsLoadingUsers] = useState(false);
   const [submitError, setSubmitError] = useState("");
 
   // Fetch properties when modal opens
@@ -36,16 +32,19 @@ export default function CreateUserModal({ isOpen, onClose, onSuccess }) {
     }
   }, [isOpen]);
 
+  // Fetch assignable users when modal opens or role changes
+  useEffect(() => {
+    if (isOpen) {
+      fetchAssignableUsers(selectedRole);
+    }
+  }, [isOpen, selectedRole]);
+
   // Reset form when modal opens/closes
   useEffect(() => {
     if (!isOpen) {
-      setFormData({
-        username: "",
-        email: "",
-        password: "",
-        phone: "",
-        role: currentUserRole === "admin" ? "manager" : "specialist",
-      });
+      setSelectedRole(currentUserRole === "admin" ? "manager" : "specialist");
+      setSelectedUserId("");
+      setAssignableUsers([]);
       setSelectedPermissions([]);
       setSelectedProperties([]);
       setErrors({});
@@ -53,18 +52,37 @@ export default function CreateUserModal({ isOpen, onClose, onSuccess }) {
     }
   }, [isOpen, currentUserRole]);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    // Clear error for this field
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: "" }));
+  const fetchAssignableUsers = async (targetRole) => {
+    setIsLoadingUsers(true);
+    try {
+      const response = await fetch(
+        `${SERVER_API}/auth/assignable-users?targetRole=${targetRole}`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+      if (data.status === "success") {
+        setAssignableUsers(data.data.users || []);
+      } else {
+        console.error("Failed to fetch assignable users:", data.message);
+        setAssignableUsers([]);
+      }
+    } catch (error) {
+      console.error("Error fetching assignable users:", error);
+      setAssignableUsers([]);
+    } finally {
+      setIsLoadingUsers(false);
     }
   };
 
   const handleRoleChange = (e) => {
     const newRole = e.target.value;
-    setFormData((prev) => ({ ...prev, role: newRole }));
+    setSelectedRole(newRole);
+    setSelectedUserId("");
     // Clear permissions if switching away from specialist
     if (newRole !== "specialist") {
       setSelectedPermissions([]);
@@ -86,28 +104,16 @@ export default function CreateUserModal({ isOpen, onClose, onSuccess }) {
   const validateForm = () => {
     const newErrors = {};
 
-    if (!formData.username.trim()) {
-      newErrors.username = "Username is required";
+    if (!selectedUserId) {
+      newErrors.user = "Please select a user";
     }
 
-    if (!formData.email.trim()) {
-      newErrors.email = "Email is required";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = "Invalid email format";
-    }
-
-    if (!formData.password) {
-      newErrors.password = "Password is required";
-    } else if (formData.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
-    }
-
-    if (formData.role === "specialist" && selectedPermissions.length === 0) {
+    if (selectedRole === "specialist" && selectedPermissions.length === 0) {
       newErrors.permissions = "At least one permission is required for specialists";
     }
 
     if (
-      (formData.role === "manager" || formData.role === "specialist") &&
+      (selectedRole === "manager" || selectedRole === "specialist") &&
       selectedProperties.length === 0
     ) {
       newErrors.properties = "At least one property must be assigned";
@@ -128,27 +134,19 @@ export default function CreateUserModal({ isOpen, onClose, onSuccess }) {
     setIsLoading(true);
 
     try {
-      // Determine the correct endpoint based on role
-      let endpoint = "";
-      let requestBody = {
-        username: formData.username,
-        email: formData.email,
-        password: formData.password,
-        phone: formData.phone,
+      const requestBody = {
+        userId: selectedUserId,
+        role: selectedRole,
       };
 
-      if (formData.role === "manager") {
-        endpoint = `${SERVER_API}/auth/createManager`;
-        requestBody.assignedProperties = selectedProperties;
-      } else if (formData.role === "specialist") {
-        endpoint = `${SERVER_API}/auth/createSpecialist`;
-        requestBody.specialistPermissions = selectedPermissions;
-        requestBody.assignedProperties = selectedProperties;
-      } else if (formData.role === "admin") {
-        endpoint = `${SERVER_API}/auth/createAdmin`;
+      if (selectedRole === "specialist") {
+        requestBody.permissions = selectedPermissions;
+        requestBody.properties = selectedProperties;
+      } else if (selectedRole === "manager") {
+        requestBody.properties = selectedProperties;
       }
 
-      const response = await fetch(endpoint, {
+      const response = await fetch(`${SERVER_API}/auth/assign-role`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -163,11 +161,11 @@ export default function CreateUserModal({ isOpen, onClose, onSuccess }) {
         onSuccess && onSuccess(data.data.user);
         onClose();
       } else {
-        setSubmitError(data.message || "Failed to create user");
+        setSubmitError(data.message || "Failed to assign role");
       }
     } catch (error) {
-      console.error("Create user error:", error);
-      setSubmitError("An error occurred while creating the user");
+      console.error("Assign role error:", error);
+      setSubmitError("An error occurred while assigning the role");
     } finally {
       setIsLoading(false);
     }
@@ -177,14 +175,28 @@ export default function CreateUserModal({ isOpen, onClose, onSuccess }) {
   const formatAddress = (address) => {
     if (!address) return "No address";
     if (typeof address === "string") return address;
-    
+
     // Handle address object
     const parts = [];
     if (address.street) parts.push(address.street);
     if (address.city) parts.push(address.city);
     if (address.country) parts.push(address.country);
-    
+
     return parts.length > 0 ? parts.join(", ") : "No address";
+  };
+
+  // Get role badge color
+  const getRoleBadgeStyle = (role) => {
+    switch (role) {
+      case 'tenant':
+        return { background: '#E3F2FD', color: '#1976D2' };
+      case 'specialist':
+        return { background: '#F3E5F5', color: '#7B1FA2' };
+      case 'manager':
+        return { background: '#E8F5E9', color: '#388E3C' };
+      default:
+        return { background: '#F5F5F5', color: '#616161' };
+    }
   };
 
   // Filter available roles based on current user's role
@@ -192,7 +204,7 @@ export default function CreateUserModal({ isOpen, onClose, onSuccess }) {
     ? [
         { value: "manager", label: "Manager" },
         { value: "specialist", label: "Specialist" },
-        { value: "admin", label: "Admin" },
+        ...(isSuperAdmin ? [{ value: "admin", label: "Admin" }] : []),
       ]
     : [{ value: "specialist", label: "Specialist" }];
 
@@ -200,7 +212,7 @@ export default function CreateUserModal({ isOpen, onClose, onSuccess }) {
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Create New User"
+      title="Assign Role"
       size="large"
       actions={
         <>
@@ -208,7 +220,7 @@ export default function CreateUserModal({ isOpen, onClose, onSuccess }) {
             Cancel
           </Button>
           <Button onClick={handleSubmit} loading={isLoading}>
-            Create User
+            Assign Role
           </Button>
         </>
       }
@@ -216,81 +228,9 @@ export default function CreateUserModal({ isOpen, onClose, onSuccess }) {
       <form onSubmit={handleSubmit} className={styles.form}>
         {submitError && <div className={styles.errorBanner}>{submitError}</div>}
 
-        {/* Basic Information */}
-        <div className={styles.section}>
-          <h3 className={styles.sectionTitle}>Basic Information</h3>
-
-          <div className={formStyles.formGroup}>
-            <label className={formStyles.label}>
-              Username <span className={formStyles.required}>*</span>
-            </label>
-            <input
-              type="text"
-              name="username"
-              value={formData.username}
-              onChange={handleInputChange}
-              className={formStyles.input}
-              placeholder="Enter username"
-              disabled={isLoading}
-            />
-            {errors.username && (
-              <span className={formStyles.error}>{errors.username}</span>
-            )}
-          </div>
-
-          <div className={formStyles.formGroup}>
-            <label className={formStyles.label}>
-              Email <span className={formStyles.required}>*</span>
-            </label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleInputChange}
-              className={formStyles.input}
-              placeholder="Enter email address"
-              disabled={isLoading}
-            />
-            {errors.email && (
-              <span className={formStyles.error}>{errors.email}</span>
-            )}
-          </div>
-
-          <div className={formStyles.formGroup}>
-            <label className={formStyles.label}>
-              Password <span className={formStyles.required}>*</span>
-            </label>
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleInputChange}
-              className={formStyles.input}
-              placeholder="Enter password (min. 6 characters)"
-              disabled={isLoading}
-            />
-            {errors.password && (
-              <span className={formStyles.error}>{errors.password}</span>
-            )}
-          </div>
-
-          <div className={formStyles.formGroup}>
-            <label className={formStyles.label}>Phone</label>
-            <input
-              type="tel"
-              name="phone"
-              value={formData.phone}
-              onChange={handleInputChange}
-              className={formStyles.input}
-              placeholder="Enter phone number (optional)"
-              disabled={isLoading}
-            />
-          </div>
-        </div>
-
         {/* Role Selection */}
         <div className={styles.section}>
-          <h3 className={styles.sectionTitle}>Role & Permissions</h3>
+          <h3 className={styles.sectionTitle}>Select Role</h3>
 
           <div className={formStyles.formGroup}>
             <label className={formStyles.label}>
@@ -298,7 +238,7 @@ export default function CreateUserModal({ isOpen, onClose, onSuccess }) {
             </label>
             <select
               name="role"
-              value={formData.role}
+              value={selectedRole}
               onChange={handleRoleChange}
               className={formStyles.select}
               disabled={isLoading}
@@ -310,17 +250,17 @@ export default function CreateUserModal({ isOpen, onClose, onSuccess }) {
               ))}
             </select>
             <span className={formStyles.hint}>
-              {formData.role === "admin" &&
+              {selectedRole === "admin" &&
                 "Full access to all features and settings"}
-              {formData.role === "manager" &&
+              {selectedRole === "manager" &&
                 "Can manage assigned properties, tenants, and create specialists"}
-              {formData.role === "specialist" &&
+              {selectedRole === "specialist" &&
                 "Limited access based on assigned permissions"}
             </span>
           </div>
 
           {/* Specialist Permissions */}
-          {formData.role === "specialist" && (
+          {selectedRole === "specialist" && (
             <>
               <SpecialistPermissionSelector
                 selectedPermissions={selectedPermissions}
@@ -334,8 +274,82 @@ export default function CreateUserModal({ isOpen, onClose, onSuccess }) {
           )}
         </div>
 
+        {/* User Selection */}
+        <div className={styles.section}>
+          <h3 className={styles.sectionTitle}>Select User</h3>
+          <p className={styles.sectionDescription}>
+            Choose an existing user to assign this role to
+          </p>
+
+          <div className={formStyles.formGroup}>
+            <label className={formStyles.label}>
+              User <span className={formStyles.required}>*</span>
+            </label>
+            {isLoadingUsers ? (
+              <div className={styles.loadingUsers}>Loading users...</div>
+            ) : assignableUsers.length === 0 ? (
+              <div className={styles.noUsers}>
+                No users available for this role assignment.
+                {selectedRole === "specialist" && " Only tenants can be assigned as specialists."}
+                {selectedRole === "manager" && " Only tenants or specialists can be promoted to managers."}
+              </div>
+            ) : (
+              <>
+                <select
+                  value={selectedUserId}
+                  onChange={(e) => setSelectedUserId(e.target.value)}
+                  className={formStyles.select}
+                  disabled={isLoading}
+                >
+                  <option value="">-- Select a user --</option>
+                  {assignableUsers.map((user) => (
+                    <option key={user._id} value={user._id}>
+                      {user.username} ({user.email}) - {user.role}
+                    </option>
+                  ))}
+                </select>
+
+                {/* Selected user preview */}
+                {selectedUserId && (
+                  <div className={styles.selectedUserPreview}>
+                    {(() => {
+                      const user = assignableUsers.find(u => u._id === selectedUserId);
+                      if (!user) return null;
+                      return (
+                        <>
+                          <div className={styles.userPreviewHeader}>
+                            <span className={styles.userName}>{user.username}</span>
+                            <span
+                              className={styles.userRoleBadge}
+                              style={getRoleBadgeStyle(user.role)}
+                            >
+                              {user.role}
+                            </span>
+                          </div>
+                          <div className={styles.userPreviewDetails}>
+                            <span>{user.email}</span>
+                            {user.phone && <span> | {user.phone}</span>}
+                          </div>
+                          {user.assignedProperties && user.assignedProperties.length > 0 && (
+                            <div className={styles.userPreviewProperties}>
+                              Current properties: {user.assignedProperties.map(p => p.name).join(', ')}
+                            </div>
+                          )}
+                        </>
+                      );
+                    })()}
+                  </div>
+                )}
+              </>
+            )}
+            {errors.user && (
+              <span className={formStyles.error}>{errors.user}</span>
+            )}
+          </div>
+        </div>
+
         {/* Property Assignment */}
-        {(formData.role === "manager" || formData.role === "specialist") && (
+        {(selectedRole === "manager" || selectedRole === "specialist") && (
           <div className={styles.section}>
             <h3 className={styles.sectionTitle}>Property Assignment</h3>
             <p className={styles.sectionDescription}>

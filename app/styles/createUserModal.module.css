@@ -105,6 +105,69 @@
   font-size: 14px;
 }
 
+/* User Selection */
+.loadingUsers {
+  padding: 16px;
+  text-align: center;
+  color: #666;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.noUsers {
+  padding: 20px;
+  text-align: center;
+  color: #666;
+  background-color: #fff3e0;
+  border: 1px solid #ffcc80;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.selectedUserPreview {
+  margin-top: 12px;
+  padding: 16px;
+  background-color: #f8f9fa;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+}
+
+.userPreviewHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.userName {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.userRoleBadge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 12px;
+  text-transform: uppercase;
+}
+
+.userPreviewDetails {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.userPreviewProperties {
+  font-size: 13px;
+  color: #888;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #e0e0e0;
+}
+
 @media (max-width: 768px) {
   .section {
     gap: 12px;

@@ -241,7 +241,7 @@ export default function UsersPage() {
               icon={<MdAdd size={20} />}
               onClick={() => setCreateUserModalOpen(true)}
             >
-              Create User
+              Assign Role
             </Button>
           </div>
         }
