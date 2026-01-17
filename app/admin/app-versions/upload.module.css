@@ -1,0 +1,276 @@
+.uploadForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-lg);
+}
+
+.checkboxRow {
+  display: flex;
+  gap: var(--spacing-xl);
+  flex-wrap: wrap;
+}
+
+.checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+  cursor: pointer;
+  padding: var(--spacing-md);
+  background: var(--light-background-color);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  transition: all var(--transition-base);
+  flex: 1;
+  min-width: 200px;
+}
+
+.checkbox:hover {
+  border-color: var(--secondary-color);
+}
+
+.checkbox input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--secondary-color);
+  margin-top: 2px;
+  cursor: pointer;
+}
+
+.checkbox span {
+  font-weight: var(--font-weight-medium);
+  color: var(--dark-color);
+  display: block;
+}
+
+.checkbox small {
+  font-size: var(--font-size-xs);
+  color: var(--warm-gray);
+  display: block;
+  margin-top: var(--spacing-xs);
+}
+
+.apkSection {
+  margin-top: var(--spacing-md);
+}
+
+.apkSection h4 {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--dark-color);
+  margin-bottom: var(--spacing-sm);
+}
+
+.apkSection h4 svg {
+  color: var(--secondary-color);
+}
+
+.hint {
+  font-size: var(--font-size-sm);
+  color: var(--warm-gray);
+  margin-bottom: var(--spacing-lg);
+}
+
+.apkGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-md);
+}
+
+.apkDropzone {
+  border: 2px dashed var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xl);
+  text-align: center;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  background: var(--light-background-color);
+  min-height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.apkDropzone:hover {
+  border-color: var(--secondary-color);
+  background: rgba(111, 173, 66, 0.05);
+}
+
+.apkDropzone.hasFile {
+  border-style: solid;
+  border-color: var(--secondary-color);
+  background: rgba(111, 173, 66, 0.08);
+}
+
+.dropzoneContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+  color: var(--warm-gray);
+}
+
+.dropzoneContent svg {
+  color: var(--secondary-color);
+  opacity: 0.7;
+}
+
+.dropzoneContent span {
+  font-weight: var(--font-weight-medium);
+  color: var(--dark-color);
+}
+
+.dropzoneContent small {
+  font-size: var(--font-size-xs);
+  color: var(--warm-gray);
+}
+
+.fileInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+  width: 100%;
+  position: relative;
+}
+
+.successIcon {
+  color: var(--secondary-color);
+}
+
+.fileName {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--dark-color);
+  word-break: break-all;
+  text-align: center;
+  max-width: 100%;
+}
+
+.fileSize {
+  font-size: var(--font-size-xs);
+  color: var(--warm-gray);
+}
+
+.removeBtn {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: var(--error-color);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.removeBtn:hover {
+  background: #d32f2f;
+  transform: scale(1.1);
+}
+
+.removeBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.progressSection {
+  margin-top: var(--spacing-md);
+}
+
+.progressBar {
+  height: 8px;
+  background: var(--border-color);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--secondary-color), var(--accent-color));
+  border-radius: var(--radius-full);
+  transition: width 0.3s ease;
+}
+
+.progressText {
+  display: block;
+  text-align: center;
+  margin-top: var(--spacing-sm);
+  font-size: var(--font-size-sm);
+  color: var(--secondary-color);
+  font-weight: var(--font-weight-medium);
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-lg);
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--border-color);
+}
+
+.errorMessage {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  background: rgba(255, 59, 48, 0.1);
+  border: 1px solid var(--error-color);
+  border-radius: var(--radius-md);
+  color: var(--error-color);
+  font-size: var(--font-size-sm);
+}
+
+/* Responsive */
+@media only screen and (max-width: 768px) {
+  .formRow {
+    grid-template-columns: 1fr;
+  }
+
+  .apkGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .checkboxRow {
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
+
+  .checkbox {
+    min-width: auto;
+  }
+
+  .modalActions {
+    flex-direction: column-reverse;
+  }
+
+  .modalActions button {
+    width: 100%;
+  }
+}
+
+@media only screen and (max-width: 480px) {
+  .apkDropzone {
+    padding: var(--spacing-lg);
+    min-height: 120px;
+  }
+
+  .dropzoneContent svg {
+    width: 24px;
+    height: 24px;
+  }
+}

@@ -15,6 +15,7 @@ import {
   MdNotifications,
   MdClose,
   MdPerson,
+  MdAndroid,
 } from "react-icons/md";
 
 export default function AdminLayout({ children }) {
@@ -70,6 +71,11 @@ export default function AdminLayout({ children }) {
           icon: MdPerson,
           path: "/admin/users",
         },
+        {
+          label: "App Versions",
+          icon: MdAndroid,
+          path: "/admin/app-versions",
+        },
       ],
     }] : []),
     // Settings - only for admins
@@ -92,6 +98,7 @@ export default function AdminLayout({ children }) {
     if (currentPath.includes("/dashboard")) return "Dashboard";
     if (currentPath.includes("/properties")) return "Properties";
     if (currentPath.includes("/users")) return "Users";
+    if (currentPath.includes("/app-versions")) return "App Versions";
     if (currentPath.includes("/settings")) return "Settings";
     return "Admin Panel";
   };
