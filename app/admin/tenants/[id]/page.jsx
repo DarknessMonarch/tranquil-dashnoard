@@ -857,6 +857,14 @@ export default function TenantDetailPage() {
             <div className={styles.tableContainer}>
               <div className={styles.tableHeader}>
                 <h2>Payments</h2>
+                {payments.length > 0 && (
+                  <div className={styles.paymentsSummary}>
+                    <span className={styles.totalPaidLabel}>Total Paid:</span>
+                    <span className={styles.totalPaidValue}>
+                      {formatCurrency(payments.filter(p => p.status === 'completed').reduce((sum, p) => sum + (p.amount || 0), 0))}
+                    </span>
+                  </div>
+                )}
               </div>
 
               {payments.length === 0 ? (
@@ -870,22 +878,28 @@ export default function TenantDetailPage() {
                     <thead>
                       <tr>
                         <th>Date</th>
+                        <th>Period</th>
                         <th>Amount</th>
                         <th>Method</th>
-                        <th>Reference</th>
+                        <th>Receipt No.</th>
                         <th>Status</th>
                       </tr>
                     </thead>
                     <tbody>
                       {payments.map((payment) => (
                         <tr key={payment._id}>
-                          <td>{formatDate(payment.paymentDate || payment.createdAt)}</td>
-                          <td>{formatCurrency(payment.amount)}</td>
-                          <td className={styles.capitalize}>{payment.paymentMethod || 'Card'}</td>
-                          <td>{payment.reference || '-'}</td>
+                          <td>{formatDate(payment.createdAt)}</td>
                           <td>
-                            <span className={`${styles.statusBadge} ${styles.completed}`}>
-                              {payment.status || 'Completed'}
+                            {payment.billingPeriod
+                              ? `${payment.billingPeriod.month}/${payment.billingPeriod.year}`
+                              : '-'}
+                          </td>
+                          <td>{formatCurrency(payment.amount)}</td>
+                          <td className={styles.capitalize}>{payment.paymentMethod || 'card'}</td>
+                          <td>{payment.receiptNumber || payment.paystackReference || '-'}</td>
+                          <td>
+                            <span className={`${styles.statusBadge} ${styles[payment.status] || styles.pending}`}>
+                              {payment.status || 'pending'}
                             </span>
                           </td>
                         </tr>
