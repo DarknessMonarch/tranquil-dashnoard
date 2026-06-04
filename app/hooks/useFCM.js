@@ -66,7 +66,7 @@ export const useFCM = (isAuthenticated, getAuthHeader) => {
       .then((payload) => {
         console.log('Received foreground message:', payload);
 
-        const title = payload.notification?.title || 'Tranquil';
+        const title = payload.notification?.title || 'Rental';
         const body = payload.notification?.body || '';
 
         toast.info(body, { description: title });

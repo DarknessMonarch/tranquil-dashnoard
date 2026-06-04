@@ -12,9 +12,9 @@ const nextConfig = {
 
       {
         protocol: 'https',
-        hostname: 'minio.swiftsyn.com',
+        hostname: 's3.swiftsyn.com',
         port: '',
-        pathname: '/**',
+        pathname: '/rental/**',
       },
       {
         protocol: 'http',
@@ -27,17 +27,6 @@ const nextConfig = {
         hostname: 'localhost',
         port: '8501',
         pathname: '/api/v1/uploads/**',
-      },
-      {
-        protocol: "https",
-        hostname: "minio.swiftsyn.com",
-        port: "",
-        pathname: '/swiftsyn/**',
-      },
-      {
-        protocol: "https",
-        hostname: "minio.swiftsyn.com",
-        pathname: "/swiftsyn/**",
       },
       {
         protocol: 'http',

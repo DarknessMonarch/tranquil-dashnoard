@@ -424,7 +424,7 @@ export const useAuthStore = create(
       },
     }),
     {
-      name: "tranquil-auth",
+      name: "rental-auth",
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         isAuth: state.isAuth,

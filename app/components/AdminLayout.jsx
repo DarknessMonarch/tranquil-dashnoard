@@ -125,7 +125,7 @@ export default function AdminLayout({ children }) {
           <div className={styles.sidebarLogo}>
             <Image
               src="/assets/logo.png"
-              alt="Tranquil Logo"
+              alt="Rental Logo"
               width={150}
               height={50}
               className={styles.logo}

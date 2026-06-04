@@ -17,7 +17,7 @@ const playfair = Playfair_Display({
   variable: "--font-playfair",
 });
 
-const SITE_URL = "https://dashboard.tranquil.com";
+const SITE_URL = "https://rental-dashboard.swiftsyn.com";
 
 export const viewport = {
   themeColor: "#6FAD42",
@@ -27,15 +27,15 @@ export const metadata = {
   metadataBase: new URL(SITE_URL),
 
   title: {
-    default: "Tranquil Dashboard",
-    template: "%s | Tranquil Dashboard",
+    default: "Rental Dashboard",
+    template: "%s | Rental Dashboard",
   },
-  applicationName: "Tranquil Property Management",
+  applicationName: "Rental Property Management",
   description:
-    "Tranquil Property Management Dashboard - Manage properties, tenants, bills, and maintenance requests with ease. Modern property management solution for property managers.",
+    "Rental Property Management Dashboard - Manage properties, tenants, bills, and maintenance requests with ease. Modern property management solution for property managers.",
   referrer: "origin-when-cross-origin",
-  creator: "Tranquil",
-  publisher: "Tranquil",
+  creator: "Rental",
+  publisher: "Rental",
 
 
   robots: {

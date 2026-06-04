@@ -99,7 +99,7 @@ export default function AdminLogin() {
         <div className={styles.formLogo}>
           <Image
             src={LogoImg}
-            alt="Tranquil image"
+            alt="Rental image"
             fill
             sizes="100%"
             quality={100}
@@ -181,7 +181,7 @@ export default function AdminLogin() {
           {isLoading ? <Loader /> : "Sign In"}
         </button>
 
-        <p>Tranquil Property Management System</p>
+        <p>Rental Property Management System</p>
       </form>
     </div>
   );

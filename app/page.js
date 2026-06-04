@@ -16,9 +16,9 @@ export default function App() {
   return (
     <>
       <Head>
-        <title>Tranquil Property Management</title>
+        <title>Rental Property Management</title>
         <meta name="robots" content="noindex, follow" />
-        <link rel="canonical" href="https://dashboard.tranquil.com/admin/login" />
+        <link rel="canonical" href="https://rental-dashboard.swiftsyn.com/admin/login" />
       </Head>
 
       <Script id="http-redirect" strategy="beforeInteractive">

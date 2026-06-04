@@ -1098,7 +1098,7 @@ export const useLandlordStore = create(
       },
     }),
     {
-      name: "tranquil-landlord",
+      name: "rental-landlord",
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         selectedProperty: state.selectedProperty,

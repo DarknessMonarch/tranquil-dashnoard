@@ -2,11 +2,11 @@
 const nextConfig = {
   images: {
     remotePatterns: [
-      // Minio
+      // SeaweedFS
       {
         protocol: 'https',
-        hostname: 'minio.swiftsyn.com',
-        pathname: '/backroomscript/**',
+        hostname: 's3.swiftsyn.com',
+        pathname: '/rental/**',
       },
 
       // Localhost patterns
